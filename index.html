@@ -16,17 +16,42 @@ header{
   position:fixed;top:0;width:100%;z-index:1000;
   background:#111;padding:12px 20px;
   display:flex;justify-content:space-between;align-items:center;
+  border-bottom:1px solid rgba(255,215,0,.15);
 }
 .logo{display:flex;align-items:center;gap:10px;color:gold;font-weight:bold}
 .logo img{width:36px;height:36px;border-radius:8px}
-nav a{margin-left:14px;font-size:14px}
+nav a{margin-left:14px;font-size:14px;color:#ddd}
 nav a:hover{color:#ffd700}
 
 /* MOBILE */
 .hamburger{display:none;flex-direction:column;gap:4px;cursor:pointer}
 .hamburger div{width:25px;height:3px;background:gold}
 #navMenu{display:flex;align-items:center;gap:12px}
-#navMenu.active{flex-direction:column;position:absolute;top:60px;right:20px;background:#111;padding:15px;border-radius:12px}
+#navMenu.active{display:flex;flex-direction:column;position:absolute;top:60px;right:20px;background:#111;padding:15px;border-radius:12px}
+
+/* ✅ WELCOME BAR */
+#userBar{
+  display:none;
+  position:sticky;
+  top:60px;
+  z-index:999;
+  background:#0f0f0f;
+  border-bottom:1px solid rgba(255,215,0,.15);
+  padding:10px 20px;
+  color:#ffd700;
+  font-size:14px;
+}
+#logoutBtn{
+  margin-left:12px;
+  padding:6px 12px;
+  border-radius:16px;
+  border:none;
+  background:gold;
+  color:#000;
+  font-weight:bold;
+  cursor:pointer;
+}
+#logoutBtn:hover{background:#ffd700}
 
 /* SECTIONS */
 .section{
@@ -53,13 +78,14 @@ nav a:hover{color:#ffd700}
 .plan{background:#151515;padding:25px;border-radius:18px;width:260px}
 .plan input{width:100%;padding:10px;margin-top:8px;background:#0c0c0c;color:#fff;border:1px solid #333;border-radius:8px}
 .plan .btn{display:inline-block;margin-top:10px;background:gold;color:#000;padding:10px 16px;border-radius:20px;font-weight:bold}
+.plan .btn:hover{background:#ffd700}
 
 /* FAQ */
 .faq-item{background:#111;padding:18px;border-radius:12px;margin:10px 0;cursor:pointer;text-align:left}
 .faq-answer{display:none;color:#ccc;margin-top:8px}
 
 /* FOOTER */
-footer{background:#111;text-align:center;padding:18px}
+footer{background:#111;text-align:center;padding:18px;border-top:1px solid rgba(255,215,0,.15)}
 
 /* CHAT */
 .chat{
@@ -109,10 +135,17 @@ footer{background:#111;text-align:center;padding:18px}
   </nav>
 </header>
 
+<!-- ✅ WELCOME BAR (shows after login) -->
+<div id="userBar">
+  <span id="welcomeText"></span>
+  <button id="logoutBtn">Sign Out</button>
+</div>
+
 <section id="home" class="section">
   <div class="overlay">
     <h1>Welcome to GoldChain Investment</h1>
     <p>Where Gold Meets Trust</p>
+    <p style="color:#ccc">This is the main website. Login/Signup are separate pages.</p>
   </div>
 </section>
 
@@ -159,11 +192,11 @@ footer{background:#111;text-align:center;padding:18px}
     <h2>FAQ</h2>
     <div class="faq-item">
       <b>Is this secure?</b>
-      <div class="faq-answer">This is a demo site. Backend needed for real security.</div>
+      <div class="faq-answer">This is a demo website. Real security needs backend.</div>
     </div>
     <div class="faq-item">
       <b>Can I withdraw?</b>
-      <div class="faq-answer">Demo withdrawals shown only.</div>
+      <div class="faq-answer">Withdrawals are demo only in this version.</div>
     </div>
   </div>
 </section>
@@ -182,31 +215,57 @@ footer{background:#111;text-align:center;padding:18px}
 
 <script>
 function toggleMenu(){
-  document.getElementById("navMenu").classList.toggle("active")
+  document.getElementById("navMenu").classList.toggle("active");
 }
 
-/* fade-in */
-document.querySelectorAll(".section").forEach(sec=>{
-  if(sec.getBoundingClientRect().top < window.innerHeight){
-    sec.classList.add("active")
-  }
-})
-window.addEventListener("scroll",()=>{
+/* Fade-in sections */
+function reveal(){
   document.querySelectorAll(".section").forEach(sec=>{
-    if(sec.getBoundingClientRect().top < window.innerHeight-100){
-      sec.classList.add("active")
+    if(sec.getBoundingClientRect().top < window.innerHeight - 100){
+      sec.classList.add("active");
     }
-  })
-  document.getElementById("backTop").style.display = window.scrollY>400?"block":"none"
-})
+  });
+}
+window.addEventListener("load", ()=>{
+  reveal();
+  document.getElementById("home").classList.add("active");
+  updateUserBar();
+});
+window.addEventListener("scroll", ()=>{
+  reveal();
+  document.getElementById("backTop").style.display = window.scrollY>400 ? "block" : "none";
+});
 
-/* FAQ */
+/* FAQ toggle */
 document.querySelectorAll(".faq-item").forEach(item=>{
-  item.onclick=()=>{
-    const ans=item.querySelector(".faq-answer")
-    ans.style.display = ans.style.display==="block"?"none":"block"
+  item.addEventListener("click", ()=>{
+    const ans=item.querySelector(".faq-answer");
+    ans.style.display = ans.style.display==="block" ? "none" : "block";
+  });
+});
+
+/* ✅ Welcome bar + Sign out */
+function updateUserBar(){
+  const bar = document.getElementById("userBar");
+  const welcome = document.getElementById("welcomeText");
+
+  const loggedIn = localStorage.getItem("goldchain_logged_in") === "true";
+  const savedUser = localStorage.getItem("goldchain_user");
+
+  if(loggedIn && savedUser){
+    const user = JSON.parse(savedUser);
+    bar.style.display = "block";
+    welcome.textContent = `Welcome, ${user.name}`;
+  } else {
+    bar.style.display = "none";
   }
-})
+}
+
+document.getElementById("logoutBtn").addEventListener("click", ()=>{
+  localStorage.removeItem("goldchain_logged_in");
+  alert("Signed out.");
+  updateUserBar();
+});
 </script>
 
 </body>
