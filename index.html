@@ -6,587 +6,211 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-/* -------------------- GLOBAL -------------------- */
-*{box-sizing:border-box;}
+*{box-sizing:border-box;margin:0;padding:0}
 body{
-  margin:0;
-  font-family:Arial,sans-serif;
+  font-family:Arial, sans-serif;
   background:#000;
   color:#fff;
-  overflow-x:hidden;
   scroll-behavior:smooth;
-  position:relative;
 }
-a{text-decoration:none;color:inherit;}
-h1,h2,h3{color:gold;margin:10px 0;}
-p{line-height:1.65;color:#ddd}
+a{text-decoration:none;color:inherit}
+h1,h2,h3{color:gold;margin-bottom:10px}
+p{color:#ccc;line-height:1.6}
 
-/* -------------------- HEADER -------------------- */
 header{
-  position:fixed;top:0;width:100%;
-  background:#111;padding:12px 20px;
-  display:flex;justify-content:space-between;align-items:center;
+  position:fixed;
+  top:0;left:0;right:0;
+  background:#111;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:12px 20px;
   z-index:1000;
-  border-bottom:1px solid rgba(255,215,0,.12);
+  border-bottom:1px solid rgba(255,215,0,.2);
 }
-.logo{display:flex;align-items:center;gap:10px;color:gold;font-weight:bold;font-size:16px}
-.logo img{width:36px;height:36px;border-radius:10px;object-fit:cover}
-nav a{margin-left:16px;font-size:14px;transition:color .3s;opacity:.92}
-nav a.active{color:#ffd700;font-weight:bold;opacity:1;}
+.logo{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  color:gold;
+  font-weight:bold;
+}
+.logo img{width:36px;height:36px}
+
+nav a{
+  margin-left:14px;
+  font-size:14px;
+}
 nav a:hover{color:#ffd700}
 
-/* MOBILE MENU */
-.hamburger{display:none;flex-direction:column;cursor:pointer;gap:4px}
-.hamburger div{width:25px;height:3px;background:gold;border-radius:3px}
-#navMenu{display:flex;gap:12px;align-items:center}
-#navMenu.active{
-  display:flex;flex-direction:column;align-items:flex-start;
-  background:#111;padding:15px;position:absolute;top:60px;right:20px;
-  border-radius:12px;border:1px solid rgba(255,215,0,.15);
-}
-
-/* -------------------- USER BAR -------------------- */
-#userBar{
-  display:none;
-  background:#0f0f0f;
-  border-bottom:1px solid rgba(255,215,0,.15);
-  padding:10px 20px;
-  color:#ffd700;
-  font-size:14px;
-  position:sticky;
-  top:60px;
-  z-index:999;
-}
-#logoutBtn{
-  margin-left:15px;
-  padding:6px 12px;
-  border-radius:16px;
-  border:none;
-  background:gold;
-  color:#000;
-  font-weight:bold;
-  cursor:pointer;
-}
-
-/* -------------------- BACKGROUND -------------------- */
-.bg-slide{
-  position:fixed;top:0;left:0;width:100%;height:100%;
-  z-index:-2;
-  background-size:cover;background-position:center;background-repeat:no-repeat;
-  transition:background-image 1s ease-in-out;
-  filter:saturate(1.05) contrast(1.05);
-}
-#goldParticles{
-  position:fixed;top:0;left:0;width:100%;height:100%;
-  pointer-events:none;z-index:-1;
-}
-
-/* -------------------- SECTIONS -------------------- */
 .section{
   min-height:100vh;
-  display:flex;align-items:center;justify-content:center;
-  padding:110px 20px;
-  position:relative;
-  opacity:0;transform:translateY(50px);
-  transition:all .8s ease-in-out;
+  padding:120px 20px 60px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
 }
-.section.active{opacity:1;transform:translateY(0);}
-.overlay{
-  background:rgba(0,0,0,.75);
-  padding:40px;border-radius:18px;
-  max-width:1100px;width:100%;
-  text-align:center;
-  z-index:2;position:relative;
-  border:1px solid rgba(255,215,0,.10);
-  box-shadow:0 0 25px rgba(0,0,0,.35);
-}
-.slogan{color:#ffd700;font-style:italic;line-height:1.5;}
-
-/* -------------------- INFO GRID -------------------- */
-.info-grid{display:flex;gap:25px;flex-wrap:wrap;justify-content:center;margin-top:25px}
-.info-box{
-  background:#111;padding:25px;width:320px;border-radius:14px;
-  box-shadow:0 0 18px rgba(255,215,0,.25);
-  border:1px solid rgba(255,215,0,.12);
-  text-align:left;
-}
-.info-box h3{margin-top:0}
-.info-box p{color:#ccc;font-size:14px}
-
-/* -------------------- PLANS -------------------- */
-.plans{display:flex;gap:25px;flex-wrap:wrap;justify-content:center;margin-top:20px;position:relative}
-.plan{
-  background:#151515;padding:30px;width:260px;border-radius:18px;position:relative;
-  box-shadow:0 0 25px rgba(255,215,0,.30);
-  border:1px solid rgba(255,215,0,.12);
-  transition:.35s;
-  overflow:hidden;
-  text-align:left;
-}
-.plan:hover{
-  transform:translateY(-12px) scale(1.03);
-  box-shadow:0 0 45px rgba(255,215,0,.60)
-}
-.plan h3{color:gold;margin-bottom:6px}
-.plan .price{font-size:26px;margin:10px 0}
-.plan .rate{color:#ddd;margin:6px 0}
-.plan p{color:#ddd;margin:6px 0;font-size:14px}
-.plan input{
+.box{
+  max-width:1100px;
   width:100%;
-  padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,.10);
-  background:#0c0c0c;color:#fff;margin-top:10px;
-}
-.plan .btn{
-  display:inline-block;padding:10px 14px;background:gold;color:#000;
-  border-radius:25px;text-decoration:none;font-weight:bold;margin-top:10px;transition:.3s
-}
-.plan .btn:hover{background:#ffd700}
-
-/* PROGRESS */
-.progress-container{
-  background:#222;border-radius:10px;margin-top:12px;overflow:hidden;height:12px
-}
-.progress-bar{
-  height:100%;width:0%;
-  background:gold;
-  transition:width 1s ease-out;
+  background:rgba(0,0,0,.75);
+  padding:40px;
+  border-radius:16px;
+  border:1px solid rgba(255,215,0,.15);
 }
 
-/* OFFER BANNER */
-.offer-banner{
-  background:linear-gradient(90deg, rgba(255,215,0,.16), rgba(255,215,0,.06));
-  border:1px solid rgba(255,215,0,.18);
-  padding:16px 18px;border-radius:14px;
-  margin:18px auto 0;
-  max-width:950px;
-  text-align:center;
-  box-shadow:0 0 20px rgba(255,215,0,.18);
+.grid{
+  display:flex;
+  gap:20px;
+  flex-wrap:wrap;
 }
-.offer-banner b{color:#ffd700}
-.offer-banner small{display:block;color:#bbb;margin-top:6px}
-
-/* COUNTERS */
-.counter{font-size:30px;font-weight:bold;color:gold;display:block;margin-bottom:6px}
-
-/* TESTIMONIALS */
-.testimonial-grid{
-  display:flex;gap:20px;overflow:hidden;justify-content:flex-start;
-  flex-wrap:nowrap;scroll-behavior:smooth;position:relative;padding-bottom:8px
-}
-.testimonial-card{
-  background:#111;padding:25px;border-radius:16px;min-width:280px;max-width:300px;
-  box-shadow:0 0 18px rgba(255,215,0,.25);
-  border:1px solid rgba(255,215,0,.12);
-  transition:transform .35s ease-in-out,box-shadow .35s
-}
-.testimonial-card p{color:#ccc;font-size:14px;margin-bottom:12px}
-.testimonial-card h4{color:gold;font-size:14px;margin:0;text-align:right}
-
-/* FAQ */
-.faq-item{
-  background:#111;padding:20px;margin:10px 0;border-radius:12px;cursor:pointer;position:relative;
-  border:1px solid rgba(255,215,0,.10);
-  text-align:left;
-}
-.faq-question{color:gold;margin:0;font-weight:bold}
-.faq-answer{color:#ccc;max-height:0;overflow:hidden;transition:max-height .4s ease,padding-top .4s ease}
-.faq-answer.active{max-height:220px;padding-top:10px}
-
-/* TRUST */
-.trust-badges{display:flex;gap:15px;justify-content:center;margin-top:22px;flex-wrap:wrap}
-.trust-badge{
-  background:#222;padding:10px 20px;border-radius:18px;
-  box-shadow:0 0 15px rgba(255,215,0,.18);
-  border:1px solid rgba(255,215,0,.12);
-  color:gold;font-weight:bold;font-size:14px
+.card{
+  background:#111;
+  padding:20px;
+  border-radius:14px;
+  border:1px solid rgba(255,215,0,.15);
+  flex:1;
+  min-width:250px;
 }
 
-/* CHAT */
-.chat{
-  position:fixed;right:18px;bottom:18px;
-  background:gold;color:#000;padding:14px 16px;border-radius:50%;
-  font-size:22px;text-decoration:none;box-shadow:0 0 15px gold;
-  animation:chatBounce 2s infinite alternate;z-index:999;
+.plan{
+  background:#151515;
+  padding:20px;
+  border-radius:16px;
+  border:1px solid rgba(255,215,0,.2);
+  width:250px;
 }
-@keyframes chatBounce{0%{transform:translateY(0)}100%{transform:translateY(-6px)}}
+.plan b{color:gold}
 
-/* BACK TO TOP */
-#backTop{
-  position:fixed;bottom:90px;right:20px;
-  background:gold;color:#000;padding:12px 14px;border-radius:50%;
-  cursor:pointer;display:none;z-index:999;font-weight:bold;transition:all .3s
-}
-
-/* FOOTER */
 footer{
-  background:#111;text-align:center;padding:18px;font-size:13px;
-  border-top:1px solid rgba(255,215,0,.10);
-}
-footer a{margin:0 10px;color:gold;transition:color .3s;display:inline-flex;align-items:center;gap:6px}
-footer a:hover{color:#ffd700}
-.icon{font-size:16px}
-
-@media(max-width:700px){
-  nav{display:none}
-  #navMenu.active{display:flex;flex-direction:column}
-  .plan{width:100%}
-  .overlay{padding:25px}
-  .testimonial-grid{overflow-x:auto}
-  .testimonial-card{min-width:90%;margin-right:16px}
-  .hamburger{display:flex}
-  .info-box{width:100%}
+  background:#111;
+  padding:20px;
+  text-align:center;
+  border-top:1px solid rgba(255,215,0,.15);
 }
 </style>
 </head>
 
 <body>
 
-<canvas id="goldParticles"></canvas>
-<div id="bgSlider" class="bg-slide" style="background-image:url('images/bg1.jpg')"></div>
-
 <header>
   <div class="logo">
-    <img src="images/logo.png" alt="GoldChain Logo">
+    <img src="images/logo.png" alt="Logo">
     <span>GoldChain Investment</span>
   </div>
-
-  <div class="hamburger" onclick="toggleMenu()"><div></div><div></div><div></div></div>
-
-  <nav id="navMenu">
+  <nav>
     <a href="#home">Home</a>
     <a href="#strategy">Strategy</a>
     <a href="#prosper">Prosper</a>
     <a href="#chart">Live Chart</a>
-    <a href="#counters">Impact</a>
+    <a href="#impact">Impact</a>
     <a href="#testimonials">Testimonials</a>
     <a href="#plans">Plans</a>
     <a href="#faq">FAQ</a>
-    <a href="login.html">Login</a>
-    <a href="signup.html">Sign Up</a>
-    <a href="contact.html">Contact</a>
-    <a href="about.html">About</a>
+    <a href="#contact">Contact</a>
+    <a href="#about">About</a>
   </nav>
 </header>
 
-<!-- ✅ USER BAR below header -->
-<div id="userBar">
-  <span id="welcomeUser"></span>
-  <button id="logoutBtn">Logout</button>
-</div>
-
 <section id="home" class="section">
-  <div class="overlay">
+  <div class="box">
     <h1>Welcome to GoldChain Investment</h1>
-    <p class="slogan">Where Gold Meets Trust</p>
-    <p>
-      For over 17 years, GoldChain Investment blends traditional gold expertise with modern technology
-      to offer secure, profitable, and reliable investment opportunities.
-    </p>
-    <div class="trust-badges">
-      <div class="trust-badge">SSL Secure</div>
-      <div class="trust-badge">17+ Years Trusted</div>
-      <div class="trust-badge">24/7 Support</div>
-    </div>
+    <p>Where Gold Meets Trust. Over 17 years of reliable gold-based investment strategies.</p>
   </div>
 </section>
 
 <section id="strategy" class="section">
-  <div class="overlay">
+  <div class="box">
     <h2>Strategy & Market Insight</h2>
-    <div class="info-grid">
-      <div class="info-box">
-        <h3>Strategy</h3>
-        <p>We combine tangible gold assets with professional market analysis and risk management.</p>
+    <div class="grid">
+      <div class="card">
+        <h3>Gold Strategy</h3>
+        <p>We focus on physical gold and market analysis to protect capital.</p>
       </div>
-      <div class="info-box">
+      <div class="card">
         <h3>Market Insight</h3>
-        <p>Gold remains a reliable store of value worldwide. We track trends and patterns.</p>
+        <p>Tracking global trends, inflation, and economic indicators.</p>
       </div>
-      <div class="info-box">
+      <div class="card">
         <h3>Transparency</h3>
-        <p>Clear plans, fixed returns, and defined withdrawal timing.</p>
+        <p>Clear plans and predictable weekly returns.</p>
       </div>
     </div>
   </div>
 </section>
 
 <section id="prosper" class="section">
-  <div class="overlay">
-    <h2>How We Make You Profitable & Secure Your Future</h2>
-    <p>Our strategies ensure weekly returns while keeping your principal secure.</p>
-    <p><strong>Transparent & Safe:</strong> Trust and honesty are our foundation.</p>
-    <p><strong>Maximizing Profit:</strong> Careful analysis helps minimize risk and strengthen weekly gains.</p>
-    <p><strong>Empowering Prosperity:</strong> Build financial independence and long-term stability.</p>
+  <div class="box">
+    <h2>Prosper With Confidence</h2>
+    <p>Our goal is long-term financial stability and weekly income growth.</p>
   </div>
 </section>
 
 <section id="chart" class="section">
-  <div class="overlay">
+  <div class="box">
     <h2>Live Gold Chart</h2>
-    <div id="tv_chart"></div>
+    <iframe src="https://s.tradingview.com/widgetembed/?symbol=OANDA:XAUUSD&theme=dark"
+      width="100%" height="400" frameborder="0"></iframe>
   </div>
 </section>
 
-<section id="counters" class="section">
-  <div class="overlay">
+<section id="impact" class="section">
+  <div class="box">
     <h2>Our Impact</h2>
-    <div class="info-grid">
-      <div class="info-box"><h3><span class="counter" data-target="1250">0</span>+</h3><p>Total Investors</p></div>
-      <div class="info-box"><h3>$<span class="counter" data-target="7500000">0</span></h3><p>Total Gold Invested</p></div>
-      <div class="info-box"><h3>$<span class="counter" data-target="420000">0</span></h3><p>Weekly Profit Distributed</p></div>
+    <div class="grid">
+      <div class="card"><h3>1250+</h3><p>Investors</p></div>
+      <div class="card"><h3>$7.5M</h3><p>Gold Invested</p></div>
+      <div class="card"><h3>$420K</h3><p>Weekly Profits</p></div>
     </div>
   </div>
 </section>
 
 <section id="testimonials" class="section">
-  <div class="overlay">
-    <h2>What Our Clients Say</h2>
-    <div class="testimonial-grid" id="testimonialCarousel">
-      <div class="testimonial-card"><p>"GoldChain helped me grow my investment safely and steadily."</p><h4>- Ahmed S.</h4></div>
-      <div class="testimonial-card"><p>"Professional, reliable, and highly profitable."</p><h4>- Fatima A.</h4></div>
-      <div class="testimonial-card"><p>"Weekly returns exceeded my expectations."</p><h4>- Khalid M.</h4></div>
-      <div class="testimonial-card"><p>"Excellent insights and guidance."</p><h4>- Layla R.</h4></div>
-      <div class="testimonial-card"><p>"Supportive team and consistent profits."</p><h4>- Saeed K.</h4></div>
-    </div>
+  <div class="box">
+    <h2>Testimonials</h2>
+    <p>“Reliable and consistent returns.” – Ahmed</p>
+    <p>“Professional gold investment team.” – Fatima</p>
   </div>
 </section>
 
 <section id="plans" class="section">
-  <div class="overlay">
+  <div class="box">
     <h2>Investment Plans</h2>
-
-    <div class="offer-banner">
-      <b>Special Offer:</b> Invest <b>$2000+</b> and get <b>5% weekly</b> for the first month.
-      <small>Offer shown as promotional highlight.</small>
-    </div>
-
-    <div class="plans">
-      <div class="plan" data-rate="1.5" data-min="350">
-        <h3>Starter</h3>
-        <p class="price">$350</p>
-        <p class="rate">1.5% Weekly</p>
-        <input type="number" min="350" value="350" class="invest-amount">
-        <p>Weekly Profit: $<span class="profit">5.25</span></p>
-        <div class="progress-container"><div class="progress-bar" data-rate="1.5"></div></div>
-        <a class="btn" href="signup.html">Invest Now</a>
-      </div>
-
-      <div class="plan" data-rate="2" data-min="700">
-        <h3>Growth</h3>
-        <p class="price">$700</p>
-        <p class="rate">2% Weekly</p>
-        <input type="number" min="700" value="700" class="invest-amount">
-        <p>Weekly Profit: $<span class="profit">14.00</span></p>
-        <div class="progress-container"><div class="progress-bar" data-rate="2"></div></div>
-        <a class="btn" href="signup.html">Invest Now</a>
-      </div>
-
-      <div class="plan" data-rate="3" data-min="1000">
-        <h3>Premium</h3>
-        <p class="price">$1000</p>
-        <p class="rate">3% Weekly</p>
-        <input type="number" min="1000" value="1000" class="invest-amount">
-        <p>Weekly Profit: $<span class="profit">30.00</span></p>
-        <p>Withdrawal: 15 Days</p>
-        <div class="progress-container"><div class="progress-bar" data-rate="3"></div></div>
-        <a class="btn" href="signup.html">Invest Now</a>
-      </div>
-
-      <div class="plan" data-rate="4" data-min="5000">
-        <h3>Elite</h3>
-        <p class="price">$5000+</p>
-        <p class="rate">4% Weekly</p>
-        <input type="number" min="5000" value="5000" class="invest-amount">
-        <p>Weekly Profit: $<span class="profit">200.00</span></p>
-        <div class="progress-container"><div class="progress-bar" data-rate="4"></div></div>
-        <a class="btn" href="signup.html">Invest Now</a>
-      </div>
+    <div class="grid">
+      <div class="plan"><b>Starter</b><p>$350 – 1.5% weekly</p></div>
+      <div class="plan"><b>Growth</b><p>$700 – 2% weekly</p></div>
+      <div class="plan"><b>Premium</b><p>$1000 – 3% weekly</p></div>
+      <div class="plan"><b>Elite</b><p>$5000+ – 4% weekly</p></div>
     </div>
   </div>
 </section>
 
 <section id="faq" class="section">
-  <div class="overlay">
-    <h2>Frequently Asked Questions</h2>
-    <div class="faq-item"><p class="faq-question">How is my investment secured?</p><p class="faq-answer">Demo website – structure shown for presentation.</p></div>
-    <div class="faq-item"><p class="faq-question">How do I withdraw my profits?</p><p class="faq-answer">Withdrawals follow plan timing. Contact support.</p></div>
-    <div class="faq-item"><p class="faq-question">Can I invest multiple times?</p><p class="faq-answer">Yes, multiple investments are allowed.</p></div>
+  <div class="box">
+    <h2>FAQ</h2>
+    <p><b>Is this secure?</b> Demo website for presentation.</p>
+    <p><b>Withdrawals?</b> Based on plan terms.</p>
   </div>
 </section>
 
-<a class="chat" href="https://wa.me/966XXXXXXXXX" target="_blank" aria-label="WhatsApp Chat">💬</a>
-<div id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">↑</div>
+<section id="contact" class="section">
+  <div class="box">
+    <h2>Contact</h2>
+    <p>Jeddah, Saudi Arabia</p>
+    <p>Email: support@goldchain.demo</p>
+  </div>
+</section>
+
+<section id="about" class="section">
+  <div class="box">
+    <h2>About GoldChain</h2>
+    <p>GoldChain Investor is a demo platform explaining gold-based investment models.</p>
+  </div>
+</section>
 
 <footer>
   ©️ 2026 GoldChain Investment
-  <div style="margin-top:10px">
-    <a href="https://www.youtube.com" target="_blank"><span class="icon">▶️</span> YouTube</a>
-    <a href="https://www.facebook.com" target="_blank"><span class="icon">f</span> Facebook</a>
-    <a href="https://www.linkedin.com" target="_blank"><span class="icon">in</span> LinkedIn</a>
-  </div>
 </footer>
-
-<script>
-/* ===================== MOBILE MENU ===================== */
-function toggleMenu(){
-  document.getElementById('navMenu').classList.toggle('active');
-}
-
-/* ===================== SHOW USER BAR ===================== */
-function gcShowUserBar(){
-  const bar = document.getElementById("userBar");
-  const welcome = document.getElementById("welcomeUser");
-  if(!bar || !welcome) return;
-
-  let user = null;
-  try { user = JSON.parse(localStorage.getItem("goldchain_demo_user") || "null"); } catch(e){}
-
-  if(user && user.name){
-    bar.style.display = "block";
-    welcome.textContent = "Welcome, " + user.name;
-  } else {
-    bar.style.display = "none";
-  }
-}
-
-/* LOGOUT */
-document.getElementById("logoutBtn").addEventListener("click", ()=>{
-  localStorage.removeItem("goldchain_demo_user");
-  alert("Logged out.");
-  gcShowUserBar();
-});
-
-/* Show bar on load */
-window.addEventListener("load", gcShowUserBar);
-
-/* FAQ accordion */
-document.querySelectorAll('.faq-item').forEach(item=>{
-  item.addEventListener('click',()=>{
-    const ans=item.querySelector('.faq-answer');
-    ans.classList.toggle('active');
-  });
-});
-
-/* BACK TO TOP */
-window.addEventListener('scroll',()=>{
-  document.getElementById('backTop').style.display = window.scrollY>400 ? 'block':'none';
-});
-
-/* PLAN DYNAMIC PROFIT */
-document.querySelectorAll('.plan').forEach(plan=>{
-  const input = plan.querySelector('.invest-amount');
-  const profitDisplay = plan.querySelector('.profit');
-  const rate = parseFloat(plan.getAttribute('data-rate'))/100;
-  const min = parseFloat(plan.getAttribute('data-min'));
-  function update(){
-    let amount = parseFloat(input.value || min);
-    if(amount < min) amount = min;
-    input.value = amount;
-    profitDisplay.innerText = (amount * rate).toFixed(2);
-  }
-  input.addEventListener('input', update);
-  update();
-});
-
-/* Progress bars */
-function animateProgressBars(){
-  document.querySelectorAll('.progress-bar').forEach(bar=>{
-    const top = bar.getBoundingClientRect().top;
-    if(top < window.innerHeight - 120 && !bar.dataset.animated){
-      const rate = parseFloat(bar.getAttribute('data-rate'));
-      bar.style.width = Math.min(rate*25,100) + '%';
-      bar.dataset.animated = "1";
-    }
-  });
-}
-window.addEventListener('scroll', animateProgressBars);
-window.addEventListener('load', animateProgressBars);
-
-/* Background slider */
-const bgSlider = document.getElementById('bgSlider');
-const bgImages = ['images/bg1.jpg','images/bg2.jpg','images/bg3.jpg'];
-let bgIndex = 0;
-setInterval(()=>{
-  bgIndex=(bgIndex+1)%bgImages.length;
-  bgSlider.style.backgroundImage=`url('${bgImages[bgIndex]}')`;
-},8000);
-
-/* Particles */
-const canvas=document.getElementById('goldParticles');
-const ctx=canvas.getContext('2d');
-let particlesArray=[];
-function resizeCanvas(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
-resizeCanvas();
-window.addEventListener('resize',()=>{resizeCanvas();initParticles();});
-class Particle{
-  constructor(){this.reset();}
-  reset(){
-    this.x=Math.random()*canvas.width;this.y=Math.random()*canvas.height;
-    this.size=Math.random()*2+1;
-    this.speedX=Math.random()*0.8-0.4;this.speedY=Math.random()*0.8-0.4;
-    this.opacity=Math.random()*0.8+0.1;
-  }
-  update(){
-    this.x+=this.speedX;this.y+=this.speedY;
-    if(this.x<0||this.x>canvas.width||this.y<0||this.y>canvas.height){this.reset();}
-  }
-  draw(){
-    ctx.fillStyle=`rgba(255,215,0,${this.opacity})`;
-    ctx.beginPath();ctx.arc(this.x,this.y,this.size,0,Math.PI*2);ctx.fill();
-  }
-}
-function initParticles(){
-  particlesArray=[];
-  const count=Math.floor((canvas.width*canvas.height)/16000);
-  for(let i=0;i<count;i++){particlesArray.push(new Particle());}
-}
-function animateParticles(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  particlesArray.forEach(p=>{p.update();p.draw()});
-  requestAnimationFrame(animateParticles);
-}
-initParticles();animateParticles();
-
-/* Counters */
-const counters=document.querySelectorAll('.counter');
-let countersAnimated=false;
-function animateCounters(){
-  counters.forEach(counter=>{
-    const target=+counter.getAttribute('data-target');
-    const duration=1200;
-    const start=performance.now();
-    function step(now){
-      const progress=Math.min((now-start)/duration,1);
-      const value=Math.floor(progress*target);
-      counter.innerText=value.toLocaleString();
-      if(progress<1) requestAnimationFrame(step);
-      else counter.innerText=target.toLocaleString();
-    }
-    requestAnimationFrame(step);
-  });
-}
-window.addEventListener('scroll',()=>{
-  if(!countersAnimated && document.getElementById('counters').getBoundingClientRect().top < window.innerHeight - 80){
-    animateCounters();countersAnimated=true;
-  }
-});
-
-/* Testimonials auto scroll */
-const testimonialGrid=document.getElementById('testimonialCarousel');
-let tScrollIndex=0;
-function scrollTestimonials(){
-  if(!testimonialGrid || !testimonialGrid.children.length) return;
-  const cardWidth = testimonialGrid.children[0].offsetWidth + 20;
-  tScrollIndex++;
-  if(tScrollIndex >= testimonialGrid.children.length){
-    tScrollIndex=0;
-    testimonialGrid.scrollTo({left:0,behavior:'smooth'});
-  }else{
-    testimonialGrid.scrollTo({left:cardWidth*tScrollIndex,behavior:'smooth'});
-  }
-}
-setInterval(scrollTestimonials,5000);
-</script>
 
 </body>
 </html>
