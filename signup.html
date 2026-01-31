@@ -6,70 +6,35 @@
 <title>Sign Up - GoldChain Investment</title>
 
 <style>
-body{
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:#000;
-  color:#fff;
-}
+body{margin:0;font-family:Arial,sans-serif;background:#000;color:#fff}
 header{
-  background:#111;
-  padding:12px 20px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  border-bottom:1px solid rgba(255,215,0,.15);
+  background:#111;padding:12px 20px;
+  display:flex;justify-content:space-between;align-items:center;
+  border-bottom:1px solid rgba(255,215,0,.15)
 }
-.logo{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  color:gold;
-  font-weight:bold;
-}
-.logo img{
-  width:36px;
-  height:36px;
-  border-radius:8px;
-}
-nav a{
-  margin-left:14px;
-  color:#ccc;
-  text-decoration:none;
-  font-size:14px;
-}
-nav a:hover{color:gold}
+.logo{display:flex;align-items:center;gap:10px;color:gold;font-weight:bold}
+.logo img{width:36px;height:36px;border-radius:8px}
+nav a{margin-left:14px;color:#ddd;text-decoration:none;font-size:14px}
+nav a:hover{color:#ffd700}
 
-.wrapper{
-  min-height:calc(100vh - 60px);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:30px;
-}
+.wrap{min-height:calc(100vh - 60px);display:flex;align-items:center;justify-content:center;padding:30px}
 .card{
-  width:100%;
-  max-width:460px;
+  width:100%;max-width:480px;
   background:rgba(0,0,0,.75);
   border:1px solid rgba(255,215,0,.15);
   border-radius:18px;
   padding:28px;
 }
-h2{color:gold;margin-top:0}
-label{
-  display:block;
-  margin-top:12px;
-  font-size:13px;
-  color:#bbb;
-}
+h2{color:gold;margin:0 0 10px}
+label{display:block;margin-top:12px;color:#bbb;font-size:13px}
 input{
   width:100%;
   padding:12px;
   margin-top:6px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,.12);
   background:#0c0c0c;
   color:#fff;
-  border:1px solid rgba(255,255,255,.1);
-  border-radius:10px;
 }
 button{
   width:100%;
@@ -102,10 +67,10 @@ small{color:#bbb;font-size:12px}
   </nav>
 </header>
 
-<div class="wrapper">
+<div class="wrap">
   <div class="card">
     <h2>Create Account</h2>
-    <small>Demo signup – stored in your browser only.</small>
+    <small>Demo signup stored in your browser only.</small>
 
     <label>Full Name</label>
     <input id="name" type="text" placeholder="Your full name">
@@ -114,14 +79,14 @@ small{color:#bbb;font-size:12px}
     <input id="email" type="email" placeholder="Your email">
 
     <label>Password</label>
-    <input id="password" type="password" placeholder="Create password">
+    <input id="password" type="password" placeholder="Create password (min 6 chars)">
 
     <label>Confirm Password</label>
     <input id="confirm" type="password" placeholder="Confirm password">
 
-    <button id="signupBtn">Create Account</button>
+    <button id="signupBtn" type="button">Create Account</button>
 
-    <p style="margin-top:14px;font-size:13px;color:#bbb">
+    <p style="margin-top:14px;color:#bbb;font-size:13px">
       Already have an account?
       <a href="login.html" style="color:gold">Login here</a>
     </p>
@@ -139,21 +104,22 @@ document.getElementById("signupBtn").addEventListener("click", ()=>{
     alert("Please fill all fields.");
     return;
   }
-
   if(password.length < 6){
     alert("Password must be at least 6 characters.");
     return;
   }
-
   if(password !== confirm){
     alert("Passwords do not match.");
     return;
   }
 
-  const user = { name, email, password };
-  localStorage.setItem("goldchain_user", JSON.stringify(user));
+  // Save user for login + welcome bar
+  localStorage.setItem("goldchain_user", JSON.stringify({name,email,password}));
 
-  alert("Signup successful. Please login.");
+  // Also make sure logged_in is false until correct login
+  localStorage.removeItem("goldchain_logged_in");
+
+  alert("Signup successful. Now login.");
   window.location.href = "login.html";
 });
 </script>
