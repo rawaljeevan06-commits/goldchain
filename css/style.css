@@ -1,5 +1,5 @@
 /* -------------------- GLOBAL -------------------- */
-*{box-sizing:border-box;}
+*{box-sizing:border-box}
 body{
   margin:0;
   font-family:Arial,sans-serif;
@@ -7,10 +7,9 @@ body{
   color:#fff;
   overflow-x:hidden;
   scroll-behavior:smooth;
-  position:relative;
 }
-a{text-decoration:none;color:inherit;}
-h1,h2,h3{color:gold;margin:10px 0;}
+a{text-decoration:none;color:inherit}
+h1,h2,h3{color:gold;margin:10px 0}
 p{line-height:1.65;color:#ddd}
 
 /* -------------------- HEADER -------------------- */
@@ -24,8 +23,8 @@ header{
 .logo{display:flex;align-items:center;gap:10px;color:gold;font-weight:bold;font-size:16px}
 .logo img{width:36px;height:36px;border-radius:10px;object-fit:cover}
 nav a{margin-left:16px;font-size:14px;transition:color .3s;opacity:.92}
-nav a.active{color:#ffd700;font-weight:bold;opacity:1;}
 nav a:hover{color:#ffd700}
+nav a.active{color:#ffd700;font-weight:bold;opacity:1}
 
 /* MOBILE MENU */
 .hamburger{display:none;flex-direction:column;cursor:pointer;gap:4px}
@@ -37,6 +36,30 @@ nav a:hover{color:#ffd700}
   border-radius:12px;border:1px solid rgba(255,215,0,.15);
 }
 
+/* -------------------- WELCOME BAR -------------------- */
+#userBar{
+  display:none;
+  position:sticky;
+  top:60px;
+  z-index:999;
+  background:#0f0f0f;
+  border-bottom:1px solid rgba(255,215,0,.18);
+  padding:10px 20px;
+  color:#ffd700;
+  font-size:14px;
+}
+#logoutBtn{
+  margin-left:12px;
+  padding:6px 14px;
+  border-radius:16px;
+  border:none;
+  background:gold;
+  color:#000;
+  font-weight:bold;
+  cursor:pointer;
+}
+#logoutBtn:hover{background:#ffd700}
+
 /* -------------------- BACKGROUND -------------------- */
 .bg-slide{
   position:fixed;top:0;left:0;width:100%;height:100%;
@@ -45,21 +68,17 @@ nav a:hover{color:#ffd700}
   transition:background-image 1s ease-in-out;
   filter:saturate(1.05) contrast(1.05);
 }
-#goldParticles{
-  position:fixed;top:0;left:0;width:100%;height:100%;
-  pointer-events:none;z-index:-1;
-}
 
 /* -------------------- SECTIONS -------------------- */
 .section{
   min-height:100vh;
   display:flex;align-items:center;justify-content:center;
-  padding:110px 20px;
+  padding:120px 20px;
   position:relative;
   opacity:0;transform:translateY(50px);
   transition:all .8s ease-in-out;
 }
-.section.active{opacity:1;transform:translateY(0);}
+.section.active{opacity:1;transform:translateY(0)}
 .overlay{
   background:rgba(0,0,0,.75);
   padding:40px;border-radius:18px;
@@ -69,7 +88,21 @@ nav a:hover{color:#ffd700}
   border:1px solid rgba(255,215,0,.10);
   box-shadow:0 0 25px rgba(0,0,0,.35);
 }
-.slogan{color:#ffd700;font-style:italic;line-height:1.5;}
+.slogan{color:#ffd700;font-style:italic;line-height:1.5}
+
+/* -------------------- CTA -------------------- */
+.cta-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+.cta{
+  display:inline-block;
+  padding:12px 18px;
+  border-radius:28px;
+  font-weight:bold;
+  border:1px solid rgba(255,215,0,.25);
+}
+.cta.primary{background:gold;color:#000}
+.cta.primary:hover{background:#ffd700}
+.cta.ghost{background:transparent;color:gold}
+.cta.ghost:hover{background:rgba(255,215,0,.10)}
 
 /* -------------------- INFO GRID -------------------- */
 .info-grid{display:flex;gap:25px;flex-wrap:wrap;justify-content:center;margin-top:25px}
@@ -82,76 +115,14 @@ nav a:hover{color:#ffd700}
 .info-box h3{margin-top:0}
 .info-box p{color:#ccc;font-size:14px}
 
-/* -------------------- FORMS -------------------- */
-.form-box{max-width:420px;margin:auto;text-align:left}
-.form-box label{display:block;font-size:12px;color:#bbb;margin-top:10px}
-.form-box input{
-  width:100%;padding:14px;margin:8px 0 2px;border:none;border-radius:10px;
-  background:#0c0c0c;color:#fff;border:1px solid rgba(255,255,255,.08);
-}
-.form-box button{
-  width:100%;padding:14px;background:gold;border:none;border-radius:25px;
-  font-weight:bold;cursor:pointer;margin-top:12px;
-}
-.form-box button:hover{background:#ffd700}
+/* -------------------- LIVE CHART -------------------- */
+.chart-box{max-width:1100px;margin:auto}
+.chart-frame{width:100%;height:420px;border:0;border-radius:14px}
+
+/* -------------------- IMPACT -------------------- */
+.counter{font-size:32px;font-weight:bold;color:gold;display:block;margin-bottom:6px}
 
 /* -------------------- PLANS -------------------- */
-.plans{display:flex;gap:25px;flex-wrap:wrap;justify-content:center;margin-top:20px;position:relative}
-.plan{
-  background:#151515;padding:30px;width:260px;border-radius:18px;position:relative;
-  box-shadow:0 0 25px rgba(255,215,0,.30);
-  border:1px solid rgba(255,215,0,.12);
-  transition:.35s;
-  overflow:hidden;
-  text-align:left;
-}
-.plan:hover{
-  transform:translateY(-12px) scale(1.03);
-  box-shadow:0 0 45px rgba(255,215,0,.60)
-}
-.plan::before{
-  content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;
-  background:radial-gradient(circle, rgba(255,255,255,0.6) 1%, transparent 1%);
-  background-size:10px 10px;opacity:0;pointer-events:none;transition:opacity 0.3s
-}
-.plan:hover::before{opacity:1;animation:sparkle 1.5s linear infinite}
-@keyframes sparkle{0%{background-position:0 0}100%{background-position:50px 50px}}
-.plan h3{color:gold;margin-bottom:6px}
-.plan .price{font-size:26px;margin:10px 0}
-.plan .rate{color:#ddd;margin:6px 0}
-.plan p{color:#ddd;margin:6px 0;font-size:14px}
-.plan .btn{
-  display:inline-block;padding:10px 14px;background:gold;color:#000;
-  border-radius:25px;text-decoration:none;font-weight:bold;margin-top:10px;transition:.3s
-}
-.plan .btn:hover{background:#ffd700}
-
-/* Inputs inside plan */
-.plan input{
-  width:100%;
-  padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,.10);
-  background:#0c0c0c;color:#fff;margin-top:10px;
-}
-
-/* -------------------- PROGRESS BARS -------------------- */
-.progress-container{
-  background:#222;border-radius:10px;margin-top:12px;overflow:hidden;height:12px
-}
-.progress-bar{
-  height:100%;width:0%;
-  background:gold;
-  transition:width 1s ease-out;
-}
-
-/* -------------------- BADGES -------------------- */
-.badge{
-  position:absolute;top:12px;right:12px;background:gold;color:#000;
-  padding:6px 12px;border-radius:20px;font-size:12px;font-weight:bold;
-}
-.badge.offer{background:linear-gradient(90deg, gold, #ffd700)}
-.badge.offer::after{content:"Offer!";margin-left:6px;color:#000}
-
-/* -------------------- OFFER BANNER -------------------- */
 .offer-banner{
   background:linear-gradient(90deg, rgba(255,215,0,.16), rgba(255,215,0,.06));
   border:1px solid rgba(255,215,0,.18);
@@ -164,13 +135,52 @@ nav a:hover{color:#ffd700}
 .offer-banner b{color:#ffd700}
 .offer-banner small{display:block;color:#bbb;margin-top:6px}
 
-/* -------------------- CHART -------------------- */
-.chart-box{max-width:1100px;margin:auto}
+.plans{display:flex;gap:25px;flex-wrap:wrap;justify-content:center;margin-top:22px}
+.plan{
+  background:#151515;padding:28px;width:260px;border-radius:18px;position:relative;
+  box-shadow:0 0 25px rgba(255,215,0,.30);
+  border:1px solid rgba(255,215,0,.12);
+  transition:.35s;
+  overflow:hidden;
+  text-align:left;
+}
+.plan:hover{transform:translateY(-10px) scale(1.02);box-shadow:0 0 45px rgba(255,215,0,.55)}
+.plan h3{color:gold;margin:0 0 6px}
+.plan .price{font-size:24px;margin:10px 0}
+.plan p{color:#ddd;margin:6px 0;font-size:14px}
+.plan input{
+  width:100%;
+  padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,.10);
+  background:#0c0c0c;color:#fff;margin-top:10px;
+}
+.plan .btn{
+  display:inline-block;padding:10px 14px;background:gold;color:#000;
+  border-radius:25px;font-weight:bold;margin-top:12px;transition:.3s
+}
+.plan .btn:hover{background:#ffd700}
 
-/* -------------------- MAP -------------------- */
+.badge{
+  position:absolute;top:12px;right:12px;
+  background:gold;color:#000;
+  padding:6px 12px;border-radius:20px;font-size:12px;font-weight:bold;
+}
+.badge.offer{background:linear-gradient(90deg, gold, #ffd700)}
+
+/* -------------------- FAQ -------------------- */
+.faq-item{
+  background:#111;padding:20px;margin:10px 0;border-radius:12px;cursor:pointer;
+  border:1px solid rgba(255,215,0,.10);
+  text-align:left;
+}
+.faq-item:hover{background:#151515}
+.faq-question{color:gold;margin:0;font-weight:bold}
+.faq-answer{color:#ccc;max-height:0;overflow:hidden;transition:max-height .4s ease,padding-top .4s ease}
+.faq-answer.active{max-height:240px;padding-top:10px}
+
+/* -------------------- CONTACT MAP -------------------- */
 .map iframe{width:100%;height:300px;border:0;border-radius:14px}
 
-/* -------------------- CHAT -------------------- */
+/* -------------------- CHAT BUTTON -------------------- */
 .chat{
   position:fixed;right:18px;bottom:18px;
   background:gold;color:#000;padding:14px 16px;border-radius:50%;
@@ -179,42 +189,11 @@ nav a:hover{color:#ffd700}
 }
 @keyframes chatBounce{0%{transform:translateY(0)}100%{transform:translateY(-6px)}}
 
-/* -------------------- COUNTERS -------------------- */
-.counter{font-size:30px;font-weight:bold;color:gold;display:block;margin-bottom:6px}
-
-/* -------------------- TESTIMONIALS -------------------- */
-.testimonial-grid{
-  display:flex;gap:20px;overflow:hidden;justify-content:flex-start;
-  flex-wrap:nowrap;scroll-behavior:smooth;position:relative;padding-bottom:8px
-}
-.testimonial-card{
-  background:#111;padding:25px;border-radius:16px;min-width:280px;max-width:300px;
-  box-shadow:0 0 18px rgba(255,215,0,.25);
-  border:1px solid rgba(255,215,0,.12);
-  transition:transform .35s ease-in-out,box-shadow .35s
-}
-.testimonial-card p{color:#ccc;font-size:14px;margin-bottom:12px}
-.testimonial-card h4{color:gold;font-size:14px;margin:0;text-align:right}
-.testimonial-card:hover{transform:translateY(-10px);box-shadow:0 0 35px rgba(255,215,0,.45)}
-
-/* -------------------- FAQ -------------------- */
-.faq-item{
-  background:#111;padding:20px;margin:10px 0;border-radius:12px;cursor:pointer;position:relative;
-  border:1px solid rgba(255,215,0,.10);
-  text-align:left;
-}
-.faq-item:hover{background:#151515}
-.faq-question{color:gold;margin:0;font-weight:bold}
-.faq-answer{color:#ccc;max-height:0;overflow:hidden;transition:max-height .4s ease,padding-top .4s ease}
-.faq-answer.active{max-height:220px;padding-top:10px}
-
-/* -------------------- TRUST BADGES -------------------- */
-.trust-badges{display:flex;gap:15px;justify-content:center;margin-top:22px;flex-wrap:wrap}
-.trust-badge{
-  background:#222;padding:10px 20px;border-radius:18px;
-  box-shadow:0 0 15px rgba(255,215,0,.18);
-  border:1px solid rgba(255,215,0,.12);
-  color:gold;font-weight:bold;font-size:14px
+/* -------------------- BACK TO TOP -------------------- */
+#backTop{
+  position:fixed;bottom:90px;right:20px;
+  background:gold;color:#000;padding:12px 14px;border-radius:50%;
+  cursor:pointer;display:none;z-index:999;font-weight:bold;
 }
 
 /* -------------------- FOOTER -------------------- */
@@ -222,35 +201,16 @@ footer{
   background:#111;text-align:center;padding:18px;font-size:13px;
   border-top:1px solid rgba(255,215,0,.10);
 }
-footer a{margin:0 10px;color:gold;transition:color .3s;display:inline-flex;align-items:center;gap:6px}
+footer a{margin:0 10px;color:gold;transition:color .3s}
 footer a:hover{color:#ffd700}
-.icon{font-size:16px}
-
-/* -------------------- BACK TO TOP -------------------- */
-#backTop{
-  position:fixed;bottom:90px;right:20px;
-  background:gold;color:#000;padding:12px 14px;border-radius:50%;
-  cursor:pointer;display:none;z-index:999;font-weight:bold;transition:all .3s
-}
-
-/* -------------------- PAGE SIMPLE WRAP -------------------- */
-.page{
-  min-height:100vh;
-  padding:110px 20px 60px;
-  display:flex;
-  align-items:flex-start;
-  justify-content:center;
-}
-.page .overlay{max-width:900px}
 
 /* -------------------- MOBILE -------------------- */
 @media(max-width:700px){
   nav{display:none}
-  #navMenu.active{display:flex;flex-direction:column}
-  .plan{width:100%}
+  #navMenu.active{display:flex}
   .overlay{padding:25px}
-  .testimonial-grid{overflow-x:auto}
-  .testimonial-card{min-width:90%;margin-right:16px}
-  .hamburger{display:flex}
+  .plan{width:100%}
   .info-box{width:100%}
+  .hamburger{display:flex}
+  .chart-frame{height:320px}
 }
