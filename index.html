@@ -4,16 +4,114 @@
 <meta charset="UTF-8">
 <title>GoldChain Investment</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="css/style.css">
+
+<style>
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:#000;
+  color:#fff;
+}
+header{
+  position:fixed;
+  top:0;
+  width:100%;
+  background:#111;
+  padding:12px 20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  z-index:1000;
+}
+.logo{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  color:gold;
+  font-weight:bold;
+}
+.logo img{
+  width:36px;
+  height:36px;
+  border-radius:10px;
+}
+nav a{
+  margin-left:15px;
+  color:#ddd;
+  text-decoration:none;
+}
+nav a:hover{color:gold}
+
+.hamburger{
+  display:none;
+  flex-direction:column;
+  gap:4px;
+  cursor:pointer;
+}
+.hamburger div{
+  width:25px;
+  height:3px;
+  background:gold;
+}
+
+#navMenu.active{
+  display:flex;
+  flex-direction:column;
+  position:absolute;
+  top:60px;
+  right:20px;
+  background:#111;
+  padding:15px;
+  border-radius:12px;
+}
+
+.section{
+  min-height:100vh;
+  padding:120px 20px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+.overlay{
+  background:rgba(0,0,0,.75);
+  padding:30px;
+  border-radius:16px;
+  max-width:420px;
+  width:100%;
+  text-align:center;
+}
+
+.form-box{text-align:left}
+.form-box label{display:block;margin-top:10px;font-size:13px;color:#bbb}
+.form-box input{
+  width:100%;
+  padding:12px;
+  border-radius:10px;
+  border:none;
+  background:#111;
+  color:#fff;
+  margin-top:6px;
+}
+.form-box button{
+  width:100%;
+  margin-top:15px;
+  padding:14px;
+  border-radius:25px;
+  border:none;
+  background:gold;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+@media(max-width:700px){
+  nav{display:none}
+  .hamburger{display:flex}
+}
+</style>
 </head>
 
 <body>
-
-<!-- GOLD PARTICLES -->
-<canvas id="goldParticles"></canvas>
-
-<!-- BACKGROUND SLIDER -->
-<div id="bgSlider" class="bg-slide" style="background-image:url('images/bg1.jpg')"></div>
 
 <!-- HEADER -->
 <header>
@@ -26,221 +124,129 @@
     <div></div><div></div><div></div>
   </div>
 
-  <!-- Keep section links for the one-page sections -->
   <nav id="navMenu">
     <a href="#home">Home</a>
-    <a href="#strategy">Strategy</a>
-    <a href="#prosper">Prosper</a>
-    <a href="#chart">Live Chart</a>
-    <a href="#counters">Impact</a>
-    <a href="#testimonials">Testimonials</a>
-    <a href="#plans">Plans</a>
-    <a href="#faq">FAQ</a>
-
-    <!-- Page links (these navigate to other pages) -->
-    <a href="login.html">Login</a>
-    <a href="signup.html">Sign Up</a>
-    <a href="contact.html">Contact</a>
-    <a href="about.html">About</a>
+    <a href="#signup">Sign Up</a>
+    <a href="#login">Login</a>
   </nav>
 </header>
+
+<!-- ✅ USER BAR (CORRECT PLACE) -->
+<div id="userBar" style="display:none;background:#0f0f0f;border-bottom:1px solid rgba(255,215,0,.2);padding:10px 20px;color:#ffd700;">
+  <span id="welcomeUser"></span>
+  <button id="logoutBtn"
+    style="margin-left:15px;padding:6px 12px;border-radius:16px;border:none;background:gold;font-weight:bold;cursor:pointer">
+    Logout
+  </button>
+</div>
 
 <!-- HOME -->
 <section id="home" class="section">
   <div class="overlay">
-    <h1>Welcome to GoldChain Investment</h1>
-    <p class="slogan">Where Gold Meets Trust</p>
-    <p>
-      GoldChain Investment blends traditional gold expertise with modern technology
-      to offer secure, reliable and transparent opportunities.
-    </p>
-
-    <div class="trust-badges">
-      <div class="trust-badge">SSL Secure</div>
-      <div class="trust-badge">17+ Years Trusted</div>
-      <div class="trust-badge">24/7 Support</div>
-    </div>
+    <h1 style="color:gold">Welcome to GoldChain</h1>
+    <p>Gold-based investment demo website</p>
   </div>
 </section>
 
-<!-- STRATEGY -->
-<section id="strategy" class="section">
+<!-- SIGNUP -->
+<section id="signup" class="section">
   <div class="overlay">
-    <h2>Strategy & Market Insight</h2>
-    <div class="info-grid">
-      <div class="info-box">
-        <h3>Strategy</h3>
-        <p>
-          We combine tangible gold assets with professional market analysis and risk management.
-          We monitor global trends and protect capital with disciplined planning.
-        </p>
-      </div>
-      <div class="info-box">
-        <h3>Market Insight</h3>
-        <p>
-          Gold remains a trusted store of value. We study supply-demand, trading patterns,
-          and global indicators for better timing and decisions.
-        </p>
-      </div>
-      <div class="info-box">
-        <h3>Transparency</h3>
-        <p>
-          Clear plans, defined timelines, and visible structure—so you always know what to expect.
-        </p>
-      </div>
+    <h2 style="color:gold">Create Account</h2>
+    <div class="form-box">
+      <label>Full Name</label>
+      <input id="su-name" type="text" placeholder="Your full name">
+
+      <label>Email</label>
+      <input id="su-email" type="email" placeholder="Your email">
+
+      <label>Password</label>
+      <input id="su-password" type="password" placeholder="Create password">
+
+      <label>Confirm Password</label>
+      <input id="su-confirm" type="password" placeholder="Confirm password">
+
+      <button id="signupBtn">Create Account</button>
+
+      <p style="margin-top:15px;font-size:13px;color:#bbb">
+        Already have an account?
+        <a href="#login" style="color:gold">Login here</a>
+      </p>
     </div>
   </div>
 </section>
 
-<!-- PROSPER -->
-<section id="prosper" class="section">
+<!-- LOGIN -->
+<section id="login" class="section">
   <div class="overlay">
-    <h2>Prosper with Confidence</h2>
-    <p><strong>Transparent & Safe:</strong> Clear process and consistent structure.</p>
-    <p><strong>Risk-aware Planning:</strong> Market monitoring and disciplined decisions.</p>
-    <p><strong>Long-term Growth:</strong> Building stable financial independence.</p>
-  </div>
-</section>
+    <h2 style="color:gold">Login</h2>
+    <div class="form-box">
+      <label>Email</label>
+      <input id="li-email" type="email" placeholder="Email">
 
-<!-- LIVE CHART -->
-<section id="chart" class="section">
-  <div class="overlay chart-box">
-    <h2>Live Gold Chart</h2>
-    <div id="tv_chart"></div>
-  </div>
-</section>
+      <label>Password</label>
+      <input id="li-password" type="password" placeholder="Password">
 
-<!-- COUNTERS -->
-<section id="counters" class="section">
-  <div class="overlay">
-    <h2>Our Impact</h2>
-    <div class="info-grid">
-      <div class="info-box"><h3><span class="counter" data-target="1250">0</span>+</h3><p>Total Investors</p></div>
-      <div class="info-box"><h3>$<span class="counter" data-target="7500000">0</span></h3><p>Total Gold Invested</p></div>
-      <div class="info-box"><h3>$<span class="counter" data-target="420000">0</span></h3><p>Weekly Profit Distributed</p></div>
+      <button id="loginBtn">Login</button>
     </div>
   </div>
 </section>
 
-<!-- TESTIMONIALS -->
-<section id="testimonials" class="section">
-  <div class="overlay">
-    <h2>What Our Clients Say</h2>
-    <div class="testimonial-grid" id="testimonialCarousel">
-      <div class="testimonial-card"><p>"GoldChain helped me grow my investment safely and steadily."</p><h4>- Ahmed S.</h4></div>
-      <div class="testimonial-card"><p>"Professional, reliable, and highly supportive."</p><h4>- Fatima A.</h4></div>
-      <div class="testimonial-card"><p>"Great insights and smooth experience."</p><h4>- Khalid M.</h4></div>
-      <div class="testimonial-card"><p>"Excellent guidance. I feel secure."</p><h4>- Layla R.</h4></div>
-      <div class="testimonial-card"><p>"Support is fast and helpful."</p><h4>- Saeed K.</h4></div>
-    </div>
-  </div>
-</section>
+<script>
+/* MOBILE MENU */
+function toggleMenu(){
+  document.getElementById('navMenu').classList.toggle('active');
+}
 
-<!-- PLANS -->
-<section id="plans" class="section">
-  <div class="overlay">
-    <h2>Investment Plans</h2>
+/* USER BAR */
+const userBar = document.getElementById('userBar');
+const welcomeUser = document.getElementById('welcomeUser');
 
-    <div class="offer-banner">
-      <b>Special Offer:</b> Invest <b>$2000+</b> and get <b>5% weekly</b> for the first month.
-      <small>Offer text can be customized.</small>
-    </div>
+/* SIGNUP */
+document.getElementById('signupBtn').addEventListener('click', ()=>{
+  const name = document.getElementById('su-name').value.trim();
+  const email = document.getElementById('su-email').value.trim();
+  const pass = document.getElementById('su-password').value;
+  const confirm = document.getElementById('su-confirm').value;
 
-    <div class="plans">
-      <div class="plan" data-rate="1.5" data-min="350">
-        <h3>Starter</h3>
-        <p class="price">$350</p>
-        <p class="rate">1.5% Weekly</p>
-        <input type="number" min="350" value="350" class="invest-amount">
-        <p>Weekly Profit: $<span class="profit">5.25</span></p>
-        <div class="progress-container"><div class="progress-bar" data-rate="1.5"></div></div>
-        <a class="btn" href="signup.html">Invest Now</a>
-      </div>
+  if(!name || !email || !pass || !confirm){
+    alert("Please fill all fields");
+    return;
+  }
+  if(pass.length < 6){
+    alert("Password must be at least 6 characters");
+    return;
+  }
+  if(pass !== confirm){
+    alert("Passwords do not match");
+    return;
+  }
 
-      <div class="plan" data-rate="2" data-min="700">
-        <span class="badge offer">Hot</span>
-        <h3>Growth</h3>
-        <p class="price">$700</p>
-        <p class="rate">2% Weekly</p>
-        <input type="number" min="700" value="700" class="invest-amount">
-        <p>Weekly Profit: $<span class="profit">14.00</span></p>
-        <div class="progress-container"><div class="progress-bar" data-rate="2"></div></div>
-        <a class="btn" href="signup.html">Invest Now</a>
-      </div>
+  alert("Signup successful (demo)");
+  welcomeUser.innerText = "Welcome, " + name;
+  userBar.style.display = "block";
+});
 
-      <div class="plan" data-rate="3" data-min="1000">
-        <span class="badge offer">Best</span>
-        <h3>Premium</h3>
-        <p class="price">$1000</p>
-        <p class="rate">3% Weekly</p>
-        <input type="number" min="1000" value="1000" class="invest-amount">
-        <p>Weekly Profit: $<span class="profit">30.00</span></p>
-        <p>Withdrawal: 15 Days</p>
-        <div class="progress-container"><div class="progress-bar" data-rate="3"></div></div>
-        <a class="btn" href="signup.html">Invest Now</a>
-      </div>
+/* LOGIN */
+document.getElementById('loginBtn').addEventListener('click', ()=>{
+  const email = document.getElementById('li-email').value.trim();
+  const pass = document.getElementById('li-password').value;
 
-      <div class="plan" data-rate="4" data-min="5000">
-        <span class="badge offer">Elite</span>
-        <h3>Elite</h3>
-        <p class="price">$5000+</p>
-        <p class="rate">4% Weekly</p>
-        <input type="number" min="5000" value="5000" class="invest-amount">
-        <p>Weekly Profit: $<span class="profit">200.00</span></p>
-        <div class="progress-container"><div class="progress-bar" data-rate="4"></div></div>
-        <a class="btn" href="signup.html">Invest Now</a>
-      </div>
-    </div>
-  </div>
-</section>
+  if(!email || !pass){
+    alert("Please enter email and password");
+    return;
+  }
 
-<!-- FAQ -->
-<section id="faq" class="section">
-  <div class="overlay">
-    <h2>Frequently Asked Questions</h2>
+  alert("Login successful (demo)");
+  welcomeUser.innerText = "Welcome back!";
+  userBar.style.display = "block";
+});
 
-    <div class="faq-item">
-      <p class="faq-question">How is my investment secured?</p>
-      <p class="faq-answer">We use a structured process and regular monitoring to improve transparency.</p>
-    </div>
+/* LOGOUT */
+document.getElementById('logoutBtn').addEventListener('click', ()=>{
+  userBar.style.display = "none";
+  alert("Logged out");
+});
+</script>
 
-    <div class="faq-item">
-      <p class="faq-question">How do I withdraw?</p>
-      <p class="faq-answer">Withdrawals follow each plan’s terms. Contact support to proceed.</p>
-    </div>
-
-    <div class="faq-item">
-      <p class="faq-question">Can I invest multiple times?</p>
-      <p class="faq-answer">Yes, multiple investments are allowed across different plans.</p>
-    </div>
-  </div>
-</section>
-
-<!-- CONTACT teaser at end -->
-<section class="section">
-  <div class="overlay">
-    <h2>Need help?</h2>
-    <p>Visit the Contact page for address, map, and support.</p>
-    <a class="btn" href="contact.html">Go to Contact</a>
-  </div>
-</section>
-
-<!-- CHAT (WhatsApp) -->
-<a class="chat" href="https://wa.me/966XXXXXXXXX" target="_blank" aria-label="WhatsApp Chat">💬</a>
-
-<!-- BACK TO TOP -->
-<div id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">↑</div>
-
-<!-- FOOTER -->
-<footer>
-  ©️ 2026 GoldChain Investment
-  <div style="margin-top:10px">
-    <a href="https://www.youtube.com" target="_blank"><span class="icon">▶️</span> YouTube</a>
-    <a href="https://www.facebook.com" target="_blank"><span class="icon">f</span> Facebook</a>
-    <a href="https://www.linkedin.com" target="_blank"><span class="icon">in</span> LinkedIn</a>
-  </div>
-</footer>
-
-<script src="js/app.js"></script>
 </body>
 </html>
