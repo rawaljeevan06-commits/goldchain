@@ -1,29 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - GoldChain Investor</title>
-    <link rel="stylesheet" href="css/style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login - GoldChain Investment</title>
+<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-<nav>
-    <a href="index.html">Home</a>
+<header>
+  <div class="logo">
+    <img src="images/logo.png" alt="GoldChain Logo">
+    <span>GoldChain Investment</span>
+  </div>
+  <div class="hamburger" onclick="toggleMenu()">
+    <div></div><div></div><div></div>
+  </div>
+  <nav id="navMenu">
+    <a href="index.html#home">Home</a>
+    <a href="index.html#plans">Plans</a>
     <a href="about.html">About</a>
     <a href="login.html">Login</a>
-    <a href="plans.html">Plans</a>
-</nav>
+    <a href="signup.html">Sign Up</a>
+    <a href="contact.html">Contact</a>
+  </nav>
+</header>
 
-<div class="container">
+<div class="page">
+  <div class="overlay">
     <h1>Login</h1>
-    <form>
-        <input type="text" placeholder="Username" required><br>
-        <input type="password" placeholder="Password" required><br>
-        <button type="submit">Login</button>
-    </form>
-    <a href="index.html"><button>Back to Home</button></a>
+    <div class="form-box">
+      <label>Email</label>
+      <input placeholder="Email">
+      <label>Password</label>
+      <input type="password" placeholder="Password">
+      <button>Login</button>
+    </div>
+  </div>
 </div>
 
+<script src="js/app.js"></script>
 </body>
 </html>
