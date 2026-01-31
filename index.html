@@ -4,239 +4,18 @@
 <meta charset="UTF-8">
 <title>GoldChain Investment</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<style>
-*{box-sizing:border-box}
-body{
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:#000;
-  color:#fff;
-  scroll-behavior:smooth;
-}
-a{text-decoration:none;color:inherit}
-h1,h2,h3{color:gold}
-
-/* HEADER */
-header{
-  position:fixed;
-  top:0;
-  width:100%;
-  z-index:1000;
-  background:#111;
-  padding:12px 20px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  border-bottom:1px solid rgba(255,215,0,.15);
-}
-.logo{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  color:gold;
-  font-weight:bold;
-}
-.logo img{
-  width:36px;
-  height:36px;
-  border-radius:8px;
-}
-nav a{
-  margin-left:14px;
-  font-size:14px;
-  color:#ddd;
-}
-nav a:hover{color:#ffd700}
-
-/* MOBILE */
-.hamburger{
-  display:none;
-  flex-direction:column;
-  gap:4px;
-  cursor:pointer;
-}
-.hamburger div{
-  width:25px;
-  height:3px;
-  background:gold;
-}
-#navMenu{
-  display:flex;
-  align-items:center;
-}
-#navMenu.active{
-  display:flex;
-  flex-direction:column;
-  position:absolute;
-  top:60px;
-  right:20px;
-  background:#111;
-  padding:15px;
-  border-radius:12px;
-}
-
-/* WELCOME BAR */
-#userBar{
-  display:none;
-  position:sticky;
-  top:60px;
-  z-index:999;
-  background:#0f0f0f;
-  border-bottom:1px solid rgba(255,215,0,.2);
-  padding:10px 20px;
-  color:#ffd700;
-  font-size:14px;
-}
-#logoutBtn{
-  margin-left:12px;
-  padding:6px 14px;
-  border-radius:16px;
-  border:none;
-  background:gold;
-  color:#000;
-  font-weight:bold;
-  cursor:pointer;
-}
-
-/* SECTIONS */
-.section{
-  min-height:100vh;
-  padding:140px 20px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  opacity:0;
-  transform:translateY(40px);
-  transition:.7s;
-}
-.section.active{
-  opacity:1;
-  transform:none;
-}
-.overlay{
-  max-width:1100px;
-  width:100%;
-  background:rgba(0,0,0,.75);
-  padding:40px;
-  border-radius:18px;
-  text-align:center;
-}
-
-/* INFO GRID */
-.info-grid{
-  display:flex;
-  gap:20px;
-  flex-wrap:wrap;
-  justify-content:center;
-}
-.info-box{
-  background:#111;
-  padding:25px;
-  border-radius:14px;
-  width:300px;
-}
-
-/* PLANS */
-.plans{
-  display:flex;
-  gap:20px;
-  flex-wrap:wrap;
-  justify-content:center;
-}
-.plan{
-  background:#151515;
-  padding:25px;
-  border-radius:18px;
-  width:260px;
-}
-.plan input{
-  width:100%;
-  padding:10px;
-  margin-top:8px;
-  background:#0c0c0c;
-  color:#fff;
-  border:1px solid #333;
-  border-radius:8px;
-}
-.plan .btn{
-  display:inline-block;
-  margin-top:12px;
-  background:gold;
-  color:#000;
-  padding:10px 18px;
-  border-radius:20px;
-  font-weight:bold;
-}
-
-/* IMPACT */
-.counter{
-  font-size:32px;
-  color:gold;
-  font-weight:bold;
-}
-
-/* FAQ */
-.faq-item{
-  background:#111;
-  padding:18px;
-  border-radius:12px;
-  margin:10px 0;
-  cursor:pointer;
-  text-align:left;
-}
-.faq-answer{
-  display:none;
-  color:#ccc;
-  margin-top:8px;
-}
-
-/* CHAT */
-.chat{
-  position:fixed;
-  right:18px;
-  bottom:18px;
-  background:gold;
-  color:#000;
-  padding:14px 16px;
-  border-radius:50%;
-  font-size:20px;
-}
-
-/* BACK TO TOP */
-#backTop{
-  position:fixed;
-  right:20px;
-  bottom:90px;
-  background:gold;
-  color:#000;
-  padding:10px 14px;
-  border-radius:50%;
-  display:none;
-  cursor:pointer;
-}
-
-/* FOOTER */
-footer{
-  background:#111;
-  text-align:center;
-  padding:18px;
-  border-top:1px solid rgba(255,215,0,.15);
-}
-
-@media(max-width:700px){
-  nav{display:none}
-  .hamburger{display:flex}
-  #navMenu.active{display:flex}
-}
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
+<!-- BACKGROUND SLIDER -->
+<div id="bgSlider" class="bg-slide" style="background-image:url('images/bg1.jpg')"></div>
+
+<!-- HEADER -->
 <header>
   <div class="logo">
-    <img src="images/logo.png">
+    <img src="images/logo.png" alt="GoldChain Logo">
     <span>GoldChain Investment</span>
   </div>
 
@@ -253,178 +32,303 @@ footer{
     <a href="#plans">Plans</a>
     <a href="#faq">FAQ</a>
     <a href="#contact">Contact</a>
-    <a href="login.html">Login</a>
-    <a href="signup.html">Sign Up</a>
+    <a id="navLogin" href="login.html">Login</a>
+    <a id="navSignup" href="signup.html">Sign Up</a>
   </nav>
 </header>
 
 <!-- WELCOME BAR -->
 <div id="userBar">
   <span id="welcomeText"></span>
-  <button id="logoutBtn">Logout</button>
+  <button id="logoutBtn" type="button">Logout</button>
 </div>
 
+<!-- HOME -->
 <section id="home" class="section">
   <div class="overlay">
-    <h1>GoldChain Investment</h1>
-    <p>Where Gold Meets Trust</p>
-    <a class="btn" href="signup.html" style="background:gold;color:#000;padding:12px 22px;border-radius:25px;font-weight:bold">Get Started</a>
+    <h1>Welcome to GoldChain Investment</h1>
+    <p class="slogan">Where Gold Meets Trust</p>
+    <p>
+      GoldChain Investment blends traditional gold expertise with modern technology to offer secure,
+      reliable and transparent investment opportunities.
+    </p>
+
+    <div class="cta-row">
+      <a class="cta primary" href="signup.html">Get Started</a>
+      <a class="cta ghost" href="#plans">View Plans</a>
+      <a class="cta ghost" href="login.html">Login</a>
+    </div>
   </div>
 </section>
 
+<!-- STRATEGY -->
 <section id="strategy" class="section">
   <div class="overlay">
     <h2>Strategy</h2>
     <div class="info-grid">
-      <div class="info-box">Gold-backed investment strategy</div>
-      <div class="info-box">Market analysis & risk control</div>
-      <div class="info-box">Transparent weekly returns</div>
+      <div class="info-box">
+        <h3>Gold-backed Strategy</h3>
+        <p>We combine tangible gold assets with professional market analysis and risk management.</p>
+      </div>
+      <div class="info-box">
+        <h3>Market Insight</h3>
+        <p>We monitor global trends and market demand to protect capital and maximize opportunities.</p>
+      </div>
+      <div class="info-box">
+        <h3>Transparency</h3>
+        <p>Clear weekly returns and defined withdrawal rules — you always know what to expect.</p>
+      </div>
     </div>
   </div>
 </section>
 
+<!-- PROSPER -->
 <section id="prosper" class="section">
   <div class="overlay">
     <h2>Prosper</h2>
-    <p>Grow wealth with secure gold-based strategies.</p>
+    <p><b>Secure & Safe:</b> Transparent processes, disciplined planning.</p>
+    <p><b>Maximizing Profit:</b> Market analysis helps improve weekly performance.</p>
+    <p><b>Financial Growth:</b> Build long-term stability through gold-based strategies.</p>
   </div>
 </section>
 
+<!-- LIVE CHART -->
 <section id="chart" class="section">
-  <div class="overlay">
+  <div class="overlay chart-box">
     <h2>Live Gold Chart</h2>
-    <iframe src="https://www.tradingview.com/embed-widget/advanced-chart/?symbol=OANDA:XAUUSD&theme=dark"
-      style="width:100%;height:420px;border:none"></iframe>
+    <iframe class="chart-frame"
+      src="https://www.tradingview.com/embed-widget/advanced-chart/?symbol=OANDA:XAUUSD&theme=dark&interval=60&hide_top_toolbar=1">
+    </iframe>
+    <p style="color:#bbb;font-size:12px;margin-top:10px">Chart powered by TradingView embed (demo).</p>
   </div>
 </section>
 
+<!-- OUR IMPACT (LOCKED NUMBERS) -->
 <section id="impact" class="section">
   <div class="overlay">
     <h2>Our Impact</h2>
     <div class="info-grid">
-      <div class="info-box"><div class="counter" data-target="1250">0</div>Investors</div>
-      <div class="info-box"><div class="counter" data-target="7500000">0</div>Total Invested</div>
-      <div class="info-box"><div class="counter" data-target="420000">0</div>Weekly Profit</div>
+      <div class="info-box">
+        <h3><span class="counter" data-target="8240">0</span>+</h3>
+        <p>Total Investors</p>
+      </div>
+      <div class="info-box">
+        <h3>$<span class="counter" data-target="6400000">0</span>+</h3>
+        <p>Total Invested</p>
+      </div>
+      <div class="info-box">
+        <h3>$<span class="counter" data-target="820000">0</span>+</h3>
+        <p>Weekly Profit Distributed</p>
+      </div>
     </div>
   </div>
 </section>
 
+<!-- PLANS (LOCKED: 4 PLANS + OFFER) -->
 <section id="plans" class="section">
   <div class="overlay">
     <h2>Plans</h2>
+
+    <div class="offer-banner">
+      <b>Special Offer:</b> Invest <b>$5000+</b> and get <b>4% weekly</b> with <b>weekly withdrawal</b>.
+      <small>This is the highlighted high-investment offer plan.</small>
+    </div>
+
     <div class="plans">
-      <div class="plan">
+      <!-- 1) Starter -->
+      <div class="plan" data-rate="1.5" data-min="350">
         <h3>Starter</h3>
-        <p>$350 • 1.5% weekly</p>
-        <input type="number" value="350">
-        <a class="btn" href="signup.html">Invest</a>
+        <p class="price">$350</p>
+        <p>Return: 1.5% Weekly</p>
+        <p>Withdrawal: After 45 days</p>
+        <input class="invest-amount" type="number" min="350" value="350">
+        <p>Weekly Profit: $<span class="profit">5.25</span></p>
+        <a class="btn investBtn" href="signup.html">Invest Now</a>
       </div>
-      <div class="plan">
+
+      <!-- 2) Growth -->
+      <div class="plan" data-rate="2" data-min="700">
         <h3>Growth</h3>
-        <p>$700 • 2% weekly</p>
-        <input type="number" value="700">
-        <a class="btn" href="signup.html">Invest</a>
+        <p class="price">$700</p>
+        <p>Return: 2% Weekly</p>
+        <p>Withdrawal: After 30 days</p>
+        <input class="invest-amount" type="number" min="700" value="700">
+        <p>Weekly Profit: $<span class="profit">14.00</span></p>
+        <a class="btn investBtn" href="signup.html">Invest Now</a>
+      </div>
+
+      <!-- 3) Premium -->
+      <div class="plan" data-rate="3" data-min="1000">
+        <h3>Premium</h3>
+        <p class="price">$1000</p>
+        <p>Return: 3% Weekly</p>
+        <p>Withdrawal: After 15 days</p>
+        <input class="invest-amount" type="number" min="1000" value="1000">
+        <p>Weekly Profit: $<span class="profit">30.00</span></p>
+        <a class="btn investBtn" href="signup.html">Invest Now</a>
+      </div>
+
+      <!-- 4) Elite OFFER -->
+      <div class="plan" data-rate="4" data-min="5000">
+        <span class="badge offer">OFFER</span>
+        <h3>Elite</h3>
+        <p class="price">$5000+</p>
+        <p>Return: 4% Weekly</p>
+        <p>Withdrawal: Every 7 days</p>
+        <input class="invest-amount" type="number" min="5000" value="5000">
+        <p>Weekly Profit: $<span class="profit">200.00</span></p>
+        <a class="btn investBtn" href="signup.html">Invest Now</a>
       </div>
     </div>
   </div>
 </section>
 
+<!-- FAQ -->
 <section id="faq" class="section">
   <div class="overlay">
     <h2>FAQ</h2>
+
     <div class="faq-item">
-      <b>Is this secure?</b>
-      <div class="faq-answer">This is a frontend demo. Backend required for real use.</div>
+      <p class="faq-question">How is my investment secured?</p>
+      <p class="faq-answer">This is a demo website. In a real system, security requires backend + audits + legal compliance.</p>
     </div>
+
     <div class="faq-item">
-      <b>Can I withdraw?</b>
-      <div class="faq-answer">Withdrawals are demo only.</div>
+      <p class="faq-question">How do I withdraw my profits?</p>
+      <p class="faq-answer">Withdrawals follow the plan rules: 45 days / 30 days / 15 days / weekly for the $5000+ offer plan.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-question">Can I invest multiple times?</p>
+      <p class="faq-answer">Yes, demo allows multiple investments. Real system needs account + payment backend.</p>
     </div>
   </div>
 </section>
 
+<!-- CONTACT -->
 <section id="contact" class="section">
-  <div class="overlay">
+  <div class="overlay map">
     <h2>Contact</h2>
-    <p>Jeddah, Saudi Arabia</p>
+    <p>Al Kurnays Br Rd, Ash Shati, Jeddah 23511, Saudi Arabia</p>
+    <iframe src="https://www.google.com/maps?q=Al%20Kurnays%20Br%20Rd%20Jeddah&output=embed"></iframe>
   </div>
 </section>
 
-<a class="chat" href="https://wa.me/966XXXXXXXXX">💬</a>
-<div id="backTop" onclick="scrollTo(0,0)">↑</div>
+<!-- WHATSAPP CHAT -->
+<a class="chat" href="https://wa.me/966XXXXXXXXX" target="_blank" aria-label="WhatsApp Chat">💬</a>
 
-<footer>©️ 2026 GoldChain Investment</footer>
+<!-- BACK TO TOP -->
+<div id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">↑</div>
 
+<!-- FOOTER -->
+<footer>
+  ©️ 2026 GoldChain Investment
+  <div style="margin-top:10px">
+    <a href="https://www.youtube.com" target="_blank">YouTube</a>
+    <a href="https://www.facebook.com" target="_blank">Facebook</a>
+    <a href="https://www.linkedin.com" target="_blank">LinkedIn</a>
+  </div>
+</footer>
+
+<script src="auth.js"></script>
 <script>
-function toggleMenu(){
-  document.getElementById("navMenu").classList.toggle("active");
-}
+/* Mobile menu */
+function toggleMenu(){ document.getElementById('navMenu').classList.toggle('active'); }
 
-/* Reveal */
-function reveal(){
-  document.querySelectorAll(".section").forEach(sec=>{
-    if(sec.getBoundingClientRect().top < window.innerHeight-100){
-      sec.classList.add("active");
+/* Background slider (optional images) */
+const bgSlider = document.getElementById('bgSlider');
+const bgImages = ['images/bg1.jpg','images/bg2.jpg','images/bg3.jpg'];
+let bgIndex = 0;
+setInterval(()=>{
+  bgIndex = (bgIndex + 1) % bgImages.length;
+  bgSlider.style.backgroundImage = `url('${bgImages[bgIndex]}')`;
+}, 8000);
+
+/* Section reveal */
+const sections=document.querySelectorAll('.section');
+function revealSections(){
+  sections.forEach(sec=>{
+    if(sec.getBoundingClientRect().top < window.innerHeight - 120){
+      sec.classList.add('active');
     }
   });
 }
+window.addEventListener('scroll', revealSections);
+window.addEventListener('load', ()=>{
+  revealSections();
+  document.getElementById('home').classList.add('active');
+  updateAuthUI();
+});
 
-/* Welcome + Logout */
-function updateUser(){
-  const bar=document.getElementById("userBar");
-  const txt=document.getElementById("welcomeText");
-  const logged=localStorage.getItem("goldchain_logged_in")==="true";
-  const user=localStorage.getItem("goldchain_user");
+/* Back to top */
+window.addEventListener('scroll',()=>{
+  document.getElementById('backTop').style.display = window.scrollY>400 ? 'block':'none';
+});
 
-  if(logged && user){
-    txt.textContent="Welcome, "+JSON.parse(user).name;
-    bar.style.display="block";
-  }else{
-    bar.style.display="none";
-  }
-}
-
-document.getElementById("logoutBtn").onclick=()=>{
-  localStorage.removeItem("goldchain_logged_in");
-  updateUser();
-};
-
-/* FAQ */
-document.querySelectorAll(".faq-item").forEach(i=>{
-  i.onclick=()=>{
-    const a=i.querySelector(".faq-answer");
-    a.style.display=a.style.display==="block"?"none":"block";
-  }
+/* FAQ accordion */
+document.querySelectorAll('.faq-item').forEach(item=>{
+  item.addEventListener('click',()=>{
+    const ans=item.querySelector('.faq-answer');
+    ans.classList.toggle('active');
+  });
 });
 
 /* Counters */
-function runCounters(){
-  document.querySelectorAll(".counter").forEach(c=>{
-    const target=+c.dataset.target;
-    let count=0;
-    const step=Math.ceil(target/100);
-    const interval=setInterval(()=>{
-      count+=step;
-      if(count>=target){
-        c.textContent=target.toLocaleString();
-        clearInterval(interval);
-      }else{
-        c.textContent=count.toLocaleString();
-      }
-    },20);
+let countersAnimated=false;
+function animateCounters(){
+  document.querySelectorAll('.counter').forEach(counter=>{
+    const target=+counter.getAttribute('data-target');
+    const duration=1200;
+    const start=performance.now();
+    function step(now){
+      const progress=Math.min((now-start)/duration,1);
+      const value=Math.floor(progress*target);
+      counter.innerText=value.toLocaleString();
+      if(progress<1) requestAnimationFrame(step);
+      else counter.innerText=target.toLocaleString();
+    }
+    requestAnimationFrame(step);
   });
 }
+window.addEventListener('scroll',()=>{
+  if(!countersAnimated && document.getElementById('impact').getBoundingClientRect().top < window.innerHeight - 80){
+    animateCounters();
+    countersAnimated=true;
+  }
+});
 
-window.addEventListener("load",()=>{
-  reveal();
-  updateUser();
-  runCounters();
+/* Plans: dynamic weekly profit (LOCKED plan rules) */
+document.querySelectorAll('.plan').forEach(plan=>{
+  const input = plan.querySelector('.invest-amount');
+  const profit = plan.querySelector('.profit');
+  const rate = parseFloat(plan.getAttribute('data-rate'))/100;
+  const min = parseFloat(plan.getAttribute('data-min'));
+  function update(){
+    let amt = parseFloat(input.value || min);
+    if(amt < min) amt = min;
+    input.value = amt;
+    profit.textContent = (amt * rate).toFixed(2);
+  }
+  input.addEventListener('input', update);
+  update();
 });
-window.addEventListener("scroll",()=>{
-  reveal();
-  document.getElementById("backTop").style.display=window.scrollY>400?"block":"none";
+
+/* Invest buttons: if not logged in, send to login first */
+document.querySelectorAll('.investBtn').forEach(btn=>{
+  btn.addEventListener('click', (e)=>{
+    if(!isLoggedIn()){
+      e.preventDefault();
+      alert("Please login first to continue.");
+      window.location.href = "login.html";
+    }
+  });
 });
+
+/* Logout */
+document.getElementById("logoutBtn").addEventListener("click", logoutNow);
+
+/* Keep auth UI correct on refresh */
+window.addEventListener("focus", updateAuthUI);
 </script>
-
 </body>
 </html>
