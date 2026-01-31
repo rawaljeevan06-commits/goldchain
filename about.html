@@ -1,25 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About - GoldChain Investor</title>
-    <link rel="stylesheet" href="css/style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About - GoldChain Investment</title>
+<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-<nav>
-    <a href="index.html">Home</a>
+<header>
+  <div class="logo">
+    <img src="images/logo.png" alt="GoldChain Logo">
+    <span>GoldChain Investment</span>
+  </div>
+  <div class="hamburger" onclick="toggleMenu()">
+    <div></div><div></div><div></div>
+  </div>
+  <nav id="navMenu">
+    <a href="index.html#home">Home</a>
+    <a href="index.html#plans">Plans</a>
+    <a href="index.html#faq">FAQ</a>
     <a href="about.html">About</a>
     <a href="login.html">Login</a>
-    <a href="plans.html">Plans</a>
-</nav>
+    <a href="contact.html">Contact</a>
+  </nav>
+</header>
 
-<div class="container">
-    <h1>About GoldChain Investor</h1>
-    <p>GoldChain Investor helps beginners understand digital assets and gold-based investment strategies.</p>
-    <a href="index.html"><button>Back to Home</button></a>
+<div class="page">
+  <div class="overlay">
+    <h1>About GoldChain</h1>
+    <p>
+      GoldChain shares gold market insights and tools with a premium experience.
+      This page can contain your company story, mission, and support info.
+    </p>
+    <a class="btn" href="index.html#home">Back to Home</a>
+  </div>
 </div>
 
+<script src="js/app.js"></script>
 </body>
 </html>
