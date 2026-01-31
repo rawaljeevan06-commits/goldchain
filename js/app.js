@@ -273,3 +273,70 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+/* ===================== DEMO AUTH (localStorage) ===================== */
+const GC_AUTH_KEY = "goldchain_demo_user";
+
+function getSavedUser() {
+  try {
+    return JSON.parse(localStorage.getItem(GC_AUTH_KEY) || "null");
+  } catch {
+    return null;
+  }
+}
+
+function saveUser(user) {
+  localStorage.setItem(GC_AUTH_KEY, JSON.stringify(user));
+}
+
+/* ===================== SIGN UP ===================== */
+document.addEventListener("DOMContentLoaded", () => {
+  const signupBtn = document.getElementById("signupBtn");
+  if (!signupBtn) return;
+
+  signupBtn.addEventListener("click", () => {
+    const name = document.getElementById("su-name")?.value.trim() || "";
+    const email = document.getElementById("su-email")?.value.trim() || "";
+    const pass = document.getElementById("su-password")?.value || "";
+    const confirm = document.getElementById("su-confirm")?.value || "";
+
+    if (!name || !email || !pass || !confirm) return alert("Please fill in all fields.");
+    if (!/^\S+@\S+\.\S+$/.test(email)) return alert("Please enter a valid email.");
+    if (pass.length < 6) return alert("Password must be at least 6 characters.");
+    if (pass !== confirm) return alert("Passwords do not match.");
+
+    // Save demo user (browser only)
+    saveUser({ name, email, pass });
+
+    alert("Sign up successful. Now login.");
+    window.location.href = "login.html";
+  });
+});
+
+/* ===================== LOGIN ===================== */
+document.addEventListener("DOMContentLoaded", () => {
+  const loginBtn = document.getElementById("loginBtn");
+  if (!loginBtn) return;
+
+  loginBtn.addEventListener("click", () => {
+    const email = document.getElementById("li-email")?.value.trim() || "";
+    const pass = document.getElementById("li-password")?.value || "";
+
+    if (!email || !pass) return alert("Please enter email and password.");
+    if (!/^\S+@\S+\.\S+$/.test(email)) return alert("Invalid email format.");
+
+    const user = getSavedUser();
+    if (!user) {
+      alert("No account found. Please sign up first.");
+      window.location.href = "signup.html";
+      return;
+    }
+
+    if (email === user.email && pass === user.pass) {
+      alert(`Login successful. Welcome, ${user.name}!`);
+      // Optional redirect after login:
+      window.location.href = "index.html";
+    } else {
+      alert("Wrong email or password.");
+    }
+  });
+});
