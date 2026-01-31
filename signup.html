@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sign Up - GoldChain Investment</title>
+<title>Login - GoldChain Investment</title>
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -16,34 +16,28 @@
   <div class="hamburger" onclick="toggleMenu()"><div></div><div></div><div></div></div>
   <nav id="navMenu">
     <a href="index.html#home">Home</a>
-    <a href="login.html">Login</a>
-    <a href="signup.html" class="active">Sign Up</a>
+    <a href="login.html" class="active">Login</a>
+    <a href="signup.html">Sign Up</a>
   </nav>
 </header>
 
 <div class="page">
   <div class="overlay">
-    <h1>Create Account</h1>
+    <h1>Login</h1>
 
     <div class="form-box">
-      <label>Full Name</label>
-      <input id="su-name" type="text" placeholder="Your full name">
-
       <label>Email</label>
-      <input id="su-email" type="email" placeholder="Your email">
+      <input id="li-email" type="email" placeholder="Your email">
 
       <label>Password</label>
-      <input id="su-password" type="password" placeholder="Create password">
+      <input id="li-password" type="password" placeholder="Your password">
 
-      <label>Confirm Password</label>
-      <input id="su-confirm" type="password" placeholder="Confirm password">
-
-      <button id="signupBtn" type="button">Create Account</button>
+      <button id="loginBtn" type="button">Login</button>
     </div>
 
     <p style="margin-top:20px;font-size:13px;color:#bbb">
-      Already have an account?
-      <a href="login.html" style="color:gold">Login here</a>
+      Don’t have an account?
+      <a href="signup.html" style="color:gold">Create one</a>
     </p>
   </div>
 </div>
@@ -51,19 +45,23 @@
 <script>
 function toggleMenu(){document.getElementById('navMenu').classList.toggle('active');}
 
-document.getElementById("signupBtn").addEventListener("click", ()=>{
-  const name = document.getElementById("su-name").value.trim();
-  const email = document.getElementById("su-email").value.trim();
-  const pass = document.getElementById("su-password").value;
-  const conf = document.getElementById("su-confirm").value;
+document.getElementById("loginBtn").addEventListener("click", ()=>{
+  const email = document.getElementById("li-email").value.trim();
+  const pass = document.getElementById("li-password").value;
 
-  if(!name || !email || !pass || !conf) return alert("Please fill all fields.");
-  if(pass.length < 6) return alert("Password must be at least 6 characters.");
-  if(pass !== conf) return alert("Passwords do not match.");
+  if(!email || !pass) return alert("Enter email and password.");
 
-  localStorage.setItem("goldchain_demo_user", JSON.stringify({name,email,pass}));
-  alert("Signup successful.");
-  window.location.href = "login.html";
+  let user=null;
+  try{ user = JSON.parse(localStorage.getItem("goldchain_demo_user")||"null"); }catch(e){}
+
+  if(!user) return alert("No account found. Please sign up first.");
+
+  if(email===user.email && pass===user.pass){
+    alert("Login successful.");
+    window.location.href = "index.html#home";
+  } else {
+    alert("Wrong email or password.");
+  }
 });
 </script>
 
