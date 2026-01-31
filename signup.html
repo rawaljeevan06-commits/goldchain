@@ -13,15 +13,17 @@
     <img src="images/logo.png" alt="GoldChain Logo">
     <span>GoldChain Investment</span>
   </div>
+
   <div class="hamburger" onclick="toggleMenu()">
     <div></div><div></div><div></div>
   </div>
+
   <nav id="navMenu">
     <a href="index.html#home">Home</a>
     <a href="index.html#plans">Plans</a>
     <a href="about.html">About</a>
     <a href="login.html">Login</a>
-    <a href="signup.html">Sign Up</a>
+    <a href="signup.html" class="active">Sign Up</a>
     <a href="contact.html">Contact</a>
   </nav>
 </header>
@@ -29,15 +31,27 @@
 <div class="page">
   <div class="overlay">
     <h1>Create Account</h1>
+
     <div class="form-box">
       <label>Full Name</label>
-      <input placeholder="Full Name">
+      <input id="su-name" type="text" placeholder="Your full name">
+
       <label>Email</label>
-      <input placeholder="Email">
+      <input id="su-email" type="email" placeholder="Your email">
+
       <label>Password</label>
-      <input type="password" placeholder="Password">
-      <button>Create Account</button>
+      <input id="su-password" type="password" placeholder="Create password">
+
+      <label>Confirm Password</label>
+      <input id="su-confirm" type="password" placeholder="Confirm password">
+
+      <button id="signupBtn">Create Account</button>
     </div>
+
+    <p style="margin-top:20px;font-size:13px;color:#bbb">
+      Already have an account?
+      <a href="login.html" style="color:gold">Login here</a>
+    </p>
   </div>
 </div>
 
