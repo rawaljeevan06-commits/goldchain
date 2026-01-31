@@ -4,54 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sign Up - GoldChain Investment</title>
-
-<style>
-body{margin:0;font-family:Arial,sans-serif;background:#000;color:#fff}
-header{
-  background:#111;padding:12px 20px;
-  display:flex;justify-content:space-between;align-items:center;
-  border-bottom:1px solid rgba(255,215,0,.15)
-}
-.logo{display:flex;align-items:center;gap:10px;color:gold;font-weight:bold}
-.logo img{width:36px;height:36px;border-radius:8px}
-nav a{margin-left:14px;color:#ddd;text-decoration:none;font-size:14px}
-nav a:hover{color:#ffd700}
-
-.wrap{min-height:calc(100vh - 60px);display:flex;align-items:center;justify-content:center;padding:30px}
-.card{
-  width:100%;max-width:480px;
-  background:rgba(0,0,0,.75);
-  border:1px solid rgba(255,215,0,.15);
-  border-radius:18px;
-  padding:28px;
-}
-h2{color:gold;margin:0 0 10px}
-label{display:block;margin-top:12px;color:#bbb;font-size:13px}
-input{
-  width:100%;
-  padding:12px;
-  margin-top:6px;
-  border-radius:10px;
-  border:1px solid rgba(255,255,255,.12);
-  background:#0c0c0c;
-  color:#fff;
-}
-button{
-  width:100%;
-  margin-top:18px;
-  padding:14px;
-  border:none;
-  border-radius:25px;
-  background:gold;
-  color:#000;
-  font-weight:bold;
-  cursor:pointer;
-}
-button:hover{background:#ffd700}
-small{color:#bbb;font-size:12px}
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
 <header>
@@ -59,70 +13,42 @@ small{color:#bbb;font-size:12px}
     <img src="images/logo.png" alt="Logo">
     <span>GoldChain Investment</span>
   </div>
-  <nav>
+  <nav id="navMenu">
     <a href="index.html#home">Home</a>
     <a href="index.html#plans">Plans</a>
-    <a href="login.html">Login</a>
-    <a href="signup.html">Sign Up</a>
+    <a id="navLogin" href="login.html">Login</a>
+    <a id="navSignup" href="signup.html">Sign Up</a>
   </nav>
 </header>
 
-<div class="wrap">
-  <div class="card">
+<div class="section active" style="min-height:calc(100vh - 60px);padding-top:90px">
+  <div class="overlay" style="max-width:520px;text-align:left">
     <h2>Create Account</h2>
-    <small>Demo signup stored in your browser only.</small>
+    <p style="color:#bbb;font-size:12px;margin-top:0">Demo signup stored in your browser only.</p>
 
-    <label>Full Name</label>
-    <input id="name" type="text" placeholder="Your full name">
+    <label style="color:#bbb;font-size:13px">Full Name</label>
+    <input id="su-name" type="text" placeholder="Your full name">
 
-    <label>Email</label>
-    <input id="email" type="email" placeholder="Your email">
+    <label style="color:#bbb;font-size:13px;margin-top:12px">Email</label>
+    <input id="su-email" type="email" placeholder="Your email">
 
-    <label>Password</label>
-    <input id="password" type="password" placeholder="Create password (min 6 chars)">
+    <label style="color:#bbb;font-size:13px;margin-top:12px">Password</label>
+    <input id="su-pass" type="password" placeholder="Create password (min 6 chars)">
 
-    <label>Confirm Password</label>
-    <input id="confirm" type="password" placeholder="Confirm password">
+    <label style="color:#bbb;font-size:13px;margin-top:12px">Confirm Password</label>
+    <input id="su-conf" type="password" placeholder="Confirm password">
 
-    <button id="signupBtn" type="button">Create Account</button>
-
-    <p style="margin-top:14px;color:#bbb;font-size:13px">
-      Already have an account?
-      <a href="login.html" style="color:gold">Login here</a>
-    </p>
+    <div class="cta-row" style="justify-content:flex-start">
+      <button class="cta primary" id="signupBtn" type="button" style="border:none;cursor:pointer">Create Account</button>
+      <a class="cta ghost" href="login.html">Login</a>
+    </div>
   </div>
 </div>
 
+<script src="auth.js"></script>
 <script>
-document.getElementById("signupBtn").addEventListener("click", ()=>{
-  const name = document.getElementById("name").value.trim();
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
-  const confirm = document.getElementById("confirm").value;
-
-  if(!name || !email || !password || !confirm){
-    alert("Please fill all fields.");
-    return;
-  }
-  if(password.length < 6){
-    alert("Password must be at least 6 characters.");
-    return;
-  }
-  if(password !== confirm){
-    alert("Passwords do not match.");
-    return;
-  }
-
-  // Save user for login + welcome bar
-  localStorage.setItem("goldchain_user", JSON.stringify({name,email,password}));
-
-  // Also make sure logged_in is false until correct login
-  localStorage.removeItem("goldchain_logged_in");
-
-  alert("Signup successful. Now login.");
-  window.location.href = "login.html";
-});
+updateAuthUI();
+document.getElementById("signupBtn").addEventListener("click", handleSignup);
 </script>
-
 </body>
 </html>
