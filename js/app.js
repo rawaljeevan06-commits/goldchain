@@ -1,99 +1,103 @@
+// ===================== GoldChain Shared App =====================
+
 // Helper: smooth scroll to section id (on same page)
 function smoothScrollToId(id) {
   const target = document.querySelector(id);
   if (!target) return;
   const y = target.getBoundingClientRect().top + window.pageYOffset - 85;
-  window.scrollTo({ top: y, behavior: 'smooth' });
+  window.scrollTo({ top: y, behavior: "smooth" });
 }
 
-// MOBILE MENU
+// ===================== MOBILE MENU =====================
 function toggleMenu() {
-  const nav = document.getElementById('navMenu');
+  const nav = document.getElementById("navMenu");
   if (!nav) return;
-  nav.classList.toggle('active');
+  nav.classList.toggle("active");
 }
 window.toggleMenu = toggleMenu;
 
 // Close menu after clicking any link (mobile)
-document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('#navMenu a').forEach(link => {
-    link.addEventListener('click', () => {
-      document.getElementById('navMenu')?.classList.remove('active');
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll("#navMenu a").forEach((link) => {
+    link.addEventListener("click", () => {
+      document.getElementById("navMenu")?.classList.remove("active");
     });
   });
 });
 
-// SECTION FADE-IN (only if sections exist)
+// ===================== SECTION FADE-IN (index sections) =====================
 function revealSections() {
-  const sections = document.querySelectorAll('.section');
+  const sections = document.querySelectorAll(".section");
   if (!sections.length) return;
-  sections.forEach(sec => {
+  sections.forEach((sec) => {
     if (sec.getBoundingClientRect().top < window.innerHeight - 120) {
-      sec.classList.add('active');
+      sec.classList.add("active");
     }
   });
 }
-window.addEventListener('scroll', revealSections);
-window.addEventListener('load', () => {
+window.addEventListener("scroll", revealSections);
+window.addEventListener("load", () => {
   revealSections();
-  document.getElementById('home')?.classList.add('active');
+  document.getElementById("home")?.classList.add("active");
 });
 
-// NAV: Smooth scroll for same-page anchors only (#...)
-document.addEventListener('DOMContentLoaded', () => {
-  const navLinks = document.querySelectorAll('#navMenu a');
-  navLinks.forEach(link => {
-    link.addEventListener('click', (e) => {
-      const href = link.getAttribute('href') || '';
-      // If it's a section link like "#plans", handle smooth scroll.
-      if (href.startsWith('#')) {
+// Smooth scroll for #section links only
+document.addEventListener("DOMContentLoaded", () => {
+  const navLinks = document.querySelectorAll("#navMenu a");
+  navLinks.forEach((link) => {
+    link.addEventListener("click", (e) => {
+      const href = link.getAttribute("href") || "";
+      if (href.startsWith("#")) {
         e.preventDefault();
         smoothScrollToId(href);
       }
-      // If it's a page link like "login.html", let browser navigate normally.
     });
   });
 });
 
-// ACTIVE NAV HIGHLIGHT (only for #section links on index.html)
-window.addEventListener('scroll', () => {
-  const navLinks = document.querySelectorAll('#navMenu a');
+// Active nav highlight (only for #section links)
+window.addEventListener("scroll", () => {
+  const navLinks = document.querySelectorAll("#navMenu a");
   if (!navLinks.length) return;
 
   let fromTop = window.scrollY + 120;
-  navLinks.forEach(link => {
-    const href = link.getAttribute('href') || '';
-    if (!href.startsWith('#')) return; // don't highlight page links here
+  navLinks.forEach((link) => {
+    const href = link.getAttribute("href") || "";
+    if (!href.startsWith("#")) return;
 
     const section = document.querySelector(href);
     if (!section) return;
 
-    if (section.offsetTop <= fromTop && section.offsetTop + section.offsetHeight > fromTop) {
-      link.classList.add('active');
+    if (
+      section.offsetTop <= fromTop &&
+      section.offsetTop + section.offsetHeight > fromTop
+    ) {
+      link.classList.add("active");
     } else {
-      link.classList.remove('active');
+      link.classList.remove("active");
     }
   });
 });
 
-// BACKGROUND SLIDER (only if bgSlider exists)
-document.addEventListener('DOMContentLoaded', () => {
-  const bgSlider = document.getElementById('bgSlider');
+// ===================== BACKGROUND SLIDER (if exists) =====================
+document.addEventListener("DOMContentLoaded", () => {
+  const bgSlider = document.getElementById("bgSlider");
   if (!bgSlider) return;
 
-  const bgImages = ['images/bg1.jpg', 'images/bg2.jpg', 'images/bg3.jpg'];
+  const bgImages = ["images/bg1.jpg", "images/bg2.jpg", "images/bg3.jpg"];
   let bgIndex = 0;
+
   setInterval(() => {
     bgIndex = (bgIndex + 1) % bgImages.length;
     bgSlider.style.backgroundImage = `url('${bgImages[bgIndex]}')`;
   }, 8000);
 });
 
-// GOLD PARTICLES (only if canvas exists)
-document.addEventListener('DOMContentLoaded', () => {
-  const canvas = document.getElementById('goldParticles');
+// ===================== GOLD PARTICLES (if exists) =====================
+document.addEventListener("DOMContentLoaded", () => {
+  const canvas = document.getElementById("goldParticles");
   if (!canvas) return;
-  const ctx = canvas.getContext('2d');
+  const ctx = canvas.getContext("2d");
   let particlesArray = [];
 
   function resizeCanvas() {
@@ -102,13 +106,15 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   resizeCanvas();
 
-  window.addEventListener('resize', () => {
+  window.addEventListener("resize", () => {
     resizeCanvas();
     initParticles();
   });
 
   class Particle {
-    constructor() { this.reset(); }
+    constructor() {
+      this.reset();
+    }
     reset() {
       this.x = Math.random() * canvas.width;
       this.y = Math.random() * canvas.height;
@@ -120,7 +126,12 @@ document.addEventListener('DOMContentLoaded', () => {
     update() {
       this.x += this.speedX;
       this.y += this.speedY;
-      if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
+      if (
+        this.x < 0 ||
+        this.x > canvas.width ||
+        this.y < 0 ||
+        this.y > canvas.height
+      ) {
         this.reset();
       }
     }
@@ -140,7 +151,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function animateParticles() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    particlesArray.forEach(p => { p.update(); p.draw(); });
+    particlesArray.forEach((p) => {
+      p.update();
+      p.draw();
+    });
     requestAnimationFrame(animateParticles);
   }
 
@@ -148,23 +162,23 @@ document.addEventListener('DOMContentLoaded', () => {
   animateParticles();
 });
 
-// FAQ ACCORDION (works on index and any page that has faq-item)
-document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('.faq-item').forEach(item => {
-    item.addEventListener('click', () => {
-      const ans = item.querySelector('.faq-answer');
-      ans?.classList.toggle('active');
+// ===================== FAQ ACCORDION =====================
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".faq-item").forEach((item) => {
+    item.addEventListener("click", () => {
+      const ans = item.querySelector(".faq-answer");
+      ans?.classList.toggle("active");
     });
   });
 });
 
-// PLAN DYNAMIC PROFIT (only where plan exists)
-document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('.plan').forEach(plan => {
-    const input = plan.querySelector('.invest-amount');
-    const profitDisplay = plan.querySelector('.profit');
-    const rate = parseFloat(plan.getAttribute('data-rate')) / 100;
-    const min = parseFloat(plan.getAttribute('data-min'));
+// ===================== PLAN PROFIT CALC (if exists) =====================
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".plan").forEach((plan) => {
+    const input = plan.querySelector(".invest-amount");
+    const profitDisplay = plan.querySelector(".profit");
+    const rate = parseFloat(plan.getAttribute("data-rate")) / 100;
+    const min = parseFloat(plan.getAttribute("data-min"));
     if (!input || !profitDisplay || !rate || !min) return;
 
     function update() {
@@ -173,107 +187,56 @@ document.addEventListener('DOMContentLoaded', () => {
       input.value = amount;
       profitDisplay.innerText = (amount * rate).toFixed(2);
     }
-    input.addEventListener('input', update);
+
+    input.addEventListener("input", update);
     update();
   });
 });
 
-// PROGRESS BARS
+// ===================== PROGRESS BARS =====================
 function animateProgressBars() {
-  document.querySelectorAll('.progress-bar').forEach(bar => {
+  document.querySelectorAll(".progress-bar").forEach((bar) => {
     const top = bar.getBoundingClientRect().top;
     if (top < window.innerHeight - 120 && !bar.dataset.animated) {
-      const rate = parseFloat(bar.getAttribute('data-rate'));
-      bar.style.width = Math.min(rate * 25, 100) + '%';
+      const rate = parseFloat(bar.getAttribute("data-rate"));
+      bar.style.width = Math.min(rate * 25, 100) + "%";
       bar.dataset.animated = "1";
     }
   });
 }
-window.addEventListener('scroll', animateProgressBars);
-window.addEventListener('load', animateProgressBars);
+window.addEventListener("scroll", animateProgressBars);
+window.addEventListener("load", animateProgressBars);
 
-// BACK TO TOP (only if exists)
-window.addEventListener('scroll', () => {
-  const backTop = document.getElementById('backTop');
+// ===================== BACK TO TOP =====================
+window.addEventListener("scroll", () => {
+  const backTop = document.getElementById("backTop");
   if (!backTop) return;
-  backTop.style.display = window.scrollY > 400 ? 'block' : 'none';
+  backTop.style.display = window.scrollY > 400 ? "block" : "none";
 });
 
-// TradingView: load script only if chart container exists
-document.addEventListener('DOMContentLoaded', () => {
-  const chart = document.getElementById('tv_chart');
+// ===================== TRADINGVIEW (only if chart exists) =====================
+document.addEventListener("DOMContentLoaded", () => {
+  const chart = document.getElementById("tv_chart");
   if (!chart) return;
 
-  const s = document.createElement('script');
-  s.src = 'https://s3.tradingview.com/tv.js';
+  const s = document.createElement("script");
+  s.src = "https://s3.tradingview.com/tv.js";
   s.onload = () => {
-    if (typeof TradingView === 'undefined') return;
+    if (typeof TradingView === "undefined") return;
     new TradingView.widget({
       width: "100%",
       height: window.innerWidth < 600 ? 300 : 420,
       symbol: "OANDA:XAUUSD",
       interval: "60",
       theme: "dark",
-      container_id: "tv_chart"
+      container_id: "tv_chart",
     });
   };
   document.body.appendChild(s);
 });
-/* ================= SIGN UP VALIDATION ================= */
-document.addEventListener('DOMContentLoaded', () => {
-  const signupBtn = document.getElementById('signupBtn');
-  if (signupBtn) {
-    signupBtn.addEventListener('click', () => {
-      const name = document.getElementById('su-name').value.trim();
-      const email = document.getElementById('su-email').value.trim();
-      const pass = document.getElementById('su-password').value;
-      const confirm = document.getElementById('su-confirm').value;
 
-      if (!name || !email || !pass || !confirm) {
-        alert('Please fill in all fields.');
-        return;
-      }
-      if (!/^\S+@\S+\.\S+$/.test(email)) {
-        alert('Please enter a valid email.');
-        return;
-      }
-      if (pass.length < 6) {
-        alert('Password must be at least 6 characters.');
-        return;
-      }
-      if (pass !== confirm) {
-        alert('Passwords do not match.');
-        return;
-      }
-
-      alert('Sign up successful (demo).');
-      window.location.href = 'login.html';
-    });
-  }
-});
-
-/* ================= LOGIN VALIDATION ================= */
-document.addEventListener('DOMContentLoaded', () => {
-  const loginBtn = document.getElementById('loginBtn');
-  if (loginBtn) {
-    loginBtn.addEventListener('click', () => {
-      const email = document.getElementById('li-email').value.trim();
-      const pass = document.getElementById('li-password').value;
-
-      if (!email || !pass) {
-        alert('Please enter email and password.');
-        return;
-      }
-      if (!/^\S+@\S+\.\S+$/.test(email)) {
-        alert('Invalid email format.');
-        return;
-      }
-
-      alert('Login successful (demo).');
-    });
-  }
-});
-/* ===================== DEMO AUTH (localStorage) ===================== */
+// ===================== DEMO AUTH (REAL CHECK) =====================
+// NOTE: Works only in the same browser (localStorage), no backend.
 const GC_AUTH_KEY = "goldchain_demo_user";
 
 function getSavedUser() {
@@ -288,7 +251,7 @@ function saveUser(user) {
   localStorage.setItem(GC_AUTH_KEY, JSON.stringify(user));
 }
 
-/* ===================== SIGN UP ===================== */
+// SIGNUP
 document.addEventListener("DOMContentLoaded", () => {
   const signupBtn = document.getElementById("signupBtn");
   if (!signupBtn) return;
@@ -304,7 +267,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (pass.length < 6) return alert("Password must be at least 6 characters.");
     if (pass !== confirm) return alert("Passwords do not match.");
 
-    // Save demo user (browser only)
     saveUser({ name, email, pass });
 
     alert("Sign up successful. Now login.");
@@ -312,7 +274,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-/* ===================== LOGIN ===================== */
+// LOGIN
 document.addEventListener("DOMContentLoaded", () => {
   const loginBtn = document.getElementById("loginBtn");
   if (!loginBtn) return;
@@ -333,7 +295,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (email === user.email && pass === user.pass) {
       alert(`Login successful. Welcome, ${user.name}!`);
-      // Optional redirect after login:
       window.location.href = "index.html";
     } else {
       alert("Wrong email or password.");
