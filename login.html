@@ -6,70 +6,35 @@
 <title>Login - GoldChain Investment</title>
 
 <style>
-body{
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:#000;
-  color:#fff;
-}
+body{margin:0;font-family:Arial,sans-serif;background:#000;color:#fff}
 header{
-  background:#111;
-  padding:12px 20px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  border-bottom:1px solid rgba(255,215,0,.15);
+  background:#111;padding:12px 20px;
+  display:flex;justify-content:space-between;align-items:center;
+  border-bottom:1px solid rgba(255,215,0,.15)
 }
-.logo{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  color:gold;
-  font-weight:bold;
-}
-.logo img{
-  width:36px;
-  height:36px;
-  border-radius:8px;
-}
-nav a{
-  margin-left:14px;
-  color:#ccc;
-  text-decoration:none;
-  font-size:14px;
-}
-nav a:hover{color:gold}
+.logo{display:flex;align-items:center;gap:10px;color:gold;font-weight:bold}
+.logo img{width:36px;height:36px;border-radius:8px}
+nav a{margin-left:14px;color:#ddd;text-decoration:none;font-size:14px}
+nav a:hover{color:#ffd700}
 
-.wrapper{
-  min-height:calc(100vh - 60px);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:30px;
-}
+.wrap{min-height:calc(100vh - 60px);display:flex;align-items:center;justify-content:center;padding:30px}
 .card{
-  width:100%;
-  max-width:460px;
+  width:100%;max-width:480px;
   background:rgba(0,0,0,.75);
   border:1px solid rgba(255,215,0,.15);
   border-radius:18px;
   padding:28px;
 }
-h2{color:gold;margin-top:0}
-label{
-  display:block;
-  margin-top:12px;
-  font-size:13px;
-  color:#bbb;
-}
+h2{color:gold;margin:0 0 10px}
+label{display:block;margin-top:12px;color:#bbb;font-size:13px}
 input{
   width:100%;
   padding:12px;
   margin-top:6px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,.12);
   background:#0c0c0c;
   color:#fff;
-  border:1px solid rgba(255,255,255,.1);
-  border-radius:10px;
 }
 button{
   width:100%;
@@ -102,10 +67,10 @@ small{color:#bbb;font-size:12px}
   </nav>
 </header>
 
-<div class="wrapper">
+<div class="wrap">
   <div class="card">
     <h2>Login</h2>
-    <small>Use the same email & password you signed up with.</small>
+    <small>Use the same email and password you signed up with.</small>
 
     <label>Email</label>
     <input id="email" type="email" placeholder="Your email">
@@ -113,9 +78,9 @@ small{color:#bbb;font-size:12px}
     <label>Password</label>
     <input id="password" type="password" placeholder="Your password">
 
-    <button id="loginBtn">Login</button>
+    <button id="loginBtn" type="button">Login</button>
 
-    <p style="margin-top:14px;font-size:13px;color:#bbb">
+    <p style="margin-top:14px;color:#bbb;font-size:13px">
       Don’t have an account?
       <a href="signup.html" style="color:gold">Sign up here</a>
     </p>
@@ -127,21 +92,20 @@ document.getElementById("loginBtn").addEventListener("click", ()=>{
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
 
-  const savedUser = localStorage.getItem("goldchain_user");
-
-  if(!savedUser){
+  const saved = localStorage.getItem("goldchain_user");
+  if(!saved){
     alert("No account found. Please sign up first.");
     return;
   }
 
-  const user = JSON.parse(savedUser);
+  const user = JSON.parse(saved);
 
   if(email !== user.email || password !== user.password){
     alert("Invalid email or password.");
     return;
   }
 
-  // save logged-in session
+  // Set login session
   localStorage.setItem("goldchain_logged_in", "true");
 
   alert("Login successful!");
