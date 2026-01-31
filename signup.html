@@ -4,49 +4,124 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sign Up - GoldChain Investment</title>
-<link rel="stylesheet" href="css/style.css">
+
+<style>
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#000;
+  color:#fff;
+}
+header{
+  background:#111;
+  padding:12px 20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-bottom:1px solid rgba(255,215,0,.15);
+}
+.logo{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  color:gold;
+  font-weight:bold;
+}
+.logo img{
+  width:36px;
+  height:36px;
+  border-radius:8px;
+}
+nav a{
+  margin-left:14px;
+  color:#ccc;
+  text-decoration:none;
+  font-size:14px;
+}
+nav a:hover{color:gold}
+
+.wrapper{
+  min-height:calc(100vh - 60px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:30px;
+}
+.card{
+  width:100%;
+  max-width:460px;
+  background:rgba(0,0,0,.75);
+  border:1px solid rgba(255,215,0,.15);
+  border-radius:18px;
+  padding:28px;
+}
+h2{color:gold;margin-top:0}
+label{
+  display:block;
+  margin-top:12px;
+  font-size:13px;
+  color:#bbb;
+}
+input{
+  width:100%;
+  padding:12px;
+  margin-top:6px;
+  background:#0c0c0c;
+  color:#fff;
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:10px;
+}
+button{
+  width:100%;
+  margin-top:18px;
+  padding:14px;
+  border:none;
+  border-radius:25px;
+  background:gold;
+  color:#000;
+  font-weight:bold;
+  cursor:pointer;
+}
+button:hover{background:#ffd700}
+small{color:#bbb;font-size:12px}
+</style>
 </head>
+
 <body>
 
 <header>
   <div class="logo">
-    <img src="images/logo.png" alt="GoldChain Logo">
+    <img src="images/logo.png" alt="Logo">
     <span>GoldChain Investment</span>
   </div>
-
-  <div class="hamburger" onclick="toggleMenu()"><div></div><div></div><div></div></div>
-
-  <nav id="navMenu">
+  <nav>
     <a href="index.html#home">Home</a>
+    <a href="index.html#plans">Plans</a>
     <a href="login.html">Login</a>
-    <a href="signup.html" class="active">Sign Up</a>
-    <a href="contact.html">Contact</a>
+    <a href="signup.html">Sign Up</a>
   </nav>
 </header>
 
-<div class="page">
-  <div class="overlay">
-    <h1>Create Account</h1>
+<div class="wrapper">
+  <div class="card">
+    <h2>Create Account</h2>
+    <small>Demo signup – stored in your browser only.</small>
 
-    <div class="form-box">
-      <label>Full Name</label>
-      <input id="su-name" type="text" placeholder="Your full name">
+    <label>Full Name</label>
+    <input id="name" type="text" placeholder="Your full name">
 
-      <label>Email</label>
-      <input id="su-email" type="email" placeholder="Your email">
+    <label>Email</label>
+    <input id="email" type="email" placeholder="Your email">
 
-      <label>Password</label>
-      <input id="su-password" type="password" placeholder="Create password">
+    <label>Password</label>
+    <input id="password" type="password" placeholder="Create password">
 
-      <label>Confirm Password</label>
-      <input id="su-confirm" type="password" placeholder="Confirm password">
+    <label>Confirm Password</label>
+    <input id="confirm" type="password" placeholder="Confirm password">
 
-      <button id="signupBtn" type="button">Create Account</button>
-    </div>
+    <button id="signupBtn">Create Account</button>
 
-    <p id="signupMsg" style="margin-top:15px;font-size:13px;color:#bbb"></p>
-
-    <p style="margin-top:15px;font-size:13px;color:#bbb">
+    <p style="margin-top:14px;font-size:13px;color:#bbb">
       Already have an account?
       <a href="login.html" style="color:gold">Login here</a>
     </p>
@@ -54,23 +129,32 @@
 </div>
 
 <script>
-function toggleMenu(){document.getElementById('navMenu').classList.toggle('active');}
-
 document.getElementById("signupBtn").addEventListener("click", ()=>{
-  const name = document.getElementById("su-name").value.trim();
-  const email = document.getElementById("su-email").value.trim();
-  const pass = document.getElementById("su-password").value;
-  const conf = document.getElementById("su-confirm").value;
+  const name = document.getElementById("name").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+  const confirm = document.getElementById("confirm").value;
 
-  if(!name || !email || !pass || !conf) return alert("Please fill all fields.");
-  if(pass.length < 6) return alert("Password must be at least 6 characters.");
-  if(pass !== conf) return alert("Passwords do not match.");
+  if(!name || !email || !password || !confirm){
+    alert("Please fill all fields.");
+    return;
+  }
 
-  localStorage.setItem("goldchain_demo_user", JSON.stringify({name,email,pass}));
+  if(password.length < 6){
+    alert("Password must be at least 6 characters.");
+    return;
+  }
 
-  // ✅ Stay on the same page (no redirect)
-  document.getElementById("signupMsg").innerHTML =
-    "✅ Account created! You can now <a href='login.html' style='color:gold'>Login</a>.";
+  if(password !== confirm){
+    alert("Passwords do not match.");
+    return;
+  }
+
+  const user = { name, email, password };
+  localStorage.setItem("goldchain_user", JSON.stringify(user));
+
+  alert("Signup successful. Please login.");
+  window.location.href = "login.html";
 });
 </script>
 
