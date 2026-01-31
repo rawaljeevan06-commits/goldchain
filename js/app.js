@@ -219,3 +219,57 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   document.body.appendChild(s);
 });
+/* ================= SIGN UP VALIDATION ================= */
+document.addEventListener('DOMContentLoaded', () => {
+  const signupBtn = document.getElementById('signupBtn');
+  if (signupBtn) {
+    signupBtn.addEventListener('click', () => {
+      const name = document.getElementById('su-name').value.trim();
+      const email = document.getElementById('su-email').value.trim();
+      const pass = document.getElementById('su-password').value;
+      const confirm = document.getElementById('su-confirm').value;
+
+      if (!name || !email || !pass || !confirm) {
+        alert('Please fill in all fields.');
+        return;
+      }
+      if (!/^\S+@\S+\.\S+$/.test(email)) {
+        alert('Please enter a valid email.');
+        return;
+      }
+      if (pass.length < 6) {
+        alert('Password must be at least 6 characters.');
+        return;
+      }
+      if (pass !== confirm) {
+        alert('Passwords do not match.');
+        return;
+      }
+
+      alert('Sign up successful (demo).');
+      window.location.href = 'login.html';
+    });
+  }
+});
+
+/* ================= LOGIN VALIDATION ================= */
+document.addEventListener('DOMContentLoaded', () => {
+  const loginBtn = document.getElementById('loginBtn');
+  if (loginBtn) {
+    loginBtn.addEventListener('click', () => {
+      const email = document.getElementById('li-email').value.trim();
+      const pass = document.getElementById('li-password').value;
+
+      if (!email || !pass) {
+        alert('Please enter email and password.');
+        return;
+      }
+      if (!/^\S+@\S+\.\S+$/.test(email)) {
+        alert('Invalid email format.');
+        return;
+      }
+
+      alert('Login successful (demo).');
+    });
+  }
+});
