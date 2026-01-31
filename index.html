@@ -7,43 +7,90 @@
 
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial,sans-serif;background:#000;color:#fff;scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#000;
+  color:#fff;
+  scroll-behavior:smooth;
+}
 a{text-decoration:none;color:inherit}
 h1,h2,h3{color:gold}
 
 /* HEADER */
 header{
-  position:fixed;top:0;width:100%;z-index:1000;
-  background:#111;padding:12px 20px;
-  display:flex;justify-content:space-between;align-items:center;
+  position:fixed;
+  top:0;
+  width:100%;
+  z-index:1000;
+  background:#111;
+  padding:12px 20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
   border-bottom:1px solid rgba(255,215,0,.15);
 }
-.logo{display:flex;align-items:center;gap:10px;color:gold;font-weight:bold}
-.logo img{width:36px;height:36px;border-radius:8px}
-nav a{margin-left:14px;font-size:14px;color:#ddd}
+.logo{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  color:gold;
+  font-weight:bold;
+}
+.logo img{
+  width:36px;
+  height:36px;
+  border-radius:8px;
+}
+nav a{
+  margin-left:14px;
+  font-size:14px;
+  color:#ddd;
+}
 nav a:hover{color:#ffd700}
 
 /* MOBILE */
-.hamburger{display:none;flex-direction:column;gap:4px;cursor:pointer}
-.hamburger div{width:25px;height:3px;background:gold}
-#navMenu{display:flex;align-items:center;gap:12px}
-#navMenu.active{display:flex;flex-direction:column;position:absolute;top:60px;right:20px;background:#111;padding:15px;border-radius:12px}
+.hamburger{
+  display:none;
+  flex-direction:column;
+  gap:4px;
+  cursor:pointer;
+}
+.hamburger div{
+  width:25px;
+  height:3px;
+  background:gold;
+}
+#navMenu{
+  display:flex;
+  align-items:center;
+}
+#navMenu.active{
+  display:flex;
+  flex-direction:column;
+  position:absolute;
+  top:60px;
+  right:20px;
+  background:#111;
+  padding:15px;
+  border-radius:12px;
+}
 
-/* ✅ WELCOME BAR */
+/* WELCOME BAR */
 #userBar{
   display:none;
   position:sticky;
   top:60px;
   z-index:999;
   background:#0f0f0f;
-  border-bottom:1px solid rgba(255,215,0,.15);
+  border-bottom:1px solid rgba(255,215,0,.2);
   padding:10px 20px;
   color:#ffd700;
   font-size:14px;
 }
 #logoutBtn{
   margin-left:12px;
-  padding:6px 12px;
+  padding:6px 14px;
   border-radius:16px;
   border:none;
   background:gold;
@@ -51,56 +98,130 @@ nav a:hover{color:#ffd700}
   font-weight:bold;
   cursor:pointer;
 }
-#logoutBtn:hover{background:#ffd700}
 
 /* SECTIONS */
 .section{
   min-height:100vh;
   padding:140px 20px;
-  display:flex;align-items:center;justify-content:center;
-  opacity:0;transform:translateY(40px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  opacity:0;
+  transform:translateY(40px);
   transition:.7s;
 }
-.section.active{opacity:1;transform:none}
+.section.active{
+  opacity:1;
+  transform:none;
+}
 .overlay{
-  max-width:1100px;width:100%;
+  max-width:1100px;
+  width:100%;
   background:rgba(0,0,0,.75);
-  padding:40px;border-radius:18px;
+  padding:40px;
+  border-radius:18px;
   text-align:center;
 }
 
 /* INFO GRID */
-.info-grid{display:flex;gap:20px;flex-wrap:wrap;justify-content:center}
-.info-box{background:#111;padding:25px;border-radius:14px;width:300px}
+.info-grid{
+  display:flex;
+  gap:20px;
+  flex-wrap:wrap;
+  justify-content:center;
+}
+.info-box{
+  background:#111;
+  padding:25px;
+  border-radius:14px;
+  width:300px;
+}
 
 /* PLANS */
-.plans{display:flex;gap:20px;flex-wrap:wrap;justify-content:center}
-.plan{background:#151515;padding:25px;border-radius:18px;width:260px}
-.plan input{width:100%;padding:10px;margin-top:8px;background:#0c0c0c;color:#fff;border:1px solid #333;border-radius:8px}
-.plan .btn{display:inline-block;margin-top:10px;background:gold;color:#000;padding:10px 16px;border-radius:20px;font-weight:bold}
-.plan .btn:hover{background:#ffd700}
+.plans{
+  display:flex;
+  gap:20px;
+  flex-wrap:wrap;
+  justify-content:center;
+}
+.plan{
+  background:#151515;
+  padding:25px;
+  border-radius:18px;
+  width:260px;
+}
+.plan input{
+  width:100%;
+  padding:10px;
+  margin-top:8px;
+  background:#0c0c0c;
+  color:#fff;
+  border:1px solid #333;
+  border-radius:8px;
+}
+.plan .btn{
+  display:inline-block;
+  margin-top:12px;
+  background:gold;
+  color:#000;
+  padding:10px 18px;
+  border-radius:20px;
+  font-weight:bold;
+}
+
+/* IMPACT */
+.counter{
+  font-size:32px;
+  color:gold;
+  font-weight:bold;
+}
 
 /* FAQ */
-.faq-item{background:#111;padding:18px;border-radius:12px;margin:10px 0;cursor:pointer;text-align:left}
-.faq-answer{display:none;color:#ccc;margin-top:8px}
-
-/* FOOTER */
-footer{background:#111;text-align:center;padding:18px;border-top:1px solid rgba(255,215,0,.15)}
+.faq-item{
+  background:#111;
+  padding:18px;
+  border-radius:12px;
+  margin:10px 0;
+  cursor:pointer;
+  text-align:left;
+}
+.faq-answer{
+  display:none;
+  color:#ccc;
+  margin-top:8px;
+}
 
 /* CHAT */
 .chat{
-  position:fixed;right:18px;bottom:18px;
-  background:gold;color:#000;
-  padding:14px 16px;border-radius:50%;
+  position:fixed;
+  right:18px;
+  bottom:18px;
+  background:gold;
+  color:#000;
+  padding:14px 16px;
+  border-radius:50%;
   font-size:20px;
 }
 
-/* BACK TOP */
+/* BACK TO TOP */
 #backTop{
-  position:fixed;right:20px;bottom:90px;
-  background:gold;color:#000;
-  padding:10px 14px;border-radius:50%;
-  display:none;cursor:pointer;
+  position:fixed;
+  right:20px;
+  bottom:90px;
+  background:gold;
+  color:#000;
+  padding:10px 14px;
+  border-radius:50%;
+  display:none;
+  cursor:pointer;
+}
+
+/* FOOTER */
+footer{
+  background:#111;
+  text-align:center;
+  padding:18px;
+  border-top:1px solid rgba(255,215,0,.15);
 }
 
 @media(max-width:700px){
@@ -127,6 +248,8 @@ footer{background:#111;text-align:center;padding:18px;border-top:1px solid rgba(
     <a href="#home">Home</a>
     <a href="#strategy">Strategy</a>
     <a href="#prosper">Prosper</a>
+    <a href="#chart">Live Chart</a>
+    <a href="#impact">Our Impact</a>
     <a href="#plans">Plans</a>
     <a href="#faq">FAQ</a>
     <a href="#contact">Contact</a>
@@ -135,41 +258,60 @@ footer{background:#111;text-align:center;padding:18px;border-top:1px solid rgba(
   </nav>
 </header>
 
-<!-- ✅ WELCOME BAR (shows after login) -->
+<!-- WELCOME BAR -->
 <div id="userBar">
   <span id="welcomeText"></span>
-  <button id="logoutBtn">Sign Out</button>
+  <button id="logoutBtn">Logout</button>
 </div>
 
 <section id="home" class="section">
   <div class="overlay">
-    <h1>Welcome to GoldChain Investment</h1>
+    <h1>GoldChain Investment</h1>
     <p>Where Gold Meets Trust</p>
-    <p style="color:#ccc">This is the main website. Login/Signup are separate pages.</p>
+    <a class="btn" href="signup.html" style="background:gold;color:#000;padding:12px 22px;border-radius:25px;font-weight:bold">Get Started</a>
   </div>
 </section>
 
 <section id="strategy" class="section">
   <div class="overlay">
-    <h2>Strategy & Market Insight</h2>
+    <h2>Strategy</h2>
     <div class="info-grid">
-      <div class="info-box">Gold-backed strategy with risk management</div>
-      <div class="info-box">Market trend & demand analysis</div>
-      <div class="info-box">Transparent & secure plans</div>
+      <div class="info-box">Gold-backed investment strategy</div>
+      <div class="info-box">Market analysis & risk control</div>
+      <div class="info-box">Transparent weekly returns</div>
     </div>
   </div>
 </section>
 
 <section id="prosper" class="section">
   <div class="overlay">
-    <h2>Build Your Prosperity</h2>
-    <p>Weekly returns • Secure capital • Long-term growth</p>
+    <h2>Prosper</h2>
+    <p>Grow wealth with secure gold-based strategies.</p>
+  </div>
+</section>
+
+<section id="chart" class="section">
+  <div class="overlay">
+    <h2>Live Gold Chart</h2>
+    <iframe src="https://www.tradingview.com/embed-widget/advanced-chart/?symbol=OANDA:XAUUSD&theme=dark"
+      style="width:100%;height:420px;border:none"></iframe>
+  </div>
+</section>
+
+<section id="impact" class="section">
+  <div class="overlay">
+    <h2>Our Impact</h2>
+    <div class="info-grid">
+      <div class="info-box"><div class="counter" data-target="1250">0</div>Investors</div>
+      <div class="info-box"><div class="counter" data-target="7500000">0</div>Total Invested</div>
+      <div class="info-box"><div class="counter" data-target="420000">0</div>Weekly Profit</div>
+    </div>
   </div>
 </section>
 
 <section id="plans" class="section">
   <div class="overlay">
-    <h2>Investment Plans</h2>
+    <h2>Plans</h2>
     <div class="plans">
       <div class="plan">
         <h3>Starter</h3>
@@ -192,11 +334,11 @@ footer{background:#111;text-align:center;padding:18px;border-top:1px solid rgba(
     <h2>FAQ</h2>
     <div class="faq-item">
       <b>Is this secure?</b>
-      <div class="faq-answer">This is a demo website. Real security needs backend.</div>
+      <div class="faq-answer">This is a frontend demo. Backend required for real use.</div>
     </div>
     <div class="faq-item">
       <b>Can I withdraw?</b>
-      <div class="faq-answer">Withdrawals are demo only in this version.</div>
+      <div class="faq-answer">Withdrawals are demo only.</div>
     </div>
   </div>
 </section>
@@ -218,53 +360,69 @@ function toggleMenu(){
   document.getElementById("navMenu").classList.toggle("active");
 }
 
-/* Fade-in sections */
+/* Reveal */
 function reveal(){
   document.querySelectorAll(".section").forEach(sec=>{
-    if(sec.getBoundingClientRect().top < window.innerHeight - 100){
+    if(sec.getBoundingClientRect().top < window.innerHeight-100){
       sec.classList.add("active");
     }
   });
 }
-window.addEventListener("load", ()=>{
-  reveal();
-  document.getElementById("home").classList.add("active");
-  updateUserBar();
-});
-window.addEventListener("scroll", ()=>{
-  reveal();
-  document.getElementById("backTop").style.display = window.scrollY>400 ? "block" : "none";
-});
 
-/* FAQ toggle */
-document.querySelectorAll(".faq-item").forEach(item=>{
-  item.addEventListener("click", ()=>{
-    const ans=item.querySelector(".faq-answer");
-    ans.style.display = ans.style.display==="block" ? "none" : "block";
-  });
-});
+/* Welcome + Logout */
+function updateUser(){
+  const bar=document.getElementById("userBar");
+  const txt=document.getElementById("welcomeText");
+  const logged=localStorage.getItem("goldchain_logged_in")==="true";
+  const user=localStorage.getItem("goldchain_user");
 
-/* ✅ Welcome bar + Sign out */
-function updateUserBar(){
-  const bar = document.getElementById("userBar");
-  const welcome = document.getElementById("welcomeText");
-
-  const loggedIn = localStorage.getItem("goldchain_logged_in") === "true";
-  const savedUser = localStorage.getItem("goldchain_user");
-
-  if(loggedIn && savedUser){
-    const user = JSON.parse(savedUser);
-    bar.style.display = "block";
-    welcome.textContent = `Welcome, ${user.name}`;
-  } else {
-    bar.style.display = "none";
+  if(logged && user){
+    txt.textContent="Welcome, "+JSON.parse(user).name;
+    bar.style.display="block";
+  }else{
+    bar.style.display="none";
   }
 }
 
-document.getElementById("logoutBtn").addEventListener("click", ()=>{
+document.getElementById("logoutBtn").onclick=()=>{
   localStorage.removeItem("goldchain_logged_in");
-  alert("Signed out.");
-  updateUserBar();
+  updateUser();
+};
+
+/* FAQ */
+document.querySelectorAll(".faq-item").forEach(i=>{
+  i.onclick=()=>{
+    const a=i.querySelector(".faq-answer");
+    a.style.display=a.style.display==="block"?"none":"block";
+  }
+});
+
+/* Counters */
+function runCounters(){
+  document.querySelectorAll(".counter").forEach(c=>{
+    const target=+c.dataset.target;
+    let count=0;
+    const step=Math.ceil(target/100);
+    const interval=setInterval(()=>{
+      count+=step;
+      if(count>=target){
+        c.textContent=target.toLocaleString();
+        clearInterval(interval);
+      }else{
+        c.textContent=count.toLocaleString();
+      }
+    },20);
+  });
+}
+
+window.addEventListener("load",()=>{
+  reveal();
+  updateUser();
+  runCounters();
+});
+window.addEventListener("scroll",()=>{
+  reveal();
+  document.getElementById("backTop").style.display=window.scrollY>400?"block":"none";
 });
 </script>
 
