@@ -4,59 +4,75 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Login | GoldChain Investment</title>
+
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
+
 <body>
 
-  <div class="topbar">Login — Demo Login</div>
+  <!-- WELCOME BAR -->
+  <div class="welcome-bar">
+    <p>Welcome to GoldChain Investment — Secure. Smart. Simple.</p>
+  </div>
 
-  <header class="header">
-    <div class="container header-in">
-      <a class="brand" href="index.html">
-        <img src="images/logo.png" alt="GoldChain Logo">
-        <span>GoldChain</span>
-      </a>
-
-      <button class="nav-toggle" type="button" aria-label="Menu">☰</button>
+  <!-- HEADER / NAVBAR -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="index.html">GoldChain<span>.</span></a>
 
       <nav class="nav">
-        <a href="index.html">Home</a>
-        <a href="plans.html">Plans</a>
-        <a href="about.html">Our Impact</a>
-        <a href="faq.html">FAQ</a>
-        <a href="contact.html">Contact</a>
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="plans.html" class="nav-link">Plans</a>
+        <a href="about.html" class="nav-link">Our Impact</a>
+        <a href="faq.html" class="nav-link">FAQ</a>
+        <a href="contact.html" class="nav-link">Contact</a>
       </nav>
 
-      <div class="actions">
-        <a class="btn btn-ghost" href="login.html">Login</a>
+      <div class="auth-buttons">
+        <a class="btn btn-light" href="login.html">Login</a>
         <a class="btn btn-primary" href="signup.html">Sign Up</a>
       </div>
     </div>
   </header>
 
+  <!-- LOGIN -->
   <section class="section">
-    <div class="container" style="max-width:560px;">
-      <div class="card">
+    <div class="container" style="max-width: 560px;">
+      <div class="hero-card">
         <h2>Login</h2>
-        <p class="small">Demo login checks the account stored in your browser.</p>
+        <p class="small">Enter your email and password. (Demo login)</p>
 
-        <form id="loginForm" class="form-grid">
-          <input class="field" id="liEmail" type="email" placeholder="Email" required>
-          <input class="field" id="liPass" type="password" placeholder="Password" required>
+        <form id="loginForm" style="margin-top:14px; display:grid; gap:12px;">
+          <div>
+            <label class="small">Email</label><br/>
+            <input id="liEmail" type="email" placeholder="you@email.com" required
+              style="width:100%; padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.18); background:rgba(255,255,255,0.06); color:#e9eefc;">
+          </div>
+
+          <div>
+            <label class="small">Password</label><br/>
+            <input id="liPass" type="password" placeholder="Your password" required
+              style="width:100%; padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.18); background:rgba(255,255,255,0.06); color:#e9eefc;">
+          </div>
 
           <button class="btn btn-primary full" type="submit">Login</button>
-          <p id="loginMsg" class="small"></p>
 
-          <p class="small">No account? <a href="signup.html" style="color:var(--gold2);font-weight:700;">Create one</a></p>
+          <p id="loginMsg" class="small" style="margin-top:6px;"></p>
+
+          <p class="small">
+            Don’t have an account?
+            <a class="link" href="signup.html">Create one</a>
+          </p>
         </form>
       </div>
     </div>
   </section>
 
+  <!-- FOOTER -->
   <footer class="footer">
-    <div class="container footer-in">
-      <p class="small">©️ 2026 GoldChain Investment. All rights reserved.</p>
+    <div class="container footer-inner">
+      <p>&copy; 2026 GoldChain Investment. All rights reserved.</p>
       <div class="social">
         <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
         <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
@@ -71,6 +87,5 @@
   </a>
 
   <script src="js/auth.js"></script>
-  <script src="js/main.js"></script>
 </body>
 </html>
