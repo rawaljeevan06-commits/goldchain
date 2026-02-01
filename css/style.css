@@ -423,3 +423,74 @@ h1, h2, h3{
 .plan{
   padding-bottom:22px;
 }
+/* ===== POLISH PACK (1+2+3): icons + scroll animation + mobile ===== */
+
+/* 1) Plan feature rows with icons */
+.plan-features{
+  margin-top: 10px;
+  display: grid;
+  gap: 8px;
+}
+
+.plan-feature{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.18);
+}
+
+.plan-feature i{
+  width: 20px;
+  text-align: center;
+  color: var(--gold2);
+  opacity: .95;
+}
+
+.plan-feature span{
+  color: var(--text);
+  font-size: 13.5px;
+}
+
+.plan-feature b{
+  color: var(--text);
+}
+
+/* 2) Scroll-in animation */
+.reveal{
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity .6s ease, transform .6s ease;
+}
+.reveal.is-visible{
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 3) Mobile plans polish */
+@media(max-width:560px){
+  .plans{
+    gap: 14px;
+  }
+
+  .plan{
+    border-radius: 20px;
+  }
+
+  /* make cards feel “snap” and clean on mobile */
+  .plan:hover{
+    transform: none;
+  }
+
+  /* reduce heavy focus effect on touch devices */
+  .plans:hover .plan{
+    opacity: 1;
+    transform: none;
+  }
+
+  .plan::before{
+    opacity: .55;
+  }
+}
