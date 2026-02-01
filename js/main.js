@@ -123,3 +123,15 @@ if (canvas) {
   draw();
   setInterval(tick, 2000);
 }
+const hero = document.querySelector(".hero");
+if (hero) {
+  const images = ["images/bg1.jpg", "images/bg2.jpg", "images/bg3.jpg"];
+  let i = 0;
+  setInterval(() => {
+    i = (i + 1) % images.length;
+    hero.style.backgroundImage = `url("${images[i]}")`;
+    hero.style.backgroundSize = "cover";
+    hero.style.backgroundPosition = "center";
+  }, 5000);
+}
+
