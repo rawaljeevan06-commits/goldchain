@@ -2,144 +2,103 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Plans | GoldChain Investment</title>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Plans - GoldChain</title>
   <link rel="stylesheet" href="css/style.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
-
 <body>
 
-  <!-- WELCOME BAR -->
-  <div class="welcome-bar">
-    <p>Welcome to GoldChain Investment — Secure. Smart. Simple.</p>
+  <div class="welcome-bar" id="welcomeBar">
+    <div class="welcome-left">
+      <span id="welcomeText">Plans</span>
+    </div>
+    <div class="welcome-right">
+      <a class="btn btn-sm btn-outline" href="index.html">Home</a>
+      <a class="btn btn-sm" href="signup.html" id="signupBtn">Sign Up</a>
+      <a class="btn btn-sm btn-outline" href="login.html" id="loginBtn">Login</a>
+      <button class="btn btn-sm btn-danger" id="logoutBtn" style="display:none;">Logout</button>
+    </div>
   </div>
 
-  <!-- HEADER / NAVBAR -->
-  <header class="site-header">
-    <div class="container header-inner">
-      <a class="logo" href="index.html">GoldChain<span>.</span></a>
-
+  <header class="header">
+    <div class="container nav-wrap">
+      <a class="brand" href="index.html">GoldChain<span>.</span></a>
       <nav class="nav">
-        <a href="index.html" class="nav-link">Home</a>
-        <a href="plans.html" class="nav-link active">Plans</a>
-        <a href="about.html" class="nav-link">Our Impact</a>
-        <a href="faq.html" class="nav-link">FAQ</a>
-        <a href="contact.html" class="nav-link">Contact</a>
+        <a href="index.html#plans" class="nav-link active">Plans</a>
+        <a href="dashboard.html" class="nav-link">Live Dashboard</a>
       </nav>
-
-      <div class="auth-buttons">
-        <a class="btn btn-light" href="login.html">Login</a>
-        <a class="btn btn-primary" href="signup.html">Sign Up</a>
-      </div>
     </div>
   </header>
 
-  <!-- PAGE HERO -->
-  <section class="hero">
-    <div class="container hero-inner">
-      <div class="hero-text">
-        <h1>Choose Your Plan</h1>
-        <p>
-          Select the plan that matches your budget and timeline.
-          All plans are displayed clearly with their withdrawal periods.
-        </p>
-
-        <div class="mini-badges">
-          <span class="badge">Clear Terms</span>
-          <span class="badge">Weekly Returns Shown</span>
-          <span class="badge">Simple Dashboard</span>
-        </div>
-      </div>
-
-      <div class="hero-card">
-        <h3>Important Note</h3>
-        <p class="small">
-          Investments involve risk. Please read terms carefully and invest responsibly.
-        </p>
-        <a href="contact.html" class="btn btn-light full">Ask a Question</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- PLANS -->
-  <section class="section gray">
+  <section class="section">
     <div class="container">
-      <div class="section-head">
-        <h2>All Investment Plans</h2>
-        <a class="link" href="index.html">Back to Home →</a>
-      </div>
+      <h1>Investment Plans</h1>
+      <p class="muted">Choose a plan that matches your budget and withdrawal timeline.</p>
 
-      <div class="grid plans-grid">
-        <!-- $350 -->
+      <div class="grid-4">
         <div class="plan-card">
-          <div class="offer-badge">Starter</div>
-          <h3>$350 Plan</h3>
-          <p class="rate">1.5% weekly</p>
-          <p>Minimum investment: <strong>$350</strong></p>
-          <p>Withdrawal: <strong>After 45 days</strong></p>
-          <a href="signup.html" class="btn btn-primary full">Invest Now</a>
+          <div class="badge">Popular</div>
+          <h3>$350</h3>
+          <p class="muted">1.5% weekly</p>
+          <ul>
+            <li>Minimum: $350</li>
+            <li>Withdraw after 45 days</li>
+            <li>Weekly returns</li>
+          </ul>
+          <a class="btn btn-full" href="signup.html">Start</a>
         </div>
 
-        <!-- $700 -->
         <div class="plan-card">
-          <div class="offer-badge popular">Most Popular</div>
-          <h3>$700 Plan</h3>
-          <p class="rate">2% weekly</p>
-          <p>Minimum investment: <strong>$700</strong></p>
-          <p>Withdrawal: <strong>After 1 month</strong></p>
-          <a href="signup.html" class="btn btn-primary full">Invest Now</a>
+          <div class="badge badge-green">Best Value</div>
+          <h3>$700</h3>
+          <p class="muted">2% weekly</p>
+          <ul>
+            <li>Withdraw after 1 month</li>
+            <li>Weekly returns</li>
+            <li>Better growth</li>
+          </ul>
+          <a class="btn btn-full" href="signup.html">Start</a>
         </div>
 
-        <!-- $1000 -->
         <div class="plan-card">
-          <div class="offer-badge">Pro</div>
-          <h3>$1000 Plan</h3>
-          <p class="rate">3% weekly</p>
-          <p>Minimum investment: <strong>$1000</strong></p>
-          <p>Withdrawal: <strong>After 15 days</strong></p>
-          <a href="signup.html" class="btn btn-primary full">Invest Now</a>
+          <div class="badge badge-blue">Fast</div>
+          <h3>$1000</h3>
+          <p class="muted">3% weekly</p>
+          <ul>
+            <li>Withdraw after 15 days</li>
+            <li>Weekly returns</li>
+            <li>Fast access</li>
+          </ul>
+          <a class="btn btn-full" href="signup.html">Start</a>
         </div>
 
-        <!-- $5000+ -->
         <div class="plan-card">
-          <div class="offer-badge premium">Premium</div>
-          <h3>$5000+ Plan</h3>
-          <p class="rate">4% weekly</p>
-          <p>Minimum investment: <strong>$5000</strong></p>
-          <p>Withdrawal: <strong>Weekly</strong></p>
-          <a href="signup.html" class="btn btn-primary full">Invest Now</a>
+          <div class="badge badge-gold">VIP</div>
+          <h3>$5000+</h3>
+          <p class="muted">4% weekly</p>
+          <ul>
+            <li>Withdraw weekly</li>
+            <li>Highest return</li>
+            <li>Priority support</li>
+          </ul>
+          <a class="btn btn-full" href="signup.html">Start</a>
         </div>
-      </div>
-
-      <!-- Extra info box -->
-      <div style="margin-top:18px;" class="chart-box">
-        <p><strong>Tip:</strong> If you want help choosing a plan, contact us anytime.</p>
-        <p class="small">We’ll add a calculator later (optional) to estimate weekly returns.</p>
       </div>
     </div>
   </section>
 
-  <!-- FOOTER -->
   <footer class="footer">
-    <div class="container footer-inner">
-      <p>&copy; 2026 GoldChain Investment. All rights reserved.</p>
-
+    <div class="container footer-grid">
+      <p>&copy; 2026 Gold Chain Investment. All rights reserved.</p>
       <div class="social">
-        <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
-        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
-        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+        <a href="#" aria-label="Instagram">Instagram</a>
+        <a href="#" aria-label="LinkedIn">LinkedIn</a>
+        <a href="#" aria-label="YouTube">YouTube</a>
+        <a href="#" aria-label="Facebook">Facebook</a>
       </div>
     </div>
   </footer>
 
-  <!-- WhatsApp Floating Button -->
-  <a class="whatsapp-float" href="https://wa.me/9779851406537" target="_blank" aria-label="WhatsApp Chat">
-    <i class="fab fa-whatsapp"></i>
-  </a>
-
-  <script src="js/main.js"></script>
+  <script type="module" src="js/auth.js"></script>
 </body>
 </html>
