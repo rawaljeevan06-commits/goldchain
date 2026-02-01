@@ -4,83 +4,148 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Our Impact | GoldChain Investment</title>
+
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
+
 <body>
 
-  <div class="topbar">Our Impact — Transparency • Simplicity • Support</div>
+  <!-- WELCOME BAR -->
+  <div class="welcome-bar">
+    <p>Welcome to GoldChain Investment — Secure. Smart. Simple.</p>
+  </div>
 
-  <header class="header">
-    <div class="container header-in">
-      <a class="brand" href="index.html">
-        <img src="images/logo.png" alt="GoldChain Logo">
-        <span>GoldChain</span>
-      </a>
-
-      <button class="nav-toggle" type="button" aria-label="Menu">☰</button>
+  <!-- HEADER / NAVBAR -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="index.html">GoldChain<span>.</span></a>
 
       <nav class="nav">
-        <a href="index.html">Home</a>
-        <a href="plans.html">Plans</a>
-        <a href="about.html" class="active">Our Impact</a>
-        <a href="faq.html">FAQ</a>
-        <a href="contact.html">Contact</a>
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="plans.html" class="nav-link">Plans</a>
+        <a href="about.html" class="nav-link active">Our Impact</a>
+        <a href="faq.html" class="nav-link">FAQ</a>
+        <a href="contact.html" class="nav-link">Contact</a>
       </nav>
 
-      <div class="actions">
-        <a class="btn btn-ghost" href="login.html">Login</a>
+      <div class="auth-buttons">
+        <a class="btn btn-light" href="login.html">Login</a>
         <a class="btn btn-primary" href="signup.html">Sign Up</a>
       </div>
     </div>
   </header>
 
-  <section class="hero bg" style="background-image:url('images/bg2.jpg')">
-    <div class="container hero-grid">
-      <div>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container hero-inner">
+      <div class="hero-text">
         <h1>Our Impact</h1>
-        <p>We focus on a clear, user-friendly experience so people understand plans and timelines easily.</p>
-        <div class="badges">
+        <p>
+          We focus on clarity, transparency, and a user-friendly experience
+          to help people understand investment concepts better.
+        </p>
+
+        <div class="mini-badges">
           <span class="badge">Transparency</span>
-          <span class="badge">User Respect</span>
+          <span class="badge">User Focus</span>
           <span class="badge">Long-Term Vision</span>
         </div>
       </div>
 
-      <div class="card">
+      <div class="hero-card">
         <h3>Our Philosophy</h3>
-        <p class="small">Simple structure. Clear information. Responsible investing mindset.</p>
-        <a class="btn btn-ghost" href="contact.html" style="margin-top:12px;">Talk With Us</a>
+        <p class="small">
+          Simple structure. Clear information. Responsible investing.
+        </p>
+        <a href="contact.html" class="btn btn-light full">Talk With Us</a>
       </div>
     </div>
   </section>
 
+  <!-- MISSION / VISION -->
+  <section class="section gray">
+    <div class="container">
+      <div class="grid" style="grid-template-columns: repeat(3, 1fr); gap:16px;">
+        <div class="plan-card">
+          <h3>Our Mission</h3>
+          <p class="small">
+            To present investment plans clearly and honestly, helping users
+            make informed decisions without confusion.
+          </p>
+        </div>
+
+        <div class="plan-card">
+          <h3>Our Vision</h3>
+          <p class="small">
+            To become a trusted digital platform that focuses on education,
+            clarity, and responsible growth.
+          </p>
+        </div>
+
+        <div class="plan-card">
+          <h3>Our Values</h3>
+          <p class="small">
+            Transparency, simplicity, user respect, and long-term thinking.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHY CHOOSE US -->
   <section class="section">
     <div class="container">
-      <div class="grid" style="grid-template-columns:repeat(3,1fr);gap:16px;">
-        <div class="card">
-          <h3>Mission</h3>
-          <p class="small">Present plans clearly and help users make informed decisions.</p>
+      <h2>Why Choose GoldChain?</h2>
+      <div class="grid" style="grid-template-columns: repeat(2, 1fr); gap:16px; margin-top:12px;">
+        <div class="plan-card">
+          <h3>Clear Information</h3>
+          <p class="small">
+            All plans, timelines, and terms are displayed in a simple format.
+          </p>
         </div>
-        <div class="card">
-          <h3>Vision</h3>
-          <p class="small">Build a trusted platform focused on clarity, education, and support.</p>
-        </div>
-        <div class="card">
-          <h3>Values</h3>
-          <p class="small">Transparency, simplicity, and respect for users.</p>
-        </div>
-      </div>
 
-      <div class="chart-box" style="margin-top:18px;">
-        <p class="small"><strong>Notice:</strong> Investment involves risk. Always read terms and invest responsibly.</p>
+        <div class="plan-card">
+          <h3>User-Friendly Design</h3>
+          <p class="small">
+            Our platform is designed to be easy to navigate for beginners.
+          </p>
+        </div>
+
+        <div class="plan-card">
+          <h3>Support-Oriented</h3>
+          <p class="small">
+            We focus on helping users understand before they decide.
+          </p>
+        </div>
+
+        <div class="plan-card">
+          <h3>Responsible Approach</h3>
+          <p class="small">
+            We encourage users to invest responsibly with awareness of risks.
+          </p>
+        </div>
       </div>
     </div>
   </section>
 
+  <!-- DISCLAIMER -->
+  <section class="section gray">
+    <div class="container">
+      <div class="chart-box">
+        <h3>Important Notice</h3>
+        <p class="small">
+          Investment involves risk. Past performance does not guarantee future results.
+          Always understand the terms and invest responsibly.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
   <footer class="footer">
-    <div class="container footer-in">
-      <p class="small">©️ 2026 GoldChain Investment. All rights reserved.</p>
+    <div class="container footer-inner">
+      <p>&copy; 2026 GoldChain Investment. All rights reserved.</p>
       <div class="social">
         <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
         <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
@@ -90,10 +155,10 @@
     </div>
   </footer>
 
+  <!-- WhatsApp -->
   <a class="whatsapp-float" href="https://wa.me/9779851406537" target="_blank" aria-label="WhatsApp Chat">
     <i class="fab fa-whatsapp"></i>
   </a>
 
-  <script src="js/main.js"></script>
 </body>
 </html>
