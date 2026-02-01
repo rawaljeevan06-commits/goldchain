@@ -2,34 +2,85 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sign Up - GoldChain</title>
- <link rel="stylesheet" href="css/style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign Up | GoldChain Investment</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
-<body class="auth-bg">
+<body>
 
-  <div class="auth-card">
-    <h1>Create Account</h1>
-    <p class="muted">Sign up to access dashboard and member features.</p>
+  <div class="topbar">Create your account — Demo Signup</div>
 
-    <form id="signupForm" class="form">
-      <label>Full Name</label>
-      <input type="text" id="fullName" placeholder="Your name" required />
+  <header class="header">
+    <div class="container header-in">
+      <a class="brand" href="index.html">
+        <img src="images/logo.png" alt="GoldChain Logo">
+        <span>GoldChain</span>
+      </a>
 
-      <label>Email</label>
-      <input type="email" id="email" placeholder="example@gmail.com" required />
+      <button class="nav-toggle" type="button" aria-label="Menu">☰</button>
 
-      <label>Password</label>
-      <input type="password" id="password" placeholder="Min 6 characters" required />
+      <nav class="nav">
+        <a href="index.html">Home</a>
+        <a href="plans.html">Plans</a>
+        <a href="about.html">Our Impact</a>
+        <a href="faq.html">FAQ</a>
+        <a href="contact.html">Contact</a>
+      </nav>
 
-      <button type="submit" class="btn btn-full">Create Account</button>
-      <p class="muted small" id="msg"></p>
-    </form>
+      <div class="actions">
+        <a class="btn btn-ghost" href="login.html">Login</a>
+        <a class="btn btn-primary" href="signup.html">Sign Up</a>
+      </div>
+    </div>
+  </header>
 
-    <p class="small">Already have an account? <a href="login.html">Login</a></p>
-    <p class="small"><a href="index.html">← Back to home</a></p>
-  </div>
+  <section class="section">
+    <div class="container" style="max-width:560px;">
+      <div class="card">
+        <h2>Create Your Account</h2>
+        <p class="small">Demo signup stores data in your browser only.</p>
 
-  <script type="module" src="js/auth.js"></script>
+        <form id="signupForm" class="form-grid">
+          <input class="field" id="suName" placeholder="Full name" required>
+          <input class="field" id="suEmail" type="email" placeholder="Email" required>
+          <input class="field" id="suPhone" type="tel" placeholder="Phone" required>
+          <input class="field" id="suPass" type="password" placeholder="Password" required>
+
+          <select class="field" id="suPlan" required>
+            <option value="">Select a plan</option>
+            <option value="350">$350 — 1.5% weekly</option>
+            <option value="700">$700 — 2% weekly</option>
+            <option value="1000">$1000 — 3% weekly</option>
+            <option value="5000+">$5000+ — 4% weekly</option>
+          </select>
+
+          <button class="btn btn-primary full" type="submit">Create Account</button>
+          <p id="signupMsg" class="small"></p>
+
+          <p class="small">Already have an account? <a href="login.html" style="color:var(--gold2);font-weight:700;">Login here</a></p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container footer-in">
+      <p class="small">©️ 2026 GoldChain Investment. All rights reserved.</p>
+      <div class="social">
+        <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+      </div>
+    </div>
+  </footer>
+
+  <a class="whatsapp-float" href="https://wa.me/9779851406537" target="_blank" aria-label="WhatsApp Chat">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+
+  <script src="js/auth.js"></script>
+  <script src="js/main.js"></script>
 </body>
 </html>
