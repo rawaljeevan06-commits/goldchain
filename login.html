@@ -1,34 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-  const SUPABASE_URL = "https://isyavausunsombknvhsz.supabase.co";
-  const SUPABASE_ANON_KEY = "sb_publishable_hk-iDlrPwiqlQSr6NwK0nQ_Ht4Qbbkm";
-
-  const sb = supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_ANON_KEY
-  );
-</script>
-<script>
-  const SUPABASE_URL = "https://isyavausunsombknvhsz.supabase.co";
-  const SUPABASE_ANON_KEY = "sb_publishable_hk-iDlrPwiqlQSr6NwK0nQ_Ht4Qbbkm";
-  const sb = supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_ANON_KEY
-  );
-</script>
-</script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Login | GoldChain Investment</title>
+
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <!-- Supabase JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- Supabase config + client -->
+  <script>
+    const SUPABASE_URL = "https://isyavausunsombknvhsz.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_hk-iDlrPwiqlQSr6NwK0nQ_Ht4Qbbkm";
+
+    // Make it global so other scripts can use it safely
+    window.sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  </script>
 </head>
+
 <body>
 
-  <div class="topbar">Login — Demo Login</div>
+  <div class="topbar">Login — Secure. Smart. Simple.</div>
 
   <header class="header">
     <div class="container header-in">
@@ -58,15 +53,18 @@
     <div class="container" style="max-width:560px;">
       <div class="card">
         <h2>Login</h2>
-        <p class="small">Demo login checks the account stored in your browser.</p>
+        <p class="small">Login with the email and password you created.</p>
 
         <form id="loginForm" class="form-grid">
           <input class="input" id="loginEmail" type="email" placeholder="Email" required>
           <input class="input" id="loginPassword" type="password" placeholder="Password" required>
+
           <button class="btn btn-primary full" type="submit">Login</button>
           <p id="loginMsg" class="small"></p>
 
-          <p class="small">No account? <a href="signup.html" style="color:var(--gold2);font-weight:700;">Create one</a></p>
+          <p class="small">No account?
+            <a href="signup.html" style="color:var(--gold2);font-weight:700;">Create one</a>
+          </p>
         </form>
       </div>
     </div>
@@ -88,35 +86,47 @@
     <i class="fab fa-whatsapp"></i>
   </a>
 
-  <script src="js/auth.js"></script>
+  <!-- ✅ LOGIN LOGIC (MUST BE BEFORE </body>) -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // quick proof that JS is running
+      // alert("LOGIN JS LOADED");
+
+      const form = document.getElementById("loginForm");
+      const msg = document.getElementById("loginMsg");
+
+      if (!form) return;
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        msg.textContent = "Logging in...";
+        msg.style.color = "";
+
+        const email = document.getElementById("loginEmail").value.trim();
+        const password = document.getElementById("loginPassword").value;
+
+        const { error } = await window.sb.auth.signInWithPassword({ email, password });
+
+        if (error) {
+          msg.textContent = error.message;
+          msg.style.color = "#ffb3b3";
+          return;
+        }
+
+        msg.textContent = "Login successful!";
+        msg.style.color = "#ffd66e";
+
+        setTimeout(() => (window.location.href = "index.html"), 600);
+      });
+    });
+  </script>
+
+  <!-- ✅ KEEP main.js if it handles menu/nav -->
   <script src="js/main.js"></script>
+
+  <!-- ❌ DO NOT include auth.js on login page (old demo system) -->
+  <!-- <script src="js/auth.js"></script> -->
+
 </body>
 </html>
-<script>
-  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-  const form = document.getElementById("loginForm");
-  const msg = document.getElementById("loginMsg");
-
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    msg.textContent = "Logging in...";
-    msg.style.color = "";
-
-    const email = document.getElementById("loginEmail").value.trim();
-    const password = document.getElementById("loginPassword").value;
-
-    const { data, error } = await sb.auth.signInWithPassword({ email, password });
-
-    if (error) {
-      msg.textContent = error.message;
-      msg.style.color = "#ffb3b3";
-      return;
-    }
-
-    msg.textContent = "Login successful!";
-    msg.style.color = "#ffd66e";
-    setTimeout(() => (window.location.href = "index.html"), 600);
-  });
-</script>
