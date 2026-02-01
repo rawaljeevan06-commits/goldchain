@@ -10,19 +10,16 @@
 </head>
 
 <body>
-
-  <!-- WELCOME BAR -->
   <div class="welcome-bar">
     <p>Welcome to GoldChain Investment — Secure. Smart. Simple.</p>
   </div>
 
-  <!-- HEADER / NAVBAR -->
   <header class="site-header">
     <div class="container header-inner">
       <a class="logo" href="index.html">
-  <img src="images/logo.png" alt="GoldChain Logo" class="logo-img">
-  <span class="logo-text">GoldChain</span>
-</a>
+        <img src="images/logo.png" alt="GoldChain Logo" class="logo-img">
+        <span class="logo-text">GoldChain</span>
+      </a>
 
       <nav class="nav">
         <a href="index.html" class="nav-link">Home</a>
@@ -39,40 +36,27 @@
     </div>
   </header>
 
-  <!-- LOGIN -->
   <section class="section">
     <div class="container" style="max-width: 560px;">
       <div class="hero-card">
         <h2>Login</h2>
-        <p class="small">Enter your email and password. (Demo login)</p>
+        <p class="small">Enter your email & password (demo login).</p>
 
         <form id="loginForm" style="margin-top:14px; display:grid; gap:12px;">
-          <div>
-            <label class="small">Email</label><br/>
-            <input id="liEmail" type="email" placeholder="you@email.com" required
-              style="width:100%; padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.18); background:rgba(255,255,255,0.06); color:#e9eefc;">
-          </div>
-
-          <div>
-            <label class="small">Password</label><br/>
-            <input id="liPass" type="password" placeholder="Your password" required
-              style="width:100%; padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.18); background:rgba(255,255,255,0.06); color:#e9eefc;">
-          </div>
+          <input id="liEmail" type="email" required placeholder="Email"
+            style="width:100%; padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.18); background:rgba(255,255,255,0.06); color:#e9eefc;">
+          <input id="liPass" type="password" required placeholder="Password"
+            style="width:100%; padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.18); background:rgba(255,255,255,0.06); color:#e9eefc;">
 
           <button class="btn btn-primary full" type="submit">Login</button>
+          <p id="loginMsg" class="small"></p>
 
-          <p id="loginMsg" class="small" style="margin-top:6px;"></p>
-
-          <p class="small">
-            Don’t have an account?
-            <a class="link" href="signup.html">Create one</a>
-          </p>
+          <p class="small">Don’t have an account? <a class="link" href="signup.html">Create one</a></p>
         </form>
       </div>
     </div>
   </section>
 
-  <!-- FOOTER -->
   <footer class="footer">
     <div class="container footer-inner">
       <p>&copy; 2026 GoldChain Investment. All rights reserved.</p>
@@ -90,5 +74,6 @@
   </a>
 
   <script src="js/auth.js"></script>
+  <script src="js/main.js"></script>
 </body>
 </html>
