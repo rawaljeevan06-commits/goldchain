@@ -2,300 +2,168 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>GoldChain Investment</title>
-  <link rel="stylesheet" href="css/style.css">
-
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
 
-  <!-- Welcome Bar -->
-  <div class="welcome-bar" id="welcomeBar">
-    <div class="welcome-left">
-      <span id="welcomeText">Welcome to GoldChain</span>
-    </div>
-    <div class="welcome-right">
-      <a class="btn btn-sm" href="signup.html" id="signupBtn">Sign Up</a>
-      <a class="btn btn-sm btn-outline" href="login.html" id="loginBtn">Login</a>
-      <button class="btn btn-sm btn-danger" id="logoutBtn" style="display:none;">Logout</button>
-    </div>
-  </div>
+  <div class="topbar">Welcome to GoldChain Investment — Secure. Smart. Simple.</div>
 
-  <!-- Header / Navbar -->
   <header class="header">
-    <div class="container nav-wrap">
+    <div class="container header-in">
       <a class="brand" href="index.html">
-        GoldChain<span>.</span>
+        <img src="images/logo.png" alt="GoldChain Logo">
+        <span>GoldChain</span>
       </a>
 
-      <nav class="nav" id="nav">
-        <a href="#home" class="nav-link active">Home</a>
-        <a href="#strategy" class="nav-link">Strategy</a>
-        <a href="#prosper" class="nav-link">Prosper</a>
-        <a href="#impact" class="nav-link">Our Impact</a>
-        <a href="#plans" class="nav-link">Plans</a>
-        <a href="#faq" class="nav-link">FAQ</a>
-        <a href="#contact" class="nav-link">Contact</a>
+      <button class="nav-toggle" type="button" aria-label="Menu">☰</button>
+
+      <nav class="nav">
+        <a href="index.html" class="active">Home</a>
+        <a href="plans.html">Plans</a>
+        <a href="about.html">Our Impact</a>
+        <a href="faq.html">FAQ</a>
+        <a href="contact.html">Contact</a>
       </nav>
 
-      <button class="nav-toggle" id="navToggle" aria-label="Open menu">☰</button>
+      <div class="actions">
+        <a class="btn btn-ghost" href="login.html">Login</a>
+        <a class="btn btn-primary" href="signup.html">Sign Up</a>
+      </div>
     </div>
   </header>
 
-  <!-- HERO -->
-  <section id="home" class="hero">
-    <div class="hero-overlay"></div>
+  <!-- HERO (bg1) -->
+  <section class="hero bg" style="background-image:url('images/bg1.jpg')">
+    <div class="container hero-grid">
+      <div>
+        <h1>Invest With Confidence in GoldChain</h1>
+        <p>A modern investment website with clear plans, simple navigation, and support.</p>
 
-    <div class="container hero-content">
-      <h1>Invest Smarter with <span class="gold">GoldChain</span></h1>
-      <p>
-        Secure plans, transparent growth, and a simple system built for beginners.
-      </p>
+        <div class="cta">
+          <a class="btn btn-primary" href="plans.html">View Plans</a>
+          <a class="btn btn-outline" href="https://wa.me/9779851406537" target="_blank">Talk on WhatsApp</a>
+        </div>
 
-      <div class="hero-cta">
-        <a href="#plans" class="btn">View Plans</a>
-        <a href="dashboard.html" class="btn btn-outline">Live Dashboard</a>
+        <div class="badges">
+          <span class="badge">Fast Support</span>
+          <span class="badge">Transparent Plans</span>
+          <span class="badge">Modern Design</span>
+        </div>
       </div>
 
-      <!-- Offer popup trigger -->
-      <div class="offer-line">
-        🎁 Limited Offer: <strong>Extra bonus</strong> for early investors!
-        <button class="link-btn" id="openOffer">See details</button>
+      <div class="card">
+        <h3>Important Notice</h3>
+        <p class="small">Investment involves risk. Please read terms carefully and invest responsibly.</p>
+        <p class="small" style="margin-top:10px;">Need help choosing a plan? Contact us anytime.</p>
+        <a class="btn btn-ghost" href="contact.html" style="margin-top:12px;">Contact Support</a>
       </div>
     </div>
   </section>
 
-  <!-- GOLD HISTORY -->
-  <section class="section" id="gold-history">
+  <!-- GOLD HISTORY (bg2) -->
+  <section id="history" class="section bg" style="background-image:url('images/bg2.jpg')">
     <div class="container">
-      <h2>Gold & Its History</h2>
-      <p class="muted">
-        Gold has been trusted for centuries as a store of value. From ancient civilizations
-        using gold as currency to modern markets tracking gold as a safe-haven asset,
-        it remains one of the most respected forms of wealth protection.
-      </p>
-
-      <div class="grid-3">
-        <div class="card">
-          <h3>Why Gold Matters</h3>
-          <p>Gold is limited, globally recognized, and historically resilient during uncertainty.</p>
-        </div>
-        <div class="card">
-          <h3>Safe-Haven Asset</h3>
-          <p>In many economic downturns, investors often shift to gold for stability.</p>
-        </div>
-        <div class="card">
-          <h3>Modern Investing</h3>
-          <p>Today, gold is traded worldwide and tracked via live charts and market data.</p>
-        </div>
+      <div class="card">
+        <h2>Gold & Its History</h2>
+        <p class="small">
+          Gold has been valued across civilizations for thousands of years—used in trade, jewelry,
+          and as a symbol of stability.
+        </p>
       </div>
     </div>
   </section>
 
-  <!-- Strategy -->
-  <section id="strategy" class="section alt">
+  <!-- PLANS PREVIEW -->
+  <section class="section">
     <div class="container">
-      <h2>Strategy</h2>
-      <p class="muted">
-        We focus on structured growth, risk control, and consistent reporting.
-      </p>
+      <div class="section-title">
+        <h2>Investment Plans</h2>
+        <a href="plans.html">See all plans →</a>
+      </div>
 
-      <div class="grid-3">
-        <div class="card">
-          <h3>Risk Control</h3>
-          <p>We prioritize stability first, then growth. Smart allocation protects investors.</p>
+      <div class="grid plans">
+        <div class="plan">
+          <div class="tag">Starter</div>
+          <h3>$350 Plan</h3>
+          <div class="rate">1.5% weekly</div>
+          <p class="small">Withdrawal after 45 days</p>
+          <a class="btn btn-primary" style="margin-top:10px;" href="signup.html">Invest Now</a>
         </div>
-        <div class="card">
-          <h3>Transparent Plans</h3>
-          <p>No confusion. Simple weekly return structure and clear withdrawal rules.</p>
+
+        <div class="plan">
+          <div class="tag pop">Most Popular</div>
+          <h3>$700 Plan</h3>
+          <div class="rate">2% weekly</div>
+          <p class="small">Withdrawal after 1 month</p>
+          <a class="btn btn-primary" style="margin-top:10px;" href="signup.html">Invest Now</a>
         </div>
-        <div class="card">
-          <h3>Long-Term Vision</h3>
-          <p>We build systems that can scale: crypto-friendly, global-ready, secure.</p>
+
+        <div class="plan">
+          <div class="tag">Pro</div>
+          <h3>$1000 Plan</h3>
+          <div class="rate">3% weekly</div>
+          <p class="small">Withdrawal after 15 days</p>
+          <a class="btn btn-primary" style="margin-top:10px;" href="signup.html">Invest Now</a>
+        </div>
+
+        <div class="plan">
+          <div class="tag">Premium</div>
+          <h3>$5000+ Plan</h3>
+          <div class="rate">4% weekly</div>
+          <p class="small">Weekly withdrawals</p>
+          <a class="btn btn-primary" style="margin-top:10px;" href="signup.html">Invest Now</a>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Prosper -->
-  <section id="prosper" class="section">
+  <!-- LIVE CHART (bg3) -->
+  <section class="section bg" style="background-image:url('images/bg3.jpg')">
     <div class="container">
-      <h2>Prosper</h2>
-      <p class="muted">Build financial discipline, track growth, and invest consistently.</p>
+      <div class="section-title">
+        <h2>Live Chart</h2>
+        <a href="contact.html">Need help? →</a>
+      </div>
 
-      <div class="grid-2">
-        <div class="card">
-          <h3>Beginner Friendly</h3>
-          <p>Start with minimum investment and grow steadily with weekly returns.</p>
+      <div class="card">
+        <p class="small">
+          Live-chart area (embed-ready). Below is a sample TradingView embed for Gold (XAUUSD).
+        </p>
+
+        <div class="iframe-box" style="margin-top:14px;">
+          <iframe
+            src="https://s.tradingview.com/widgetembed/?symbol=XAUUSD&interval=60&hidesidetoolbar=1&symboledit=1&saveimage=0&toolbarbg=rgba(0,0,0,0)&theme=dark&style=1&timezone=Etc%2FUTC"
+            loading="lazy"
+            title="Live Chart">
+          </iframe>
         </div>
-        <div class="card">
-          <h3>Growth Habit</h3>
-          <p>Small steps, consistent returns, and clear schedules help build strong habits.</p>
-        </div>
+
+        <p class="small" style="margin-top:12px;">
+          If this doesn’t load on some browsers, we can switch to another embed type.
+        </p>
       </div>
     </div>
   </section>
 
-  <!-- Our Impact -->
-  <section id="impact" class="section alt">
-    <div class="container">
-      <h2>Our Impact</h2>
-      <div class="grid-3">
-        <div class="card">
-          <h3>Community</h3>
-          <p>Helping beginners learn investing through simple and understandable plans.</p>
-        </div>
-        <div class="card">
-          <h3>Transparency</h3>
-          <p>Clear plan conditions and a dashboard concept for confidence.</p>
-        </div>
-        <div class="card">
-          <h3>Support</h3>
-          <p>Easy contact + WhatsApp support so users are never stuck.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Plans Preview -->
-  <section id="plans" class="section">
-    <div class="container">
-      <div class="section-head">
-        <h2>Plans</h2>
-        <a class="btn btn-outline" href="plans.html">Open Full Plans</a>
-      </div>
-
-      <div class="grid-4">
-        <div class="plan-card">
-          <div class="badge">Popular</div>
-          <h3>$350</h3>
-          <p class="muted">1.5% weekly</p>
-          <ul>
-            <li>Minimum: $350</li>
-            <li>Withdraw after 45 days</li>
-            <li>Weekly growth</li>
-          </ul>
-        </div>
-
-        <div class="plan-card">
-          <div class="badge badge-green">Best Value</div>
-          <h3>$700</h3>
-          <p class="muted">2% weekly</p>
-          <ul>
-            <li>Withdraw after 1 month</li>
-            <li>Weekly growth</li>
-            <li>Beginner friendly</li>
-          </ul>
-        </div>
-
-        <div class="plan-card">
-          <div class="badge badge-blue">Fast</div>
-          <h3>$1000</h3>
-          <p class="muted">3% weekly</p>
-          <ul>
-            <li>Withdraw after 15 days</li>
-            <li>Weekly growth</li>
-            <li>Quick access</li>
-          </ul>
-        </div>
-
-        <div class="plan-card">
-          <div class="badge badge-gold">VIP</div>
-          <h3>$5000+</h3>
-          <p class="muted">4% weekly</p>
-          <ul>
-            <li>Withdraw weekly</li>
-            <li>Highest return</li>
-            <li>Priority support</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- FAQ -->
-  <section id="faq" class="section alt">
-    <div class="container">
-      <h2>FAQ</h2>
-
-      <div class="faq">
-        <button class="faq-q">How do withdrawals work?</button>
-        <div class="faq-a">Each plan has a withdrawal rule (15 days / 1 month / 45 days / weekly for VIP).</div>
-
-        <button class="faq-q">Is signup required?</button>
-        <div class="faq-a">Yes, signup/login lets you access the dashboard and future member features.</div>
-
-        <button class="faq-q">Do you support crypto payments?</button>
-        <div class="faq-a">You can accept USDT/BTC/ETH manually today, and later integrate payment gateways.</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Contact -->
-  <section id="contact" class="section">
-    <div class="container">
-      <h2>Contact</h2>
-
-      <div class="grid-2">
-        <div class="card">
-          <h3>Contact Info</h3>
-          <p><strong>Phone:</strong> 9851406537</p>
-          <p><strong>Email:</strong> your@email.com</p>
-          <p><strong>Address:</strong> Kathmandu, Nepal</p>
-        </div>
-
-        <div class="card">
-          <h3>Location</h3>
-          <div class="map">
-            <!-- Replace with your real Google Maps embed link -->
-            <iframe
-              src="https://www.google.com/maps?q=Kathmandu&output=embed"
-              width="100%" height="240" style="border:0;" loading="lazy"
-              referrerpolicy="no-referrer-when-downgrade"></iframe>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Footer -->
   <footer class="footer">
-    <div class="container footer-grid">
-      <p>&copy; 2026 Gold Chain Investment. All rights reserved.</p>
+    <div class="container footer-in">
+      <p class="small">©️ 2026 GoldChain Investment. All rights reserved.</p>
       <div class="social">
-        <a href="#" aria-label="Instagram">Instagram</a>
-        <a href="#" aria-label="LinkedIn">LinkedIn</a>
-        <a href="#" aria-label="YouTube">YouTube</a>
-        <a href="#" aria-label="Facebook">Facebook</a>
+        <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
       </div>
     </div>
   </footer>
 
-  <!-- Back to top -->
-  <button class="back-top" id="backTop" aria-label="Back to top">↑</button>
-
-  <!-- WhatsApp Floating -->
-  <a class="whatsapp" href="https://wa.me/9779851406537" target="_blank" rel="noopener">
-    WhatsApp
+  <a class="whatsapp-float" href="https://wa.me/9779851406537" target="_blank" aria-label="WhatsApp Chat">
+    <i class="fab fa-whatsapp"></i>
   </a>
 
-  <!-- Offer Modal -->
-  <div class="modal" id="offerModal" aria-hidden="true">
-    <div class="modal-card">
-      <div class="modal-head">
-        <h3>Limited Offer</h3>
-        <button class="icon-btn" id="closeOffer" aria-label="Close">✕</button>
-      </div>
-      <p class="muted">
-        Early investors may receive special bonuses and priority support.
-        This offer can change anytime.
-      </p>
-      <a class="btn" href="#plans">Go to Plans</a>
-    </div>
-  </div>
-
-  <!-- Scripts -->
-  <script type="module" src="js/auth.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>
