@@ -4,56 +4,50 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Sign Up | GoldChain Investment</title>
-
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
-
 <body>
-  <div class="welcome-bar">
-    <p>Welcome to GoldChain Investment — Secure. Smart. Simple.</p>
-  </div>
 
-  <header class="site-header">
-    <div class="container header-inner">
-      <a class="logo" href="index.html">
-        <img src="images/logo.png" alt="GoldChain Logo" class="logo-img">
-        <span class="logo-text">GoldChain</span>
+  <div class="topbar">Create your account — Demo Signup</div>
+
+  <header class="header">
+    <div class="container header-in">
+      <a class="brand" href="index.html">
+        <img src="images/logo.png" alt="GoldChain Logo">
+        <span>GoldChain</span>
       </a>
 
+      <button class="nav-toggle" type="button" aria-label="Menu">☰</button>
+
       <nav class="nav">
-        <a href="index.html" class="nav-link">Home</a>
-        <a href="plans.html" class="nav-link">Plans</a>
-        <a href="about.html" class="nav-link">Our Impact</a>
-        <a href="faq.html" class="nav-link">FAQ</a>
-        <a href="contact.html" class="nav-link">Contact</a>
+        <a href="index.html">Home</a>
+        <a href="plans.html">Plans</a>
+        <a href="about.html">Our Impact</a>
+        <a href="faq.html">FAQ</a>
+        <a href="contact.html">Contact</a>
       </nav>
 
-      <div class="auth-buttons">
-        <a class="btn btn-light" href="login.html">Login</a>
+      <div class="actions">
+        <a class="btn btn-ghost" href="login.html">Login</a>
         <a class="btn btn-primary" href="signup.html">Sign Up</a>
       </div>
     </div>
   </header>
 
   <section class="section">
-    <div class="container" style="max-width: 560px;">
-      <div class="hero-card">
+    <div class="container" style="max-width:560px;">
+      <div class="card">
         <h2>Create Your Account</h2>
-        <p class="small">Fill details to register (demo form).</p>
+        <p class="small">Demo signup stores data in your browser only.</p>
 
-        <form id="signupForm" style="margin-top:14px; display:grid; gap:12px;">
-          <input id="suName" required placeholder="Full name"
-            style="width:100%; padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.18); background:rgba(255,255,255,0.06); color:#e9eefc;">
-          <input id="suEmail" type="email" required placeholder="Email"
-            style="width:100%; padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.18); background:rgba(255,255,255,0.06); color:#e9eefc;">
-          <input id="suPhone" type="tel" required placeholder="Phone"
-            style="width:100%; padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.18); background:rgba(255,255,255,0.06); color:#e9eefc;">
-          <input id="suPass" type="password" required placeholder="Password"
-            style="width:100%; padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.18); background:rgba(255,255,255,0.06); color:#e9eefc;">
+        <form id="signupForm" class="form-grid">
+          <input class="field" id="suName" placeholder="Full name" required>
+          <input class="field" id="suEmail" type="email" placeholder="Email" required>
+          <input class="field" id="suPhone" type="tel" placeholder="Phone" required>
+          <input class="field" id="suPass" type="password" placeholder="Password" required>
 
-          <select id="suPlan" required
-            style="width:100%; padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.18); background:rgba(255,255,255,0.06); color:#e9eefc;">
+          <select class="field" id="suPlan" required>
             <option value="">Select a plan</option>
             <option value="350">$350 — 1.5% weekly</option>
             <option value="700">$700 — 2% weekly</option>
@@ -64,15 +58,15 @@
           <button class="btn btn-primary full" type="submit">Create Account</button>
           <p id="signupMsg" class="small"></p>
 
-          <p class="small">Already have an account? <a class="link" href="login.html">Login here</a></p>
+          <p class="small">Already have an account? <a href="login.html" style="color:var(--gold2);font-weight:700;">Login here</a></p>
         </form>
       </div>
     </div>
   </section>
 
   <footer class="footer">
-    <div class="container footer-inner">
-      <p>&copy; 2026 GoldChain Investment. All rights reserved.</p>
+    <div class="container footer-in">
+      <p class="small">©️ 2026 GoldChain Investment. All rights reserved.</p>
       <div class="social">
         <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
         <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
