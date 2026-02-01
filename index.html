@@ -4,7 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>GoldChain Investment</title>
-  <link rel="stylesheet" href="css/style-new.css">
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
 
@@ -12,13 +13,15 @@
 
   <header class="header">
     <div class="container header-in">
-      <a class="brand" href="index-new.html">
+      <a class="brand" href="index.html">
         <img src="images/logo.png" alt="GoldChain Logo">
         <span>GoldChain</span>
       </a>
 
+      <button class="nav-toggle" type="button" aria-label="Menu">☰</button>
+
       <nav class="nav">
-        <a href="index-new.html">Home</a>
+        <a href="index.html" class="active">Home</a>
         <a href="plans.html">Plans</a>
         <a href="about.html">Our Impact</a>
         <a href="faq.html">FAQ</a>
@@ -32,16 +35,16 @@
     </div>
   </header>
 
-  <!-- HERO uses bg1 -->
+  <!-- HERO (bg1) -->
   <section class="hero bg" style="background-image:url('images/bg1.jpg')">
     <div class="container hero-grid">
       <div>
         <h1>Invest With Confidence in GoldChain</h1>
-        <p>A clean, modern custom design with your 3 background images and your plans.</p>
+        <p>A modern investment website design with clear plans, simple navigation, and helpful information.</p>
 
         <div class="cta">
           <a class="btn btn-primary" href="plans.html">View Plans</a>
-          <a class="btn btn-outline" href="contact.html">Talk on WhatsApp</a>
+          <a class="btn btn-outline" href="https://wa.me/9779851406537" target="_blank">Talk on WhatsApp</a>
         </div>
 
         <div class="badges">
@@ -52,26 +55,29 @@
       </div>
 
       <div class="card">
-        <h3>Today’s Highlight</h3>
-        <p class="small">Gold has been trusted for centuries as a store of value.</p>
-        <p class="small">We keep the site simple, clear, and mobile-friendly.</p>
-        <a class="btn btn-ghost" href="#history" style="margin-top:10px;">Explore Gold History</a>
+        <h3>Important Notice</h3>
+        <p class="small">Investment involves risk. Please read terms carefully and invest responsibly.</p>
+        <p class="small" style="margin-top:10px;">Need help choosing a plan? Contact us anytime.</p>
+        <a class="btn btn-ghost" href="contact.html" style="margin-top:12px;">Contact Support</a>
       </div>
     </div>
   </section>
 
-  <!-- HISTORY uses bg2 -->
+  <!-- GOLD HISTORY (bg2) -->
   <section id="history" class="section bg" style="background-image:url('images/bg2.jpg')">
     <div class="container">
       <div class="card">
         <h2>Gold & Its History</h2>
-        <p class="small">Gold has been valued across civilizations for thousands of years—used in trade, jewelry, and as a symbol of stability.</p>
+        <p class="small">
+          Gold has been valued across civilizations for thousands of years—used in trade, jewelry, and as a symbol of stability.
+          We keep this platform simple and clear for users.
+        </p>
       </div>
     </div>
   </section>
 
-  <!-- PLANS uses bg3 -->
-  <section class="section bg" style="background-image:url('images/bg3.jpg')">
+  <!-- PLANS PREVIEW -->
+  <section class="section">
     <div class="container">
       <div class="section-title">
         <h2>Investment Plans</h2>
@@ -114,12 +120,51 @@
     </div>
   </section>
 
+  <!-- LIVE CHART (bg3) -->
+  <section class="section bg" style="background-image:url('images/bg3.jpg')">
+    <div class="container">
+      <div class="section-title">
+        <h2>Live Chart</h2>
+        <a href="contact.html">Need help? →</a>
+      </div>
+
+      <div class="card">
+        <p class="small">
+          This is a live-chart area. You can embed a gold or crypto chart provider here.
+          Below is a sample TradingView embed (you can replace the symbol later).
+        </p>
+
+        <div class="iframe-box" style="margin-top:14px;">
+          <iframe
+            src="https://s.tradingview.com/widgetembed/?frameElementId=tradingview_1&symbol=XAUUSD&interval=60&hidesidetoolbar=1&symboledit=1&saveimage=0&toolbarbg=rgba(0,0,0,0)&studies=[]&theme=dark&style=1&timezone=Etc%2FUTC"
+            loading="lazy"
+            title="Live Chart">
+          </iframe>
+        </div>
+
+        <p class="small" style="margin-top:12px;">
+          If the chart doesn’t load in some browsers, we can switch to another embed style.
+        </p>
+      </div>
+    </div>
+  </section>
+
   <footer class="footer">
     <div class="container footer-in">
       <p class="small">©️ 2026 GoldChain Investment. All rights reserved.</p>
-      <p class="small">Custom design version: index-new.html</p>
+      <div class="social">
+        <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+      </div>
     </div>
   </footer>
 
+  <a class="whatsapp-float" href="https://wa.me/9779851406537" target="_blank" aria-label="WhatsApp Chat">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+
+  <script src="js/main.js"></script>
 </body>
 </html>
