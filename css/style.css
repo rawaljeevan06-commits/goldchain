@@ -748,3 +748,61 @@ h1, h2, h3{
   border-radius: 16px;
   box-shadow: 0 20px 40px rgba(0,0,0,0.45);
 }
+/* ===== POLISH PACK: 1) plans hover 2) mobile chart 3) footer ===== */
+
+/* (1) Premium plans hover */
+.plan{
+  will-change: transform;
+}
+.plan:hover{
+  transform: translateY(-10px) scale(1.01);
+  box-shadow: 0 30px 90px rgba(0,0,0,0.55);
+}
+.plan:has(.tag.pop){
+  border-color: rgba(240,185,11,0.45);
+}
+.plan:has(.tag.pop):hover{
+  box-shadow: 0 34px 110px rgba(240,185,11,0.18), 0 35px 110px rgba(0,0,0,0.55);
+}
+
+/* (2) Mobile chart resize + cleaner container */
+.chart-wrapper{
+  border: 1px solid rgba(240,185,11,0.22);
+  background: rgba(0,0,0,0.35);
+}
+@media (max-width: 900px){
+  .chart-wrapper iframe{
+    height: 360px !important;
+  }
+}
+@media (max-width: 560px){
+  .chart-wrapper{
+    padding: 10px !important;
+    border-radius: 18px;
+  }
+  .chart-wrapper iframe{
+    height: 320px !important;
+    border-radius: 12px;
+  }
+}
+
+/* (3) Footer polish */
+.footer{
+  padding: 30px 0;
+}
+.footer-in{
+  align-items: center;
+}
+.social a{
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+}
+.social a:hover{
+  border-color: rgba(240,185,11,0.30);
+  background: rgba(240,185,11,0.10);
+}
