@@ -1,9 +1,22 @@
 (function () {
+  // Mobile nav toggle
+  const toggle = document.querySelector(".nav-toggle");
+  if (toggle) {
+    toggle.addEventListener("click", () => {
+      document.body.classList.toggle("nav-open");
+    });
+  }
+
+  // Close mobile nav when clicking a link
+  document.querySelectorAll(".nav a").forEach(a => {
+    a.addEventListener("click", () => document.body.classList.remove("nav-open"));
+  });
+
   // Smooth scroll for internal hash links
   document.querySelectorAll('a[href^="#"]').forEach(link => {
     link.addEventListener("click", (e) => {
-      const targetId = link.getAttribute("href");
-      const target = document.querySelector(targetId);
+      const id = link.getAttribute("href");
+      const target = document.querySelector(id);
       if (target) {
         e.preventDefault();
         target.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -40,10 +53,9 @@
     window.scrollTo({ top: 0, behavior: "smooth" });
   });
 
-  // Active nav highlight by current page
+  // Active link highlight by current page
   const path = window.location.pathname.split("/").pop() || "index.html";
-  document.querySelectorAll(".nav-link").forEach(a => {
-    const href = a.getAttribute("href");
-    if (href === path) a.classList.add("active");
+  document.querySelectorAll(".nav a").forEach(a => {
+    if (a.getAttribute("href") === path) a.classList.add("active");
   });
 })();
