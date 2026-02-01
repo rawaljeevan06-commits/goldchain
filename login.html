@@ -2,90 +2,31 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Login | GoldChain Investment</title>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login - GoldChain</title>
   <link rel="stylesheet" href="css/style.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
+<body class="auth-bg">
 
-<body>
+  <div class="auth-card">
+    <h1>Login</h1>
+    <p class="muted">Login to access your dashboard.</p>
 
-  <!-- WELCOME BAR -->
-  <div class="welcome-bar">
-    <p>Welcome to GoldChain Investment — Secure. Smart. Simple.</p>
+    <form id="loginForm" class="form">
+      <label>Email</label>
+      <input type="email" id="email" placeholder="example@gmail.com" required />
+
+      <label>Password</label>
+      <input type="password" id="password" placeholder="Your password" required />
+
+      <button type="submit" class="btn btn-full">Login</button>
+      <p class="muted small" id="msg"></p>
+    </form>
+
+    <p class="small">Don’t have an account? <a href="signup.html">Sign up</a></p>
+    <p class="small"><a href="index.html">← Back to home</a></p>
   </div>
 
-  <!-- HEADER / NAVBAR -->
-  <header class="site-header">
-    <div class="container header-inner">
-      <a class="logo" href="index.html">GoldChain<span>.</span></a>
-
-      <nav class="nav">
-        <a href="index.html" class="nav-link">Home</a>
-        <a href="plans.html" class="nav-link">Plans</a>
-        <a href="about.html" class="nav-link">Our Impact</a>
-        <a href="faq.html" class="nav-link">FAQ</a>
-        <a href="contact.html" class="nav-link">Contact</a>
-      </nav>
-
-      <div class="auth-buttons">
-        <a class="btn btn-light" href="login.html">Login</a>
-        <a class="btn btn-primary" href="signup.html">Sign Up</a>
-      </div>
-    </div>
-  </header>
-
-  <!-- LOGIN -->
-  <section class="section">
-    <div class="container" style="max-width: 560px;">
-      <div class="hero-card">
-        <h2>Login</h2>
-        <p class="small">Enter your email and password. (Demo login)</p>
-
-        <form id="loginForm" style="margin-top:14px; display:grid; gap:12px;">
-          <div>
-            <label class="small">Email</label><br/>
-            <input id="liEmail" type="email" placeholder="you@email.com" required
-              style="width:100%; padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.18); background:rgba(255,255,255,0.06); color:#e9eefc;">
-          </div>
-
-          <div>
-            <label class="small">Password</label><br/>
-            <input id="liPass" type="password" placeholder="Your password" required
-              style="width:100%; padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.18); background:rgba(255,255,255,0.06); color:#e9eefc;">
-          </div>
-
-          <button class="btn btn-primary full" type="submit">Login</button>
-
-          <p id="loginMsg" class="small" style="margin-top:6px;"></p>
-
-          <p class="small">
-            Don’t have an account?
-            <a class="link" href="signup.html">Create one</a>
-          </p>
-        </form>
-      </div>
-    </div>
-  </section>
-
-  <!-- FOOTER -->
-  <footer class="footer">
-    <div class="container footer-inner">
-      <p>&copy; 2026 GoldChain Investment. All rights reserved.</p>
-      <div class="social">
-        <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
-        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
-        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
-      </div>
-    </div>
-  </footer>
-
-  <a class="whatsapp-float" href="https://wa.me/9779851406537" target="_blank" aria-label="WhatsApp Chat">
-    <i class="fab fa-whatsapp"></i>
-  </a>
-
-  <script src="js/auth.js"></script>
+  <script type="module" src="js/auth.js"></script>
 </body>
 </html>
