@@ -578,3 +578,52 @@ h1, h2, h3{
   border-radius: 14px;
   padding: 12px 14px;
 }
+/* ===== POLISH 6: premium plan hover + popular highlight ===== */
+
+/* smoother premium hover */
+.plan{
+  position: relative;
+  overflow: hidden;
+}
+
+.plan:hover{
+  transform: translateY(-10px);
+  border-color: rgba(240,185,11,0.55);
+  box-shadow: 0 28px 90px rgba(0,0,0,0.55);
+}
+
+/* subtle animated gold glow */
+.plan::after{
+  content:"";
+  position:absolute;
+  inset:-60px;
+  background: radial-gradient(circle at 30% 20%, rgba(240,185,11,0.16), transparent 55%);
+  opacity:0;
+  transition: opacity .25s ease;
+  pointer-events:none;
+}
+.plan:hover::after{
+  opacity:1;
+}
+
+/* make Most Popular clearly special */
+.plan:has(.tag.pop){
+  border-color: rgba(240,185,11,0.42);
+  box-shadow: 0 18px 55px rgba(240,185,11,0.10), 0 22px 70px rgba(0,0,0,0.42);
+}
+.plan:has(.tag.pop) .tag.pop{
+  background: rgba(240,185,11,0.22);
+  border-color: rgba(240,185,11,0.55);
+  box-shadow: 0 8px 25px rgba(240,185,11,0.18);
+}
+
+/* feature rows look cleaner */
+.plan-feature{
+  border-radius: 16px;
+}
+
+/* buttons more premium */
+.plan .btn-primary{
+  border-radius: 16px;
+  padding: 12px 14px;
+}
