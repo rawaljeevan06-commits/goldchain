@@ -1,3 +1,7 @@
+// Demo Auth (Front-end only)
+// This does NOT create real accounts on a server.
+// It saves a demo user in browser localStorage.
+
 const $ = (id) => document.getElementById(id);
 
 const signupForm = $("signupForm");
@@ -17,15 +21,16 @@ if (signupForm) {
 
     if (!user.plan) {
       $("signupMsg").textContent = "Please select a plan.";
-      $("signupMsg").style.color = "#ffd66e";
       return;
     }
 
     localStorage.setItem("gc_user", JSON.stringify(user));
-    $("signupMsg").textContent = "Account created! Redirecting to login...";
+    $("signupMsg").textContent = "Account created! Now you can login.";
     $("signupMsg").style.color = "#ffd66e";
 
-    setTimeout(() => window.location.href = "login.html", 900);
+    setTimeout(() => {
+      window.location.href = "login.html";
+    }, 900);
   });
 }
 
@@ -47,7 +52,10 @@ if (loginForm) {
     if (email === user.email && pass === user.pass) {
       $("loginMsg").textContent = "Login successful! (Demo)";
       $("loginMsg").style.color = "#ffd66e";
-      setTimeout(() => window.location.href = "index.html", 800);
+
+      setTimeout(() => {
+        window.location.href = "index.html";
+      }, 800);
     } else {
       $("loginMsg").textContent = "Wrong email or password.";
       $("loginMsg").style.color = "#ffb3b3";
