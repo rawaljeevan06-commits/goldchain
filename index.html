@@ -1,334 +1,166 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>GoldChain Investment</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GoldChain Investment</title>
+
+  <!-- Main CSS -->
+  <link rel="stylesheet" href="css/style.css" />
+
+  <!-- Icons (Font Awesome) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 
 <body>
 
-<!-- BACKGROUND SLIDER -->
-<div id="bgSlider" class="bg-slide" style="background-image:url('images/bg1.jpg')"></div>
-
-<!-- HEADER -->
-<header>
-  <div class="logo">
-    <img src="images/logo.png" alt="GoldChain Logo">
-    <span>GoldChain Investment</span>
+  <!-- WELCOME BAR -->
+  <div class="welcome-bar">
+    <p>Welcome to GoldChain Investment — Secure. Smart. Simple.</p>
   </div>
 
-  <div class="hamburger" onclick="toggleMenu()">
-    <div></div><div></div><div></div>
-  </div>
+  <!-- HEADER / NAVBAR -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="index.html">GoldChain<span>.</span></a>
 
-  <nav id="navMenu">
-    <a href="#home">Home</a>
-    <a href="#strategy">Strategy</a>
-    <a href="#prosper">Prosper</a>
-    <a href="#chart">Live Chart</a>
-    <a href="#impact">Our Impact</a>
-    <a href="#plans">Plans</a>
-    <a href="#faq">FAQ</a>
-    <a href="#contact">Contact</a>
-    <a id="navLogin" href="login.html">Login</a>
-    <a id="navSignup" href="signup.html">Sign Up</a>
-  </nav>
-</header>
+      <nav class="nav">
+        <a href="index.html" class="nav-link active">Home</a>
+        <a href="plans.html" class="nav-link">Plans</a>
+        <a href="about.html" class="nav-link">Our Impact</a>
+        <a href="faq.html" class="nav-link">FAQ</a>
+        <a href="contact.html" class="nav-link">Contact</a>
+      </nav>
 
-<!-- WELCOME BAR -->
-<div id="userBar">
-  <span id="welcomeText"></span>
-  <button id="logoutBtn" type="button">Logout</button>
-</div>
-
-<!-- HOME -->
-<section id="home" class="section">
-  <div class="overlay">
-    <h1>Welcome to GoldChain Investment</h1>
-    <p class="slogan">Where Gold Meets Trust</p>
-    <p>
-      GoldChain Investment blends traditional gold expertise with modern technology to offer secure,
-      reliable and transparent investment opportunities.
-    </p>
-
-    <div class="cta-row">
-      <a class="cta primary" href="signup.html">Get Started</a>
-      <a class="cta ghost" href="#plans">View Plans</a>
-      <a class="cta ghost" href="login.html">Login</a>
-    </div>
-  </div>
-</section>
-
-<!-- STRATEGY -->
-<section id="strategy" class="section">
-  <div class="overlay">
-    <h2>Strategy</h2>
-    <div class="info-grid">
-      <div class="info-box">
-        <h3>Gold-backed Strategy</h3>
-        <p>We combine tangible gold assets with professional market analysis and risk management.</p>
-      </div>
-      <div class="info-box">
-        <h3>Market Insight</h3>
-        <p>We monitor global trends and market demand to protect capital and maximize opportunities.</p>
-      </div>
-      <div class="info-box">
-        <h3>Transparency</h3>
-        <p>Clear weekly returns and defined withdrawal rules — you always know what to expect.</p>
+      <div class="auth-buttons">
+        <a class="btn btn-light" href="login.html">Login</a>
+        <a class="btn btn-primary" href="signup.html">Sign Up</a>
       </div>
     </div>
-  </div>
-</section>
+  </header>
 
-<!-- PROSPER -->
-<section id="prosper" class="section">
-  <div class="overlay">
-    <h2>Prosper</h2>
-    <p><b>Secure & Safe:</b> Transparent processes, disciplined planning.</p>
-    <p><b>Maximizing Profit:</b> Market analysis helps improve weekly performance.</p>
-    <p><b>Financial Growth:</b> Build long-term stability through gold-based strategies.</p>
-  </div>
-</section>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container hero-inner">
+      <div class="hero-text">
+        <h1>Invest With Confidence in GoldChain</h1>
+        <p>
+          A simple investment experience with clear plans, transparent terms,
+          and a modern dashboard.
+        </p>
 
-<!-- LIVE CHART -->
-<section id="chart" class="section">
-  <div class="overlay chart-box">
-    <h2>Live Gold Chart</h2>
-    <iframe class="chart-frame"
-      src="https://www.tradingview.com/embed-widget/advanced-chart/?symbol=OANDA:XAUUSD&theme=dark&interval=60&hide_top_toolbar=1">
-    </iframe>
-    <p style="color:#bbb;font-size:12px;margin-top:10px">Chart powered by TradingView embed (demo).</p>
-  </div>
-</section>
+        <div class="hero-cta">
+          <a href="plans.html" class="btn btn-primary">View Plans</a>
+          <a href="contact.html" class="btn btn-outline">Talk on WhatsApp</a>
+        </div>
 
-<!-- OUR IMPACT (LOCKED NUMBERS) -->
-<section id="impact" class="section">
-  <div class="overlay">
-    <h2>Our Impact</h2>
-    <div class="info-grid">
-      <div class="info-box">
-        <h3><span class="counter" data-target="8240">0</span>+</h3>
-        <p>Total Investors</p>
+        <div class="mini-badges">
+          <span class="badge">Fast Support</span>
+          <span class="badge">Transparent Plans</span>
+          <span class="badge">Modern Design</span>
+        </div>
       </div>
-      <div class="info-box">
-        <h3>$<span class="counter" data-target="6400000">0</span>+</h3>
-        <p>Total Invested</p>
-      </div>
-      <div class="info-box">
-        <h3>$<span class="counter" data-target="820000">0</span>+</h3>
-        <p>Weekly Profit Distributed</p>
+
+      <div class="hero-card">
+        <h3>Today’s Highlight</h3>
+        <p><strong>Gold</strong> has been trusted for centuries as a store of value.</p>
+        <p class="small">
+          Learn the history of gold and why it remains a global symbol of stability.
+        </p>
+        <a href="#gold-history" class="btn btn-light full">Explore Gold History</a>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- PLANS (LOCKED: 4 PLANS + OFFER) -->
-<section id="plans" class="section">
-  <div class="overlay">
-    <h2>Plans</h2>
-
-    <div class="offer-banner">
-      <b>Special Offer:</b> Invest <b>$5000+</b> and get <b>4% weekly</b> with <b>weekly withdrawal</b>.
-      <small>This is the highlighted high-investment offer plan.</small>
+  <!-- GOLD HISTORY -->
+  <section id="gold-history" class="section">
+    <div class="container">
+      <h2>Gold & Its History</h2>
+      <p>
+        Gold has been valued across civilizations for thousands of years—used in trade,
+        jewelry, and as a symbol of wealth and stability. Even today, it remains one of
+        the most recognized assets in the world.
+      </p>
+      <p>
+        On GoldChain Investment, we present plans clearly and focus on user-friendly experience.
+      </p>
     </div>
+  </section>
 
-    <div class="plans">
-      <!-- 1) Starter -->
-      <div class="plan" data-rate="1.5" data-min="350">
-        <h3>Starter</h3>
-        <p class="price">$350</p>
-        <p>Return: 1.5% Weekly</p>
-        <p>Withdrawal: After 45 days</p>
-        <input class="invest-amount" type="number" min="350" value="350">
-        <p>Weekly Profit: $<span class="profit">5.25</span></p>
-        <a class="btn investBtn" href="signup.html">Invest Now</a>
+  <!-- PLANS PREVIEW -->
+  <section class="section gray">
+    <div class="container">
+      <div class="section-head">
+        <h2>Investment Plans</h2>
+        <a class="link" href="plans.html">See all plans →</a>
       </div>
 
-      <!-- 2) Growth -->
-      <div class="plan" data-rate="2" data-min="700">
-        <h3>Growth</h3>
-        <p class="price">$700</p>
-        <p>Return: 2% Weekly</p>
-        <p>Withdrawal: After 30 days</p>
-        <input class="invest-amount" type="number" min="700" value="700">
-        <p>Weekly Profit: $<span class="profit">14.00</span></p>
-        <a class="btn investBtn" href="signup.html">Invest Now</a>
+      <div class="grid plans-grid">
+        <div class="plan-card">
+          <div class="offer-badge">Starter</div>
+          <h3>$350 Plan</h3>
+          <p class="rate">1.5% weekly</p>
+          <p>Withdrawal after 45 days</p>
+          <a href="plans.html" class="btn btn-primary full">Start</a>
+        </div>
+
+        <div class="plan-card">
+          <div class="offer-badge popular">Most Popular</div>
+          <h3>$700 Plan</h3>
+          <p class="rate">2% weekly</p>
+          <p>Withdrawal after 1 month</p>
+          <a href="plans.html" class="btn btn-primary full">Start</a>
+        </div>
+
+        <div class="plan-card">
+          <div class="offer-badge">Pro</div>
+          <h3>$1000 Plan</h3>
+          <p class="rate">3% weekly</p>
+          <p>Withdrawal after 15 days</p>
+          <a href="plans.html" class="btn btn-primary full">Start</a>
+        </div>
+
+        <div class="plan-card">
+          <div class="offer-badge premium">Premium</div>
+          <h3>$5000+ Plan</h3>
+          <p class="rate">4% weekly</p>
+          <p>Weekly withdrawals</p>
+          <a href="plans.html" class="btn btn-primary full">Start</a>
+        </div>
       </div>
+    </div>
+  </section>
 
-      <!-- 3) Premium -->
-      <div class="plan" data-rate="3" data-min="1000">
-        <h3>Premium</h3>
-        <p class="price">$1000</p>
-        <p>Return: 3% Weekly</p>
-        <p>Withdrawal: After 15 days</p>
-        <input class="invest-amount" type="number" min="1000" value="1000">
-        <p>Weekly Profit: $<span class="profit">30.00</span></p>
-        <a class="btn investBtn" href="signup.html">Invest Now</a>
-      </div>
-
-      <!-- 4) Elite OFFER -->
-      <div class="plan" data-rate="4" data-min="5000">
-        <span class="badge offer">OFFER</span>
-        <h3>Elite</h3>
-        <p class="price">$5000+</p>
-        <p>Return: 4% Weekly</p>
-        <p>Withdrawal: Every 7 days</p>
-        <input class="invest-amount" type="number" min="5000" value="5000">
-        <p>Weekly Profit: $<span class="profit">200.00</span></p>
-        <a class="btn investBtn" href="signup.html">Invest Now</a>
+  <!-- LIVE CHART (PLACEHOLDER) -->
+  <section class="section">
+    <div class="container">
+      <h2>Live Chart</h2>
+      <div class="chart-box">
+        <p>This section can show a live gold/crypto chart embed.</p>
+        <p class="small">Later, we’ll add a real chart widget or embed code.</p>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- FAQ -->
-<section id="faq" class="section">
-  <div class="overlay">
-    <h2>FAQ</h2>
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <p>&copy; 2026 GoldChain Investment. All rights reserved.</p>
 
-    <div class="faq-item">
-      <p class="faq-question">How is my investment secured?</p>
-      <p class="faq-answer">This is a demo website. In a real system, security requires backend + audits + legal compliance.</p>
+      <div class="social">
+        <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+      </div>
     </div>
+  </footer>
 
-    <div class="faq-item">
-      <p class="faq-question">How do I withdraw my profits?</p>
-      <p class="faq-answer">Withdrawals follow the plan rules: 45 days / 30 days / 15 days / weekly for the $5000+ offer plan.</p>
-    </div>
+  <!-- WhatsApp Floating Button -->
+  <a class="whatsapp-float" href="https://wa.me/9779851406537" target="_blank" aria-label="WhatsApp Chat">    <i class="fab fa-whatsapp"></i>
+  </a>
 
-    <div class="faq-item">
-      <p class="faq-question">Can I invest multiple times?</p>
-      <p class="faq-answer">Yes, demo allows multiple investments. Real system needs account + payment backend.</p>
-    </div>
-  </div>
-</section>
-
-<!-- CONTACT -->
-<section id="contact" class="section">
-  <div class="overlay map">
-    <h2>Contact</h2>
-    <p>Al Kurnays Br Rd, Ash Shati, Jeddah 23511, Saudi Arabia</p>
-    <iframe src="https://www.google.com/maps?q=Al%20Kurnays%20Br%20Rd%20Jeddah&output=embed"></iframe>
-  </div>
-</section>
-
-<!-- WHATSAPP CHAT -->
-<a class="chat" href="https://wa.me/966XXXXXXXXX" target="_blank" aria-label="WhatsApp Chat">💬</a>
-
-<!-- BACK TO TOP -->
-<div id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">↑</div>
-
-<!-- FOOTER -->
-<footer>
-  ©️ 2026 GoldChain Investment
-  <div style="margin-top:10px">
-    <a href="https://www.youtube.com" target="_blank">YouTube</a>
-    <a href="https://www.facebook.com" target="_blank">Facebook</a>
-    <a href="https://www.linkedin.com" target="_blank">LinkedIn</a>
-  </div>
-</footer>
-
-<script src="js/app.js"></script>
-<script>
-/* Mobile menu */
-function toggleMenu(){ document.getElementById('navMenu').classList.toggle('active'); }
-
-/* Background slider (optional images) */
-const bgSlider = document.getElementById('bgSlider');
-const bgImages = ['images/bg1.jpg','images/bg2.jpg','images/bg3.jpg'];
-let bgIndex = 0;
-setInterval(()=>{
-  bgIndex = (bgIndex + 1) % bgImages.length;
-  bgSlider.style.backgroundImage = `url('${bgImages[bgIndex]}')`;
-}, 8000);
-
-/* Section reveal */
-const sections=document.querySelectorAll('.section');
-function revealSections(){
-  sections.forEach(sec=>{
-    if(sec.getBoundingClientRect().top < window.innerHeight - 120){
-      sec.classList.add('active');
-    }
-  });
-}
-window.addEventListener('scroll', revealSections);
-window.addEventListener('load', ()=>{
-  revealSections();
-  document.getElementById('home').classList.add('active');
-  updateAuthUI();
-});
-
-/* Back to top */
-window.addEventListener('scroll',()=>{
-  document.getElementById('backTop').style.display = window.scrollY>400 ? 'block':'none';
-});
-
-/* FAQ accordion */
-document.querySelectorAll('.faq-item').forEach(item=>{
-  item.addEventListener('click',()=>{
-    const ans=item.querySelector('.faq-answer');
-    ans.classList.toggle('active');
-  });
-});
-
-/* Counters */
-let countersAnimated=false;
-function animateCounters(){
-  document.querySelectorAll('.counter').forEach(counter=>{
-    const target=+counter.getAttribute('data-target');
-    const duration=1200;
-    const start=performance.now();
-    function step(now){
-      const progress=Math.min((now-start)/duration,1);
-      const value=Math.floor(progress*target);
-      counter.innerText=value.toLocaleString();
-      if(progress<1) requestAnimationFrame(step);
-      else counter.innerText=target.toLocaleString();
-    }
-    requestAnimationFrame(step);
-  });
-}
-window.addEventListener('scroll',()=>{
-  if(!countersAnimated && document.getElementById('impact').getBoundingClientRect().top < window.innerHeight - 80){
-    animateCounters();
-    countersAnimated=true;
-  }
-});
-
-/* Plans: dynamic weekly profit (LOCKED plan rules) */
-document.querySelectorAll('.plan').forEach(plan=>{
-  const input = plan.querySelector('.invest-amount');
-  const profit = plan.querySelector('.profit');
-  const rate = parseFloat(plan.getAttribute('data-rate'))/100;
-  const min = parseFloat(plan.getAttribute('data-min'));
-  function update(){
-    let amt = parseFloat(input.value || min);
-    if(amt < min) amt = min;
-    input.value = amt;
-    profit.textContent = (amt * rate).toFixed(2);
-  }
-  input.addEventListener('input', update);
-  update();
-});
-
-/* Invest buttons: if not logged in, send to login first */
-document.querySelectorAll('.investBtn').forEach(btn=>{
-  btn.addEventListener('click', (e)=>{
-    if(!isLoggedIn()){
-      e.preventDefault();
-      alert("Please login first to continue.");
-      window.location.href = "login.html";
-    }
-  });
-});
-
-/* Logout */
-document.getElementById("logoutBtn").addEventListener("click", logoutNow);
-
-/* Keep auth UI correct on refresh */
-window.addEventListener("focus", updateAuthUI);
-</script>
+  <!-- Main JS -->
+  <script src="js/main.js"></script>
 </body>
 </html>
