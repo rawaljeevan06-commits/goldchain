@@ -10,19 +10,16 @@
 </head>
 
 <body>
-
-  <!-- WELCOME BAR -->
   <div class="welcome-bar">
     <p>Welcome to GoldChain Investment — Secure. Smart. Simple.</p>
   </div>
 
-  <!-- HEADER / NAVBAR -->
   <header class="site-header">
     <div class="container header-inner">
       <a class="logo" href="index.html">
-  <img src="images/logo.png" alt="GoldChain Logo" class="logo-img">
-  <span class="logo-text">GoldChain</span>
-</a>
+        <img src="images/logo.png" alt="GoldChain Logo" class="logo-img">
+        <span class="logo-text">GoldChain</span>
+      </a>
 
       <nav class="nav">
         <a href="index.html" class="nav-link">Home</a>
@@ -39,16 +36,11 @@
     </div>
   </header>
 
-  <!-- HERO -->
-  <section class="hero">
+  <section class="hero hero-bg hero-bg-3">
     <div class="container hero-inner">
       <div class="hero-text">
         <h1>Frequently Asked Questions</h1>
-        <p>
-          Here are answers to common questions about GoldChain Investment
-          and how our platform works.
-        </p>
-
+        <p>Clear answers for common questions.</p>
         <div class="mini-badges">
           <span class="badge">Clear Answers</span>
           <span class="badge">Beginner Friendly</span>
@@ -58,15 +50,12 @@
 
       <div class="hero-card">
         <h3>Still Confused?</h3>
-        <p class="small">
-          If your question isn’t listed here, feel free to contact us directly.
-        </p>
+        <p class="small">If your question isn’t listed, contact us directly.</p>
         <a href="contact.html" class="btn btn-light full">Contact Support</a>
       </div>
     </div>
   </section>
 
-  <!-- FAQ SECTION -->
   <section class="section gray">
     <div class="container">
       <div class="section-head">
@@ -75,51 +64,44 @@
       </div>
 
       <div class="grid" style="max-width:800px; margin:auto;">
-
         <div class="plan-card faq-item">
           <h3 class="faq-question">What is GoldChain Investment?</h3>
           <p class="faq-answer small">
-            GoldChain Investment is a digital platform that presents investment plans
-            in a clear and user-friendly way, helping users understand timelines and terms.
+            GoldChain Investment is a platform that presents investment plans clearly and user-friendly.
           </p>
         </div>
 
         <div class="plan-card faq-item">
-          <h3 class="faq-question">How do the investment plans work?</h3>
+          <h3 class="faq-question">How do the plans work?</h3>
           <p class="faq-answer small">
-            Each plan shows the investment amount, weekly percentage, and withdrawal period.
-            Users should review all details before choosing a plan.
+            Each plan shows the amount, weekly percentage, and withdrawal period. Choose based on your timeline.
           </p>
         </div>
 
         <div class="plan-card faq-item">
-          <h3 class="faq-question">When can I withdraw my funds?</h3>
+          <h3 class="faq-question">When can I withdraw?</h3>
           <p class="faq-answer small">
-            Withdrawal timing depends on the plan you choose. Each plan clearly displays
-            its withdrawal period on the Plans page.
+            Withdrawal depends on the plan. Check the Plans page for exact withdrawal timelines.
           </p>
         </div>
 
         <div class="plan-card faq-item">
-          <h3 class="faq-question">Is there any guarantee on returns?</h3>
+          <h3 class="faq-question">Is there any guarantee?</h3>
           <p class="faq-answer small">
-            No investment is risk-free. Returns are shown for informational purposes only.
-            Users should invest responsibly and understand the risks involved.
+            No investment is risk-free. Please invest responsibly and understand risks.
           </p>
         </div>
 
         <div class="plan-card faq-item">
           <h3 class="faq-question">How do I contact support?</h3>
           <p class="faq-answer small">
-            You can contact us through the Contact page or directly via WhatsApp for quick support.
+            Use the Contact page or WhatsApp for fast support.
           </p>
         </div>
-
       </div>
     </div>
   </section>
 
-  <!-- FOOTER -->
   <footer class="footer">
     <div class="container footer-inner">
       <p>&copy; 2026 GoldChain Investment. All rights reserved.</p>
@@ -132,17 +114,14 @@
     </div>
   </footer>
 
-  <!-- WhatsApp -->
   <a class="whatsapp-float" href="https://wa.me/9779851406537" target="_blank" aria-label="WhatsApp Chat">
     <i class="fab fa-whatsapp"></i>
   </a>
 
-  <!-- FAQ Toggle Script -->
   <script>
     document.querySelectorAll(".faq-item").forEach(item => {
       const answer = item.querySelector(".faq-answer");
       answer.style.display = "none";
-
       item.addEventListener("click", () => {
         const isOpen = answer.style.display === "block";
         document.querySelectorAll(".faq-answer").forEach(a => a.style.display = "none");
@@ -151,5 +130,6 @@
     });
   </script>
 
+  <script src="js/main.js"></script>
 </body>
 </html>
