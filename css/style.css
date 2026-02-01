@@ -107,10 +107,9 @@ a{color:inherit; text-decoration:none;}
   align-items:center;
   overflow:hidden;
 
-  /* Put your background images here */
-  background:
-    url("https://images.unsplash.com/photo-1610374792793-f016b4d8b1ff?auto=format&fit=crop&w=1400&q=70") center/cover no-repeat;
+  background: url("images/bg1.jpg") center/cover no-repeat;
 }
+
 .hero-overlay{
   position:absolute;
   inset:0;
