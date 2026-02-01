@@ -1,64 +1,118 @@
-// Demo Auth (Front-end only)
-// This does NOT create real accounts on a server.
-// It saves a demo user in browser localStorage.
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import {
+  getAuth,
+  onAuthStateChanged,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  updateProfile
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
-const $ = (id) => document.getElementById(id);
+import {
+  getFirestore,
+  doc,
+  setDoc
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-const signupForm = $("signupForm");
-const loginForm = $("loginForm");
+// ✅ 1) PASTE YOUR FIREBASE CONFIG HERE
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_STORAGE_BUCKET",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
 
-if (signupForm) {
-  signupForm.addEventListener("submit", (e) => {
-    e.preventDefault();
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-    const user = {
-      name: $("suName").value.trim(),
-      email: $("suEmail").value.trim().toLowerCase(),
-      phone: $("suPhone").value.trim(),
-      pass: $("suPass").value,
-      plan: $("suPlan").value
-    };
+// UI elements
+const welcomeText = document.getElementById("welcomeText");
+const signupBtn = document.getElementById("signupBtn");
+const loginBtn = document.getElementById("loginBtn");
+const logoutBtn = document.getElementById("logoutBtn");
 
-    if (!user.plan) {
-      $("signupMsg").textContent = "Please select a plan.";
-      return;
-    }
+// Protect dashboard
+function protectDashboard(user) {
+  if (location.pathname.endsWith("dashboard.html") && !user) {
+    window.location.href = "login.html";
+  }
+}
 
-    localStorage.setItem("gc_user", JSON.stringify(user));
-    $("signupMsg").textContent = "Account created! Now you can login.";
-    $("signupMsg").style.color = "#ffd66e";
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    if (welcomeText) welcomeText.textContent = `Welcome, ${user.displayName || user.email}`;
+    if (signupBtn) signupBtn.style.display = "none";
+    if (loginBtn) loginBtn.style.display = "none";
+    if (logoutBtn) logoutBtn.style.display = "inline-block";
 
-    setTimeout(() => {
-      window.location.href = "login.html";
-    }, 900);
+    const emailEl = document.getElementById("userEmail");
+    if (emailEl) emailEl.textContent = user.email;
+
+  } else {
+    if (welcomeText) welcomeText.textContent = "Welcome to GoldChain";
+    if (signupBtn) signupBtn.style.display = "inline-block";
+    if (loginBtn) loginBtn.style.display = "inline-block";
+    if (logoutBtn) logoutBtn.style.display = "none";
+  }
+
+  protectDashboard(user);
+});
+
+// Logout
+if (logoutBtn) {
+  logoutBtn.addEventListener("click", async () => {
+    await signOut(auth);
+    window.location.href = "index.html";
   });
 }
 
-if (loginForm) {
-  loginForm.addEventListener("submit", (e) => {
+// Signup
+const signupForm = document.getElementById("signupForm");
+if (signupForm) {
+  signupForm.addEventListener("submit", async (e) => {
     e.preventDefault();
+    const fullName = document.getElementById("fullName").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const msg = document.getElementById("msg");
 
-    const saved = localStorage.getItem("gc_user");
-    if (!saved) {
-      $("loginMsg").textContent = "No account found. Please sign up first.";
-      $("loginMsg").style.color = "#ffd66e";
-      return;
+    try {
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
+      await updateProfile(cred.user, { displayName: fullName });
+
+      // store basic user record
+      await setDoc(doc(db, "users", cred.user.uid), {
+        fullName,
+        email,
+        createdAt: Date.now()
+      });
+
+      if (msg) msg.textContent = "Account created! Redirecting...";
+      window.location.href = "dashboard.html";
+    } catch (err) {
+      if (msg) msg.textContent = err.message;
     }
+  });
+}
 
-    const user = JSON.parse(saved);
-    const email = $("liEmail").value.trim().toLowerCase();
-    const pass = $("liPass").value;
+// Login
+const loginForm = document.getElementById("loginForm");
+if (loginForm) {
+  loginForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const msg = document.getElementById("msg");
 
-    if (email === user.email && pass === user.pass) {
-      $("loginMsg").textContent = "Login successful! (Demo)";
-      $("loginMsg").style.color = "#ffd66e";
-
-      setTimeout(() => {
-        window.location.href = "index.html";
-      }, 800);
-    } else {
-      $("loginMsg").textContent = "Wrong email or password.";
-      $("loginMsg").style.color = "#ffb3b3";
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      if (msg) msg.textContent = "Login successful! Redirecting...";
+      window.location.href = "dashboard.html";
+    } catch (err) {
+      if (msg) msg.textContent = err.message;
     }
   });
 }
