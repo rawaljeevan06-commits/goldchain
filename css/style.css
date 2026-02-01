@@ -293,3 +293,39 @@ a{color:inherit;text-decoration:none}
 h1, h2, h3{
   letter-spacing: .3px;
 }
+/* ===== POLISH 2: Hero upgrade ===== */
+
+/* Make hero feel bigger and cleaner */
+.hero{
+  padding: 88px 0;
+}
+
+/* Better title styling */
+.hero h1{
+  font-size: clamp(34px, 4vw, 52px);
+  line-height: 1.05;
+}
+
+/* Improve hero paragraph readability */
+.hero p{
+  font-size: 16px;
+  max-width: 62ch;
+}
+
+/* CTA spacing */
+.cta{
+  margin-top: 18px;
+  gap: 12px;
+}
+
+/* Hero card looks more premium */
+.hero .card{
+  border-color: rgba(240,185,11,0.20);
+  background: rgba(255,255,255,0.08);
+}
+
+/* Make badges slightly nicer */
+.badge{
+  border-color: rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.08);
+}
