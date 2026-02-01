@@ -828,3 +828,27 @@ h1, h2, h3{
   background: var(--gold);
   border-radius: 4px;
 }
+/* ===== Contact Page Final Polish ===== */
+#message .grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+#message .card {
+  padding: 20px;
+  border-radius: 18px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+}
+
+#message i {
+  color: var(--gold);
+  margin-right: 8px;
+}
+
+#message a.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
