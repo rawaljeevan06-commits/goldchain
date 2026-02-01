@@ -742,3 +742,9 @@ h1, h2, h3{
     border-radius: 14px;
   }
 }
+.chart-wrapper {
+  overflow: hidden;
+  background: rgba(0,0,0,0.35);
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.45);
+}
