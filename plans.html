@@ -3,101 +3,32 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Plans - GoldChain</title>
+  <title>Sign Up - GoldChain</title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
-<body>
+<body class="auth-bg">
 
-  <div class="welcome-bar" id="welcomeBar">
-    <div class="welcome-left">
-      <span id="welcomeText">Plans</span>
-    </div>
-    <div class="welcome-right">
-      <a class="btn btn-sm btn-outline" href="index.html">Home</a>
-      <a class="btn btn-sm" href="signup.html" id="signupBtn">Sign Up</a>
-      <a class="btn btn-sm btn-outline" href="login.html" id="loginBtn">Login</a>
-      <button class="btn btn-sm btn-danger" id="logoutBtn" style="display:none;">Logout</button>
-    </div>
+  <div class="auth-card">
+    <h1>Create Account</h1>
+    <p class="muted">Sign up to access dashboard and member features.</p>
+
+    <form id="signupForm" class="form">
+      <label>Full Name</label>
+      <input type="text" id="fullName" placeholder="Your name" required />
+
+      <label>Email</label>
+      <input type="email" id="email" placeholder="example@gmail.com" required />
+
+      <label>Password</label>
+      <input type="password" id="password" placeholder="Min 6 characters" required />
+
+      <button type="submit" class="btn btn-full">Create Account</button>
+      <p class="muted small" id="msg"></p>
+    </form>
+
+    <p class="small">Already have an account? <a href="login.html">Login</a></p>
+    <p class="small"><a href="index.html">← Back to home</a></p>
   </div>
-
-  <header class="header">
-    <div class="container nav-wrap">
-      <a class="brand" href="index.html">GoldChain<span>.</span></a>
-      <nav class="nav">
-        <a href="index.html#plans" class="nav-link active">Plans</a>
-        <a href="dashboard.html" class="nav-link">Live Dashboard</a>
-      </nav>
-    </div>
-  </header>
-
-  <section class="section">
-    <div class="container">
-      <h1>Investment Plans</h1>
-      <p class="muted">Choose a plan that matches your budget and withdrawal timeline.</p>
-
-      <div class="grid-4">
-        <div class="plan-card">
-          <div class="badge">Popular</div>
-          <h3>$350</h3>
-          <p class="muted">1.5% weekly</p>
-          <ul>
-            <li>Minimum: $350</li>
-            <li>Withdraw after 45 days</li>
-            <li>Weekly returns</li>
-          </ul>
-          <a class="btn btn-full" href="signup.html">Start</a>
-        </div>
-
-        <div class="plan-card">
-          <div class="badge badge-green">Best Value</div>
-          <h3>$700</h3>
-          <p class="muted">2% weekly</p>
-          <ul>
-            <li>Withdraw after 1 month</li>
-            <li>Weekly returns</li>
-            <li>Better growth</li>
-          </ul>
-          <a class="btn btn-full" href="signup.html">Start</a>
-        </div>
-
-        <div class="plan-card">
-          <div class="badge badge-blue">Fast</div>
-          <h3>$1000</h3>
-          <p class="muted">3% weekly</p>
-          <ul>
-            <li>Withdraw after 15 days</li>
-            <li>Weekly returns</li>
-            <li>Fast access</li>
-          </ul>
-          <a class="btn btn-full" href="signup.html">Start</a>
-        </div>
-
-        <div class="plan-card">
-          <div class="badge badge-gold">VIP</div>
-          <h3>$5000+</h3>
-          <p class="muted">4% weekly</p>
-          <ul>
-            <li>Withdraw weekly</li>
-            <li>Highest return</li>
-            <li>Priority support</li>
-          </ul>
-          <a class="btn btn-full" href="signup.html">Start</a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <footer class="footer">
-    <div class="container footer-grid">
-      <p>&copy; 2026 Gold Chain Investment. All rights reserved.</p>
-      <div class="social">
-        <a href="#" aria-label="Instagram">Instagram</a>
-        <a href="#" aria-label="LinkedIn">LinkedIn</a>
-        <a href="#" aria-label="YouTube">YouTube</a>
-        <a href="#" aria-label="Facebook">Facebook</a>
-      </div>
-    </div>
-  </footer>
 
   <script type="module" src="js/auth.js"></script>
 </body>
