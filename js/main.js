@@ -52,7 +52,17 @@
   btn.addEventListener("click", () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   });
+// Reveal on scroll (simple + safe)
+  const revealItems = document.querySelectorAll(".reveal");
+  if (revealItems.length) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) e.target.classList.add("is-visible");
+      });
+    }, { threshold: 0.12 });
 
+    revealItems.forEach((el) => io.observe(el));
+  }
   // Active link highlight by current page
   const path = window.location.pathname.split("/").pop() || "index.html";
   document.querySelectorAll(".nav a").forEach(a => {
