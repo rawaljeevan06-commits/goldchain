@@ -852,3 +852,84 @@ h1, h2, h3{
   align-items: center;
   justify-content: center;
 }
+/* ===== POLISH PACK: Buttons + Hero animation + Footer redesign ===== */
+
+/* (1) Button hover animation (premium) */
+.btn{
+  position: relative;
+  overflow: hidden;
+}
+.btn::after{
+  content:"";
+  position:absolute;
+  top:-60%;
+  left:-120%;
+  width:80%;
+  height:220%;
+  transform: rotate(18deg);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+  opacity: 0;
+  transition: left .45s ease, opacity .25s ease;
+  pointer-events:none;
+}
+.btn:hover::after{
+  left:140%;
+  opacity: 1;
+}
+.btn:active{
+  transform: translateY(1px);
+}
+
+/* (2) Hero text animation (clean + not flashy) */
+.hero .hero-anim{
+  opacity: 0;
+  transform: translateY(14px);
+  animation: heroUp .75s ease forwards;
+}
+.hero .hero-anim.delay-1{ animation-delay: .10s; }
+.hero .hero-anim.delay-2{ animation-delay: .22s; }
+.hero .hero-anim.delay-3{ animation-delay: .34s; }
+.hero .hero-anim.delay-4{ animation-delay: .46s; }
+
+@keyframes heroUp{
+  to{ opacity:1; transform: translateY(0); }
+}
+
+/* (3) Footer redesign (clean, pro, trust boost) */
+.footer{
+  padding: 34px 0;
+  background: rgba(11,15,26,0.90);
+}
+.footer-in{
+  gap: 16px;
+}
+.footer .small{
+  opacity: .9;
+}
+.footer .social a{
+  width: 42px;
+  height: 42px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+}
+.footer .social a:hover{
+  border-color: rgba(240,185,11,0.35);
+  background: rgba(240,185,11,0.10);
+  transform: translateY(-2px);
+}
+
+/* optional: footer links if you add later */
+.footer-links{
+  display:flex;
+  gap:14px;
+  flex-wrap:wrap;
+  font-size: 13px;
+  color: rgba(233,238,252,0.75);
+}
+.footer-links a:hover{
+  color: var(--gold2);
+  text-decoration: underline;
+}
