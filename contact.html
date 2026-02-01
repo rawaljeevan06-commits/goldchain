@@ -1,40 +1,192 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Contact - GoldChain Investment</title>
-<link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Contact | GoldChain Investment</title>
+
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
+
 <body>
 
-<header>
-  <div class="logo">
-    <img src="images/logo.png" alt="GoldChain Logo">
-    <span>GoldChain Investment</span>
+  <!-- WELCOME BAR -->
+  <div class="welcome-bar">
+    <p>Welcome to GoldChain Investment — Secure. Smart. Simple.</p>
   </div>
-  <div class="hamburger" onclick="toggleMenu()">
-    <div></div><div></div><div></div>
-  </div>
-  <nav id="navMenu">
-    <a href="index.html#home">Home</a>
-    <a href="index.html#plans">Plans</a>
-    <a href="about.html">About</a>
-    <a href="login.html">Login</a>
-    <a href="contact.html">Contact</a>
-  </nav>
-</header>
 
-<div class="page">
-  <div class="overlay map">
-    <h1>Contact Us</h1>
-    <p>Al Kurnays Br Rd, Ash Shati, Jeddah 23511, Saudi Arabia</p>
-    <iframe src="https://www.google.com/maps?q=Al%20Kurnays%20Br%20Rd%20Jeddah&output=embed"></iframe>
-  </div>
-</div>
+  <!-- HEADER / NAVBAR -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="index.html">GoldChain<span>.</span></a>
 
-<a class="chat" href="https://wa.me/966XXXXXXXXX" target="_blank" aria-label="WhatsApp Chat">💬</a>
+      <nav class="nav">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="plans.html" class="nav-link">Plans</a>
+        <a href="about.html" class="nav-link">Our Impact</a>
+        <a href="faq.html" class="nav-link">FAQ</a>
+        <a href="contact.html" class="nav-link active">Contact</a>
+      </nav>
 
-<script src="js/app.js"></script>
+      <div class="auth-buttons">
+        <a class="btn btn-light" href="login.html">Login</a>
+        <a class="btn btn-primary" href="signup.html">Sign Up</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTACT HERO -->
+  <section class="hero">
+    <div class="container hero-inner">
+      <div class="hero-text">
+        <h1>Contact Us</h1>
+        <p>
+          Need help choosing a plan or want to ask a question?
+          Reach us anytime — we respond as soon as possible.
+        </p>
+
+        <div class="hero-cta">
+          <a class="btn btn-primary" href="https://wa.me/9779851406537" target="_blank">Chat on WhatsApp</a>
+          <a class="btn btn-outline" href="#contact-form">Send a Message</a>
+        </div>
+
+        <div class="mini-badges">
+          <span class="badge">Fast Support</span>
+          <span class="badge">Clear Answers</span>
+          <span class="badge">Friendly Service</span>
+        </div>
+      </div>
+
+      <div class="hero-card">
+        <h3>Quick Details</h3>
+        <p class="small"><strong>Phone:</strong> 9851406537</p>
+        <p class="small"><strong>Email:</strong> goldchain@example.com</p>
+        <p class="small"><strong>Location:</strong> Kathmandu, Nepal</p>
+        <a class="btn btn-light full" href="#map">View Map</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT DETAILS + FORM -->
+  <section class="section gray" id="contact-form">
+    <div class="container">
+      <div class="section-head">
+        <h2>Send Us a Message</h2>
+        <a class="link" href="index.html">Back to Home →</a>
+      </div>
+
+      <div class="grid" style="grid-template-columns: 1fr 1fr; gap:16px;">
+        <!-- Left: Contact cards -->
+        <div class="plan-card" style="min-height: 100%;">
+          <h3>Contact Information</h3>
+          <p class="small" style="margin-top:10px;">
+            <i class="fa-solid fa-phone" style="margin-right:8px;"></i>
+            <strong>Phone:</strong> 9851406537
+          </p>
+          <p class="small" style="margin-top:10px;">
+            <i class="fa-solid fa-envelope" style="margin-right:8px;"></i>
+            <strong>Email:</strong> goldchain@example.com
+          </p>
+          <p class="small" style="margin-top:10px;">
+            <i class="fa-solid fa-location-dot" style="margin-right:8px;"></i>
+            <strong>Address:</strong> Kathmandu, Nepal
+          </p>
+
+          <div style="margin-top:14px;">
+            <a class="btn btn-primary full" href="https://wa.me/9779851406537" target="_blank">
+              WhatsApp Now
+            </a>
+          </div>
+
+          <p class="small" style="margin-top:12px;">
+            Support hours: 9 AM – 9 PM (Nepal Time)
+          </p>
+        </div>
+
+        <!-- Right: Form -->
+        <div class="plan-card">
+          <h3>Message Form (Demo)</h3>
+          <p class="small">This form is for design. Later we can connect it to real email.</p>
+
+          <form id="contactForm" style="margin-top:12px; display:grid; gap:12px;">
+            <div>
+              <label class="small">Full Name</label><br/>
+              <input id="cName" type="text" placeholder="Your name" required
+                style="width:100%; padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.18); background:rgba(255,255,255,0.06); color:#e9eefc;">
+            </div>
+
+            <div>
+              <label class="small">Email</label><br/>
+              <input id="cEmail" type="email" placeholder="you@email.com" required
+                style="width:100%; padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.18); background:rgba(255,255,255,0.06); color:#e9eefc;">
+            </div>
+
+            <div>
+              <label class="small">Message</label><br/>
+              <textarea id="cMsg" rows="4" placeholder="Write your message..." required
+                style="width:100%; padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.18); background:rgba(255,255,255,0.06); color:#e9eefc;"></textarea>
+            </div>
+
+            <button class="btn btn-primary full" type="submit">Send Message</button>
+            <p id="contactMsg" class="small" style="margin-top:6px;"></p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAP -->
+  <section class="section" id="map">
+    <div class="container">
+      <h2>Our Location</h2>
+      <div class="chart-box" style="padding:0; overflow:hidden;">
+        <!-- Map is placeholder; you can change to your exact location later -->
+        <iframe
+          src="https://www.google.com/maps?q=Kathmandu%20Nepal&output=embed"
+          width="100%" height="360" style="border:0;"
+          allowfullscreen="" loading="lazy">
+        </iframe>
+      </div>
+      <p class="small" style="margin-top:10px;">
+        You can replace this map with your exact office location later.
+      </p>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <p>&copy; 2026 GoldChain Investment. All rights reserved.</p>
+
+      <div class="social">
+        <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- WhatsApp Floating Button -->
+  <a class="whatsapp-float" href="https://wa.me/9779851406537" target="_blank" aria-label="WhatsApp Chat">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+
+  <script>
+    // Demo contact form message (no real email sending)
+    const form = document.getElementById("contactForm");
+    const msg = document.getElementById("contactMsg");
+
+    if (form) {
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        msg.textContent = "Message sent (demo). We will contact you soon!";
+        msg.style.color = "#ffd66e";
+        form.reset();
+      });
+    }
+  </script>
+
 </body>
 </html>
