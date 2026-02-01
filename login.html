@@ -6,6 +6,11 @@
 <script>
   const SUPABASE_URL = "https://isyavausunsombknvhsz.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_hk-iDlrPwiqlQSr6NwK0nQ_Ht4Qbbkm";
+  const sb = supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+  );
+</script>
 </script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -49,7 +54,7 @@
 
         <form id="loginForm" class="form-grid">
           <input class="input" id="loginEmail" type="email" placeholder="Email" required>
-<input class="input" id="loginPassword" type="password" placeholder="Password" required>
+          <input class="input" id="loginPassword" type="password" placeholder="Password" required>
           <button class="btn btn-primary full" type="submit">Login</button>
           <p id="loginMsg" class="small"></p>
 
@@ -79,3 +84,31 @@
   <script src="js/main.js"></script>
 </body>
 </html>
+<script>
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const form = document.getElementById("loginForm");
+  const msg = document.getElementById("loginMsg");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    msg.textContent = "Logging in...";
+    msg.style.color = "";
+
+    const email = document.getElementById("loginEmail").value.trim();
+    const password = document.getElementById("loginPassword").value;
+
+    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+
+    if (error) {
+      msg.textContent = error.message;
+      msg.style.color = "#ffb3b3";
+      return;
+    }
+
+    msg.textContent = "Login successful!";
+    msg.style.color = "#ffd66e";
+    setTimeout(() => (window.location.href = "index.html"), 600);
+  });
+</script>
