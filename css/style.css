@@ -329,3 +329,42 @@ h1, h2, h3{
   border-color: rgba(255,255,255,0.18);
   background: rgba(255,255,255,0.08);
 }
+/* ===== POLISH 3: Plans hierarchy ===== */
+
+/* Plan title spacing */
+.plan h3{
+  font-size: 20px;
+  margin-bottom: 6px;
+}
+
+/* Rate is the hero */
+.plan .rate{
+  font-size: 26px;
+  margin: 10px 0 12px;
+}
+
+/* Plan text clarity */
+.plan .small{
+  font-size: 13.5px;
+  opacity: .9;
+}
+
+/* Most popular plan emphasis */
+.plan .tag.pop{
+  box-shadow: 0 6px 20px rgba(240,185,11,.35);
+}
+
+/* Make popular plan slightly taller */
+.plan:has(.tag.pop){
+  transform: scale(1.03);
+}
+
+/* Button spacing inside plans */
+.plan .btn{
+  margin-top: 14px;
+}
+
+/* Hover focus */
+.plan:hover{
+  border-color: rgba(240,185,11,.55);
+}
