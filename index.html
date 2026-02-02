@@ -18,28 +18,32 @@
   <div class="topbar">Welcome to GoldChain Investment — Secure. Smart. Simple.</div>
 
   <header class="header">
-    <div class="container header-in">
-      <a class="brand" href="index.html">
-        <img src="images/logo.png" alt="GoldChain Logo">
-        <span>GoldChain</span>
-      </a>
+  <div class="container header-in">
+    <a class="brand" href="index.html">
+      <img src="images/logo.png" alt="GoldChain Logo">
+      <span>GoldChain</span>
+    </a>
 
-      <button class="nav-toggle" type="button" aria-label="Menu">☰</button>
+    <button class="nav-toggle" type="button" aria-label="Menu">☰</button>
 
-      <nav class="nav">
-        <a href="index.html" class="active">Home</a>
-        <a href="plans.html">Plans</a>
-        <a href="about.html">Our Impact</a>
-        <a href="faq.html">FAQ</a>
-        <a href="contact.html">Contact</a>
-      </nav>
+    <nav class="nav">
+      <a href="index.html">Home</a>
+      <a href="plans.html">Plans</a>
+      <a href="about.html">Our Impact</a>
+      <a href="faq.html">FAQ</a>
+      <a href="contact.html">Contact</a>
+    </nav>
 
-      <div class="actions">
-        <a class="btn btn-ghost" href="login.html">Login</a>
-        <a class="btn btn-primary" href="signup.html">Sign Up</a>
-      </div>
+    <div class="actions">
+      <!-- Visible when NOT logged in -->
+      <a class="btn btn-ghost" href="login.html" id="loginBtn">Login</a>
+      <a class="btn btn-primary" href="signup.html" id="signupBtn">Sign Up</a>
+
+      <!-- Visible when logged in -->
+      <a class="btn btn-ghost" href="#" id="logoutBtn" style="display:none;">Logout</a>
     </div>
-  </header>
+  </div>
+</header>
 
   <!-- HERO (bg1) -->
   <section class="hero bg" style="background-image:url('images/bg1.jpg')">
@@ -211,5 +215,9 @@
   </a>
 
   <script src="js/main.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabaseClient.js"></script>
+<script src="js/authSupabase.js"></script>
+<script src="js/main.js"></script>
 </body>
 </html>
