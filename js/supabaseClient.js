@@ -1,5 +1,5 @@
 // js/supabaseClient.js
-// Creates ONE global Supabase client (window.sb)
+// Creates ONE global Supabase client
 
 const SUPABASE_URL = "https://isyavausunsombknvhsz.supabase.co";
 const SUPABASE_ANON_KEY =
@@ -10,4 +10,4 @@ window.sb = window.supabase.createClient(
   SUPABASE_ANON_KEY
 );
 
-console.log("✅ Supabase client loaded", window.sb);
+console.log("✅ Supabase client ready");
