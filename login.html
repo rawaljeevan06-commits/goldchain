@@ -5,31 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Login | GoldChain Investment</title>
 
-  <!-- CSS -->
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
   <!-- Supabase JS v2 -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <!-- Supabase config -->
-  <script>
-    const SUPABASE_URL = "https://isyavausunsombknvhsz.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlzeWFhdnVzdW5zb21ia252aHN6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk5NDExOTEsImV4cCI6MjA4NTUxNzE5MX0.SrOKP_Xm2Joi9QPStyAYFGmziavkXvpXbgGfG1LtEfA";
-
-    const sb = window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_ANON_KEY
-    );
-  </script>
 </head>
 
 <body>
 
-  <!-- TOP BAR -->
   <div class="topbar">Login — Secure. Smart. Simple.</div>
 
-  <!-- HEADER -->
   <header class="header">
     <div class="container header-in">
       <a class="brand" href="index.html">
@@ -37,7 +23,7 @@
         <span>GoldChain</span>
       </a>
 
-      <button class="nav-toggle" type="button">☰</button>
+      <button class="nav-toggle" type="button" aria-label="Menu">☰</button>
 
       <nav class="nav">
         <a href="index.html">Home</a>
@@ -54,7 +40,6 @@
     </div>
   </header>
 
-  <!-- LOGIN SECTION -->
   <section class="section">
     <div class="container" style="max-width:560px;">
       <div class="card">
@@ -62,14 +47,15 @@
         <p class="small">Login with the email and password you created.</p>
 
         <form id="loginForm" class="form-grid">
-          <input id="loginEmail" class="input" type="email" placeholder="Email" required>
-          <input id="loginPassword" class="input" type="password" placeholder="Password" required>
+          <input class="input" id="loginEmail" type="email" placeholder="Email" required>
+          <input class="input" id="loginPassword" type="password" placeholder="Password" required>
 
-          <button type="submit" class="btn btn-primary full">Login</button>
-          <p id="loginMsg" class="small"></p>
+          <button class="btn btn-primary full" type="submit">Login</button>
 
-          <p class="small">
-            No account?
+          <!-- Message area -->
+          <p id="loginMsg" class="small" style="margin-top:10px;"></p>
+
+          <p class="small">No account?
             <a href="signup.html" style="color:var(--gold2);font-weight:700;">Create one</a>
           </p>
         </form>
@@ -77,67 +63,107 @@
     </div>
   </section>
 
-  <!-- FOOTER -->
   <footer class="footer">
     <div class="container footer-in">
       <p class="small">©️ 2026 GoldChain Investment. All rights reserved.</p>
       <div class="social">
-        <a href="#"><i class="fab fa-facebook"></i></a>
-        <a href="#"><i class="fab fa-youtube"></i></a>
-        <a href="#"><i class="fab fa-instagram"></i></a>
-        <a href="#"><i class="fab fa-linkedin"></i></a>
+        <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
       </div>
     </div>
   </footer>
 
-  <!-- WHATSAPP -->
-  <a class="whatsapp-float" href="https://wa.me/9779851406537" target="_blank">
+  <a class="whatsapp-float" href="https://wa.me/9779851406537" target="_blank" aria-label="WhatsApp Chat">
     <i class="fab fa-whatsapp"></i>
   </a>
 
-  <!-- LOGIN SCRIPT -->
+  <!-- ✅ LOGIN LOGIC (edited + fixed) -->
   <script>
     document.addEventListener("DOMContentLoaded", async () => {
       const form = document.getElementById("loginForm");
-      const msg = document.getElementById("loginMsg");
+      const msg  = document.getElementById("loginMsg");
 
-      // 🔐 If already logged in → redirect
-      const { data: { session } } = await sb.auth.getSession();
-      if (session) {
-        window.location.href = "index.html";
+      // Always show status so we know page is using new code
+      msg.textContent = "DEBUG: Login page loaded ✅";
+      msg.style.color = "#ffd66e";
+
+      // 1) Check Supabase library
+      if (!window.supabase) {
+        msg.textContent = "ERROR: Supabase library not loaded. CDN blocked / network issue.";
+        msg.style.color = "#ffb3b3";
+        console.error("Supabase CDN not loaded");
         return;
       }
 
+      // 2) Create Supabase client HERE (more reliable than <head>)
+      const SUPABASE_URL = "https://isyavausunsombknvhsz.supabase.co";
+      const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlzeWFhdnVzdW5zb21ia252aHN6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk5NDExOTEsImV4cCI6MjA4NTUxNzE5MX0.SrOKP_Xm2Joi9QPStyAYFGmziavkXvpXbgGfG1LtEfA";
+
+      let sb;
+      try {
+        sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      } catch (e) {
+        msg.textContent = "ERROR: createClient failed: " + (e?.message || e);
+        msg.style.color = "#ffb3b3";
+        console.error("createClient error:", e);
+        return;
+      }
+
+      // 3) If already logged in, redirect
+      try {
+        const { data, error } = await sb.auth.getSession();
+        if (error) console.warn("getSession error:", error);
+
+        if (data?.session) {
+          msg.textContent = "Already logged in ✅ Redirecting...";
+          msg.style.color = "#7CFFB3";
+          setTimeout(() => window.location.href = "index.html", 500);
+          return;
+        }
+      } catch (e) {
+        console.warn("getSession catch:", e);
+      }
+
+      // 4) Handle login submit
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
+
         msg.textContent = "Logging in...";
-        msg.style.color = "";
+        msg.style.color = "#ffd66e";
 
         const email = document.getElementById("loginEmail").value.trim();
         const password = document.getElementById("loginPassword").value;
 
-        const { error } = await sb.auth.signInWithPassword({
-          email,
-          password
-        });
+        try {
+          const { data, error } = await sb.auth.signInWithPassword({ email, password });
 
-        if (error) {
-          msg.textContent = error.message;
+          if (error) {
+            msg.textContent = "SUPABASE ERROR: " + error.message;
+            msg.style.color = "#ffb3b3";
+            console.error("signIn error:", error);
+            return;
+          }
+
+          msg.textContent = "Login successful ✅ Redirecting...";
+          msg.style.color = "#7CFFB3";
+
+          setTimeout(() => {
+            window.location.href = "index.html";
+          }, 600);
+
+        } catch (err) {
+          // This is where “Failed to fetch” will appear clearly
+          msg.textContent = "NETWORK ERROR: " + (err?.message || err);
           msg.style.color = "#ffb3b3";
-          return;
+          console.error("LOGIN CATCH ERROR:", err);
         }
-
-        msg.textContent = "Login successful!";
-        msg.style.color = "#ffd66e";
-
-        setTimeout(() => {
-          window.location.href = "index.html";
-        }, 600);
       });
     });
   </script>
 
-  <!-- MAIN JS (menu etc.) -->
+  <!-- ✅ KEEP main.js if it handles menu/nav -->
   <script src="js/main.js"></script>
 
 </body>
