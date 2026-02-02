@@ -8,8 +8,36 @@
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-  <!-- Supabase JS v2 -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- ✅ Supabase loader with fallback CDNs -->
+  <script>
+    // Loads a script, tries next URL if it fails
+    function loadScriptWithFallback(urls, done) {
+      let i = 0;
+      function tryNext() {
+        if (i >= urls.length) return done(new Error("All Supabase CDNs failed"));
+        const url = urls[i++];
+        const s = document.createElement("script");
+        s.src = url;
+        s.async = true;
+        s.onload = () => done(null, url);
+        s.onerror = () => tryNext();
+        document.head.appendChild(s);
+      }
+      tryNext();
+    }
+
+    window.__supabaseReady = new Promise((resolve, reject) => {
+      const cdns = [
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "https://unpkg.com/@supabase/supabase-js@2",
+        "https://esm.sh/@supabase/supabase-js@2"
+      ];
+      loadScriptWithFallback(cdns, (err, usedUrl) => {
+        if (err) reject(err);
+        else resolve(usedUrl);
+      });
+    });
+  </script>
 </head>
 
 <body>
@@ -52,7 +80,7 @@
 
           <button class="btn btn-primary full" type="submit">Login</button>
 
-          <!-- Message area -->
+          <!-- Status / Debug -->
           <p id="loginMsg" class="small" style="margin-top:10px;"></p>
 
           <p class="small">No account?
@@ -79,57 +107,58 @@
     <i class="fab fa-whatsapp"></i>
   </a>
 
-  <!-- ✅ LOGIN LOGIC (edited + fixed) -->
+  <!-- ✅ LOGIN LOGIC -->
   <script>
     document.addEventListener("DOMContentLoaded", async () => {
-      const form = document.getElementById("loginForm");
       const msg  = document.getElementById("loginMsg");
+      const form = document.getElementById("loginForm");
 
-      // Always show status so we know page is using new code
-      msg.textContent = "DEBUG: Login page loaded ✅";
+      msg.textContent = "Loading login system...";
       msg.style.color = "#ffd66e";
 
-      // 1) Check Supabase library
-      if (!window.supabase) {
-        msg.textContent = "ERROR: Supabase library not loaded. CDN blocked / network issue.";
-        msg.style.color = "#ffb3b3";
-        console.error("Supabase CDN not loaded");
-        return;
-      }
-
-      // 2) Create Supabase client HERE (more reliable than <head>)
+      // Your Supabase keys
       const SUPABASE_URL = "https://isyavausunsombknvhsz.supabase.co";
       const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlzeWFhdnVzdW5zb21ia252aHN6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk5NDExOTEsImV4cCI6MjA4NTUxNzE5MX0.SrOKP_Xm2Joi9QPStyAYFGmziavkXvpXbgGfG1LtEfA";
 
-      let sb;
+      // Wait for Supabase library to load (from any CDN)
+      let usedCdn = "";
       try {
-        sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        usedCdn = await window.__supabaseReady;
       } catch (e) {
-        msg.textContent = "ERROR: createClient failed: " + (e?.message || e);
+        msg.textContent = "ERROR: Supabase library could not load (all CDNs failed). Try another network or disable adblock.";
         msg.style.color = "#ffb3b3";
-        console.error("createClient error:", e);
+        console.error(e);
         return;
       }
 
-      // 3) If already logged in, redirect
-      try {
-        const { data, error } = await sb.auth.getSession();
-        if (error) console.warn("getSession error:", error);
+      if (!window.supabase) {
+        msg.textContent = "ERROR: Supabase loaded but not available. (Very rare) Refresh page.";
+        msg.style.color = "#ffb3b3";
+        return;
+      }
 
+      msg.textContent = "Supabase loaded ✅ (" + usedCdn + ")";
+      msg.style.color = "#7CFFB3";
+
+      // Create client
+      const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+      // If already logged in, redirect
+      try {
+        const { data } = await sb.auth.getSession();
         if (data?.session) {
           msg.textContent = "Already logged in ✅ Redirecting...";
           msg.style.color = "#7CFFB3";
-          setTimeout(() => window.location.href = "index.html", 500);
+          setTimeout(() => window.location.href = "index.html", 400);
           return;
         }
       } catch (e) {
-        console.warn("getSession catch:", e);
+        console.warn("getSession error:", e);
       }
 
-      // 4) Handle login submit
+      // Submit login
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
-
         msg.textContent = "Logging in...";
         msg.style.color = "#ffd66e";
 
@@ -137,34 +166,27 @@
         const password = document.getElementById("loginPassword").value;
 
         try {
-          const { data, error } = await sb.auth.signInWithPassword({ email, password });
+          const { error } = await sb.auth.signInWithPassword({ email, password });
 
           if (error) {
             msg.textContent = "SUPABASE ERROR: " + error.message;
             msg.style.color = "#ffb3b3";
-            console.error("signIn error:", error);
             return;
           }
 
           msg.textContent = "Login successful ✅ Redirecting...";
           msg.style.color = "#7CFFB3";
-
-          setTimeout(() => {
-            window.location.href = "index.html";
-          }, 600);
+          setTimeout(() => window.location.href = "index.html", 600);
 
         } catch (err) {
-          // This is where “Failed to fetch” will appear clearly
           msg.textContent = "NETWORK ERROR: " + (err?.message || err);
           msg.style.color = "#ffb3b3";
-          console.error("LOGIN CATCH ERROR:", err);
+          console.error(err);
         }
       });
     });
   </script>
 
-  <!-- ✅ KEEP main.js if it handles menu/nav -->
   <script src="js/main.js"></script>
-
 </body>
 </html>
