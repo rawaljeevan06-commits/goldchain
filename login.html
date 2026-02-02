@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-  <!-- Supabase JS -->
+  <!-- Supabase JS (must load BEFORE we create the client) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <!-- Supabase config + client -->
@@ -16,8 +16,11 @@
     const SUPABASE_URL = "https://isyavausunsombknvhsz.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlzeWFhdnVzdW5zb21ia252aHN6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk5NDExOTEsImV4cCI6MjA4NTUxNzE5MX0.SrOKP_Xm2Joi9QPStyAYFGmziavkXvpXbgGfG1LtEfA";
 
-    // Make it global so other scripts can use it safely
-    window.sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // Create client only if library loaded
+    // (If CDN fails, window.sb stays undefined, and our login script will show a message)
+    if (window.supabase) {
+      window.sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
   </script>
 </head>
 
@@ -86,16 +89,28 @@
     <i class="fab fa-whatsapp"></i>
   </a>
 
-  <!-- ✅ LOGIN LOGIC (MUST BE BEFORE </body>) -->
+  <!-- ✅ LOGIN LOGIC (must be BEFORE </body>) -->
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      // quick proof that JS is running
-      // alert("LOGIN JS LOADED");
-
       const form = document.getElementById("loginForm");
       const msg = document.getElementById("loginMsg");
 
-      if (!form) return;
+      // Safety checks (so we never get "nothing happened")
+      if (!form || !msg) return;
+
+      if (!window.supabase) {
+        msg.textContent = "Supabase library not loaded (CDN failed). Please refresh.";
+        msg.style.color = "#ffb3b3";
+        console.error("Supabase CDN not loaded");
+        return;
+      }
+
+      if (!window.sb) {
+        msg.textContent = "Supabase client not created. Check URL/KEY script in <head>.";
+        msg.style.color = "#ffb3b3";
+        console.error("Supabase client missing");
+        return;
+      }
 
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
@@ -106,27 +121,31 @@
         const email = document.getElementById("loginEmail").value.trim();
         const password = document.getElementById("loginPassword").value;
 
-        const { error } = await window.sb.auth.signInWithPassword({ email, password });
+        try {
+          const { error } = await window.sb.auth.signInWithPassword({ email, password });
 
-        if (error) {
-          msg.textContent = error.message;
+          if (error) {
+            msg.textContent = error.message;
+            msg.style.color = "#ffb3b3";
+            console.log("SUPABASE ERROR:", error);
+            return;
+          }
+
+          msg.textContent = "Login successful!";
+          msg.style.color = "#ffd66e";
+
+          setTimeout(() => (window.location.href = "index.html"), 600);
+        } catch (err) {
+          msg.textContent = "Unexpected error. Open console (F12) to see details.";
           msg.style.color = "#ffb3b3";
-          return;
+          console.error("LOGIN CATCH ERROR:", err);
         }
-
-        msg.textContent = "Login successful!";
-        msg.style.color = "#ffd66e";
-
-        setTimeout(() => (window.location.href = "index.html"), 600);
       });
     });
   </script>
 
   <!-- ✅ KEEP main.js if it handles menu/nav -->
   <script src="js/main.js"></script>
-
-  <!-- ❌ DO NOT include auth.js on login page (old demo system) -->
-  <!-- <script src="js/auth.js"></script> -->
 
 </body>
 </html>
