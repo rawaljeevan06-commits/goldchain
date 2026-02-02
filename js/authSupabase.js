@@ -36,7 +36,7 @@ async function bindLogout() {
   logoutBtn.addEventListener("click", async (e) => {
     e.preventDefault();
     await window.sb.auth.signOut();
-    window.location.href = "index.html";
+    window.location.href = window.location.origin + "/goldchain/";
   });
 }
 
