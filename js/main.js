@@ -1,71 +1,71 @@
-(function () {
-  // Mobile nav toggle
-  const toggle = document.querySelector(".nav-toggle");
-  if (toggle) {
-    toggle.addEventListener("click", () => {
-      document.body.classList.toggle("nav-open");
+// js/main.js
+// UI-only logic (no auth, no Supabase)
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  /* =========================
+     Mobile nav toggle
+  ========================= */
+  const navToggle = document.querySelector(".nav-toggle");
+  const nav = document.querySelector(".nav");
+
+  if (navToggle && nav) {
+    navToggle.addEventListener("click", () => {
+      nav.classList.toggle("open");
+    });
+
+    // Close menu when clicking a link (mobile)
+    nav.querySelectorAll("a").forEach(link => {
+      link.addEventListener("click", () => {
+        nav.classList.remove("open");
+      });
     });
   }
 
-  // Close mobile nav when clicking a link
-  document.querySelectorAll(".nav a").forEach(a => {
-    a.addEventListener("click", () => document.body.classList.remove("nav-open"));
-  });
+  /* =========================
+     Active nav link on scroll
+  ========================= */
+  const sections = document.querySelectorAll("section[id]");
+  const navLinks = document.querySelectorAll(".nav a");
 
-  // Smooth scroll for internal hash links
-  document.querySelectorAll('a[href^="#"]').forEach(link => {
-    link.addEventListener("click", (e) => {
-      const id = link.getAttribute("href");
-      const target = document.querySelector(id);
-      if (target) {
-        e.preventDefault();
-        target.scrollIntoView({ behavior: "smooth", block: "start" });
+  function setActiveLink() {
+    let scrollY = window.scrollY + 120;
+
+    sections.forEach(section => {
+      const top = section.offsetTop;
+      const height = section.offsetHeight;
+      const id = section.getAttribute("id");
+
+      if (scrollY >= top && scrollY < top + height) {
+        navLinks.forEach(link => link.classList.remove("active"));
+        const active = document.querySelector('.nav a[href="#' + id + '"]');
+        if (active) active.classList.add("active");
       }
     });
-  });
+  }
 
-  // Back to top button
-  const btn = document.createElement("button");
-  btn.textContent = "↑";
-  btn.setAttribute("aria-label", "Back to top");
-  btn.style.position = "fixed";
-  btn.style.left = "16px";
-  btn.style.bottom = "16px";
-  btn.style.width = "48px";
-  btn.style.height = "48px";
-  btn.style.borderRadius = "50%";
-  btn.style.border = "1px solid rgba(255,255,255,0.20)";
-  btn.style.background = "rgba(255,255,255,0.08)";
-  btn.style.color = "#e9eefc";
-  btn.style.backdropFilter = "blur(10px)";
-  btn.style.cursor = "pointer";
-  btn.style.display = "none";
-  btn.style.zIndex = "250";
-  btn.style.fontSize = "18px";
-  document.body.appendChild(btn);
+  if (sections.length) {
+    window.addEventListener("scroll", setActiveLink);
+  }
 
-  window.addEventListener("scroll", () => {
-    btn.style.display = window.scrollY > 400 ? "grid" : "none";
-    btn.style.placeItems = "center";
-  });
+  /* =========================
+     Back to top button
+  ========================= */
+  const backToTop = document.createElement("button");
+  backToTop.innerHTML = "↑";
+  backToTop.className = "back-to-top";
+  document.body.appendChild(backToTop);
 
-  btn.addEventListener("click", () => {
+  backToTop.addEventListener("click", () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   });
-// Reveal on scroll (simple + safe)
-  const revealItems = document.querySelectorAll(".reveal");
-  if (revealItems.length) {
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach((e) => {
-        if (e.isIntersecting) e.target.classList.add("is-visible");
-      });
-    }, { threshold: 0.12 });
 
-    revealItems.forEach((el) => io.observe(el));
-  }
-  // Active link highlight by current page
-  const path = window.location.pathname.split("/").pop() || "index.html";
-  document.querySelectorAll(".nav a").forEach(a => {
-    if (a.getAttribute("href") === path) a.classList.add("active");
+  window.addEventListener("scroll", () => {
+    if (window.scrollY > 500) {
+      backToTop.classList.add("show");
+    } else {
+      backToTop.classList.remove("show");
+    }
   });
-})();
+
+});
