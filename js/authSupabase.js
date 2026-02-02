@@ -1,105 +1,57 @@
-function $(sel) {
-  return document.querySelector(sel);
-}
+document.addEventListener("DOMContentLoaded", async () => {
+  const loginForm = document.getElementById("loginForm");
+  const signupForm = document.getElementById("signupForm");
+  const logoutBtn = document.getElementById("logoutBtn");
 
-(async function init() {
   if (!window.sb) {
-    console.error("❌ Supabase not loaded");
+    console.error("Supabase not loaded");
     return;
   }
 
-  const path = window.location.pathname.toLowerCase();
-
-  /* =======================
-     PROTECT DASHBOARD
-  ======================= */
-  if (path.includes("dashboard")) {
-    const { data } = await window.sb.auth.getSession();
-    if (!data.session) {
-      window.location.href =
-        window.location.origin + "/goldchain/login.html";
-      return;
-    }
-  }
-
-  /* =======================
-     LOGIN
-  ======================= */
-  const loginForm = $("#loginForm");
+  // LOGIN
   if (loginForm) {
     loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
 
-      const email = $("#loginEmail").value.trim();
-      const password = $("#loginPassword").value;
-      const msg = $("#loginMsg");
+      const email = document.getElementById("loginEmail").value.trim();
+      const password = document.getElementById("loginPassword").value;
 
-      msg.textContent = "Logging in...";
-
-      const { error } = await window.sb.auth.signInWithPassword({
-        email,
-        password,
-      });
+      const { error } = await sb.auth.signInWithPassword({ email, password });
 
       if (error) {
-        msg.textContent = error.message;
+        document.getElementById("loginMsg").textContent = error.message;
         return;
       }
 
-      window.location.href =
-        window.location.origin + "/goldchain/dashboard.html";
+      window.location.href = "dashboard.html";
     });
   }
 
-  /* =======================
-     SIGNUP
-  ======================= */
-  const signupForm = $("#signupForm");
+  // SIGNUP
   if (signupForm) {
     signupForm.addEventListener("submit", async (e) => {
       e.preventDefault();
 
-      const msg = $("#signupMsg");
+      const email = document.getElementById("suEmail").value.trim();
+      const password = document.getElementById("suPass").value;
 
-      const email = $("#suEmail").value.trim();
-      const password = $("#suPass").value;
-      const name = $("#suName")?.value || "";
-      const phone = $("#suPhone")?.value || "";
-      const plan = $("#suPlan")?.value || "";
-
-      msg.textContent = "Creating account...";
-
-      const { error } = await window.sb.auth.signUp({
-        email,
-        password,
-        options: {
-          data: { name, phone, plan },
-        },
-      });
+      const { error } = await sb.auth.signUp({ email, password });
 
       if (error) {
-        msg.textContent = error.message;
+        document.getElementById("signupMsg").textContent = error.message;
         return;
       }
 
-      msg.textContent = "Signup successful. Please login.";
-      setTimeout(() => {
-        window.location.href =
-          window.location.origin + "/goldchain/login.html";
-      }, 800);
+      document.getElementById("signupMsg").textContent =
+        "Signup successful. Please login.";
     });
   }
 
-  /* =======================
-     LOGOUT
-  ======================= */
-  const logoutBtn = $("#logoutBtn");
+  // LOGOUT
   if (logoutBtn) {
-    logoutBtn.addEventListener("click", async (e) => {
-      e.preventDefault();
-      await window.sb.auth.signOut();
-      window.location.href =
-        window.location.origin + "/goldchain/login.html";
+    logoutBtn.addEventListener("click", async () => {
+      await sb.auth.signOut();
+      window.location.href = "login.html";
     });
   }
-})();
+});
