@@ -30,8 +30,9 @@
       </nav>
 
       <div class="actions">
-        <a class="btn btn-ghost" href="login.html">Login</a>
-        <a class="btn btn-primary" href="signup.html">Sign Up</a>
+        <a class="btn btn-ghost" href="login.html" id="loginBtn">Login</a>
+        <a class="btn btn-primary" href="signup.html" id="signupBtn">Sign Up</a>
+        <a class="btn btn-ghost" href="#" id="logoutBtn" style="display:none;">Logout</a>
       </div>
     </div>
   </header>
@@ -85,10 +86,10 @@
     <i class="fab fa-whatsapp"></i>
   </a>
 
-  <!-- ✅ Scripts in correct order -->
+  <!-- ✅ Scripts (Correct order) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabaseClient.js"></script>
-  <script src="js/signup.js"></script>
+  <script src="js/authSupabase.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>
