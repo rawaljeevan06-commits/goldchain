@@ -933,3 +933,37 @@ h1, h2, h3{
   color: var(--gold2);
   text-decoration: underline;
 }
+/* Mobile nav */
+.nav.open {
+  display: block;
+}
+
+/* Active nav link */
+.nav a.active {
+  color: var(--gold2);
+  font-weight: 700;
+}
+
+/* Back to top */
+.back-to-top {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: var(--gold2);
+  color: #000;
+  font-size: 20px;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: 0.3s ease;
+  z-index: 999;
+}
+
+.back-to-top.show {
+  opacity: 1;
+  pointer-events: auto;
+}
