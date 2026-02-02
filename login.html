@@ -5,29 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Login | GoldChain Investment</title>
 
+  <!-- CSS -->
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-  <!-- Supabase JS (must load BEFORE we create the client) -->
+  <!-- Supabase JS v2 -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <!-- Supabase config + client -->
+  <!-- Supabase config -->
   <script>
     const SUPABASE_URL = "https://isyavausunsombknvhsz.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlzeWFhdnVzdW5zb21ia252aHN6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk5NDExOTEsImV4cCI6MjA4NTUxNzE5MX0.SrOKP_Xm2Joi9QPStyAYFGmziavkXvpXbgGfG1LtEfA";
 
-    // Create client only if library loaded
-    // (If CDN fails, window.sb stays undefined, and our login script will show a message)
-    if (window.supabase) {
-      window.sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    }
+    const sb = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_ANON_KEY
+    );
   </script>
 </head>
 
 <body>
 
+  <!-- TOP BAR -->
   <div class="topbar">Login — Secure. Smart. Simple.</div>
 
+  <!-- HEADER -->
   <header class="header">
     <div class="container header-in">
       <a class="brand" href="index.html">
@@ -35,7 +37,7 @@
         <span>GoldChain</span>
       </a>
 
-      <button class="nav-toggle" type="button" aria-label="Menu">☰</button>
+      <button class="nav-toggle" type="button">☰</button>
 
       <nav class="nav">
         <a href="index.html">Home</a>
@@ -52,6 +54,7 @@
     </div>
   </header>
 
+  <!-- LOGIN SECTION -->
   <section class="section">
     <div class="container" style="max-width:560px;">
       <div class="card">
@@ -59,13 +62,14 @@
         <p class="small">Login with the email and password you created.</p>
 
         <form id="loginForm" class="form-grid">
-          <input class="input" id="loginEmail" type="email" placeholder="Email" required>
-          <input class="input" id="loginPassword" type="password" placeholder="Password" required>
+          <input id="loginEmail" class="input" type="email" placeholder="Email" required>
+          <input id="loginPassword" class="input" type="password" placeholder="Password" required>
 
-          <button class="btn btn-primary full" type="submit">Login</button>
+          <button type="submit" class="btn btn-primary full">Login</button>
           <p id="loginMsg" class="small"></p>
 
-          <p class="small">No account?
+          <p class="small">
+            No account?
             <a href="signup.html" style="color:var(--gold2);font-weight:700;">Create one</a>
           </p>
         </form>
@@ -73,78 +77,67 @@
     </div>
   </section>
 
+  <!-- FOOTER -->
   <footer class="footer">
     <div class="container footer-in">
       <p class="small">©️ 2026 GoldChain Investment. All rights reserved.</p>
       <div class="social">
-        <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
-        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
-        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+        <a href="#"><i class="fab fa-facebook"></i></a>
+        <a href="#"><i class="fab fa-youtube"></i></a>
+        <a href="#"><i class="fab fa-instagram"></i></a>
+        <a href="#"><i class="fab fa-linkedin"></i></a>
       </div>
     </div>
   </footer>
 
-  <a class="whatsapp-float" href="https://wa.me/9779851406537" target="_blank" aria-label="WhatsApp Chat">
+  <!-- WHATSAPP -->
+  <a class="whatsapp-float" href="https://wa.me/9779851406537" target="_blank">
     <i class="fab fa-whatsapp"></i>
   </a>
 
-  <!-- ✅ LOGIN LOGIC (must be BEFORE </body>) -->
+  <!-- LOGIN SCRIPT -->
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", async () => {
       const form = document.getElementById("loginForm");
       const msg = document.getElementById("loginMsg");
 
-      // Safety checks (so we never get "nothing happened")
-      if (!form || !msg) return;
-
-      if (!window.supabase) {
-        msg.textContent = "Supabase library not loaded (CDN failed). Please refresh.";
-        msg.style.color = "#ffb3b3";
-        console.error("Supabase CDN not loaded");
-        return;
-      }
-
-      if (!window.sb) {
-        msg.textContent = "Supabase client not created. Check URL/KEY script in <head>.";
-        msg.style.color = "#ffb3b3";
-        console.error("Supabase client missing");
+      // 🔐 If already logged in → redirect
+      const { data: { session } } = await sb.auth.getSession();
+      if (session) {
+        window.location.href = "index.html";
         return;
       }
 
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
-
         msg.textContent = "Logging in...";
         msg.style.color = "";
 
         const email = document.getElementById("loginEmail").value.trim();
         const password = document.getElementById("loginPassword").value;
 
-        try {
-          const { error } = await window.sb.auth.signInWithPassword({ email, password });
+        const { error } = await sb.auth.signInWithPassword({
+          email,
+          password
+        });
 
-          if (error) {
-            msg.textContent = error.message;
-            msg.style.color = "#ffb3b3";
-            console.log("SUPABASE ERROR:", error);
-            return;
-          }
-
-          msg.textContent = "Login successful!";
-          msg.style.color = "#ffd66e";
-
-          setTimeout(() => (window.location.href = "index.html"), 600);
-        } catch (err) {
-          msg.textContent = "Unexpected error. Open console (F12) to see details.";
+        if (error) {
+          msg.textContent = error.message;
           msg.style.color = "#ffb3b3";
-          console.error("LOGIN CATCH ERROR:", err);
+          return;
         }
+
+        msg.textContent = "Login successful!";
+        msg.style.color = "#ffd66e";
+
+        setTimeout(() => {
+          window.location.href = "index.html";
+        }, 600);
       });
     });
   </script>
 
-  <!-- ✅ KEEP main.js if it handles menu/nav -->
+  <!-- MAIN JS (menu etc.) -->
   <script src="js/main.js"></script>
 
 </body>
