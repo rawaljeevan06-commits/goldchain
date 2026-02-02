@@ -1,83 +1,94 @@
-// js/signup.js
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign Up | GoldChain Investment</title>
 
-const $ = (id) => document.getElementById(id);
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
 
-document.addEventListener("DOMContentLoaded", async () => {
-  const form = $("signupForm");
-  const msg = $("signupMsg");
+<body>
+  <div class="topbar">Sign Up — Secure. Smart. Simple.</div>
 
-  if (!form) return;
+  <header class="header">
+    <div class="container header-in">
+      <a class="brand" href="index.html">
+        <img src="images/logo.png" alt="GoldChain Logo">
+        <span>GoldChain</span>
+      </a>
 
-  msg.textContent = "Loading signup system...";
-  msg.style.color = "#ffd66e";
+      <button class="nav-toggle" type="button" aria-label="Menu">☰</button>
 
-  if (!window.sb) {
-    msg.textContent = "ERROR: Supabase not loaded.";
-    msg.style.color = "#ffb3b3";
-    return;
-  }
+      <nav class="nav">
+        <a href="index.html">Home</a>
+        <a href="plans.html">Plans</a>
+        <a href="about.html">Our Impact</a>
+        <a href="faq.html">FAQ</a>
+        <a href="contact.html">Contact</a>
+      </nav>
 
-  // If already logged in, redirect
-  try {
-    const { data } = await window.sb.auth.getSession();
-    if (data?.session) {
-      msg.textContent = "Already logged in ✅ Redirecting...";
-      msg.style.color = "#7CFFB3";
-      setTimeout(() => (window.location.href = "index.html"), 400);
-      return;
-    }
-  } catch (e) {
-    console.warn("getSession error:", e);
-  }
+      <div class="actions">
+        <a class="btn btn-ghost" href="login.html">Login</a>
+        <a class="btn btn-primary" href="signup.html">Sign Up</a>
+      </div>
+    </div>
+  </header>
 
-  msg.textContent = "";
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
+  <section class="section">
+    <div class="container" style="max-width:560px;">
+      <div class="card">
+        <h2>Create Account</h2>
+        <p class="small">Create your account using email and password.</p>
 
-    msg.textContent = "Creating account...";
-    msg.style.color = "#ffd66e";
+        <form id="signupForm" class="form-grid">
+          <input class="input" id="suName" type="text" placeholder="Full Name" required>
+          <input class="input" id="suEmail" type="email" placeholder="Email" required>
+          <input class="input" id="suPhone" type="tel" placeholder="Phone (optional)">
 
-    const name = $("suName").value.trim();
-    const email = $("suEmail").value.trim().toLowerCase();
-    const phone = $("suPhone").value.trim();
-    const plan = $("suPlan").value;
-    const password = $("suPass").value;
+          <select class="input" id="suPlan" required>
+            <option value="">Select Plan</option>
+            <option value="350">Starter — $350 (1.5% weekly)</option>
+            <option value="700">Growth — $700 (2% weekly)</option>
+            <option value="1000">Pro — $1000 (3% weekly)</option>
+            <option value="5000">VIP — $5000+ (4% weekly)</option>
+          </select>
 
-    if (!plan) {
-      msg.textContent = "Please select a plan.";
-      msg.style.color = "#ffd66e";
-      return;
-    }
+          <input class="input" id="suPass" type="password" placeholder="Password (min 6 chars)" minlength="6" required>
 
-    try {
-      const { data, error } = await window.sb.auth.signUp({
-        email,
-        password,
-        options: {
-          data: { name, phone, plan }
-        }
-      });
+          <button class="btn btn-primary full" type="submit">Create Account</button>
 
-      if (error) {
-        msg.textContent = "SUPABASE ERROR: " + error.message;
-        msg.style.color = "#ffb3b3";
-        return;
-      }
+          <p id="signupMsg" class="small" style="margin-top:10px;"></p>
 
-      // If email confirmations are ON, session may be null
-      if (!data?.session) {
-        msg.textContent = "Account created ✅ Check your email to confirm, then login.";
-        msg.style.color = "#7CFFB3";
-        return;
-      }
+          <p class="small">Already have an account?
+            <a href="login.html" style="color:var(--gold2);font-weight:700;">Login</a>
+          </p>
+        </form>
+      </div>
+    </div>
+  </section>
 
-      msg.textContent = "Account created ✅ Redirecting to home...";
-      msg.style.color = "#7CFFB3";
-      setTimeout(() => (window.location.href = "index.html"), 800);
-    } catch (err) {
-      msg.textContent = "NETWORK ERROR: " + (err?.message || err);
-      msg.style.color = "#ffb3b3";
-      console.error(err);
-    }
-  });
-});
+  <footer class="footer">
+    <div class="container footer-in">
+      <p class="small">©️ 2026 GoldChain Investment. All rights reserved.</p>
+      <div class="social">
+        <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+      </div>
+    </div>
+  </footer>
+
+  <a class="whatsapp-float" href="https://wa.me/9779851406537" target="_blank" aria-label="WhatsApp Chat">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+
+  <!-- ✅ Scripts in correct order -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabaseClient.js"></script>
+  <script src="js/signup.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
