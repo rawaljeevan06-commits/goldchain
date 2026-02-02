@@ -7,37 +7,6 @@
 
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-  <!-- ✅ Supabase loader with fallback CDNs -->
-  <script>
-    // Loads a script, tries next URL if it fails
-    function loadScriptWithFallback(urls, done) {
-      let i = 0;
-      function tryNext() {
-        if (i >= urls.length) return done(new Error("All Supabase CDNs failed"));
-        const url = urls[i++];
-        const s = document.createElement("script");
-        s.src = url;
-        s.async = true;
-        s.onload = () => done(null, url);
-        s.onerror = () => tryNext();
-        document.head.appendChild(s);
-      }
-      tryNext();
-    }
-
-    window.__supabaseReady = new Promise((resolve, reject) => {
-      const cdns = [
-        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
-        "https://unpkg.com/@supabase/supabase-js@2",
-        "https://esm.sh/@supabase/supabase-js@2"
-      ];
-      loadScriptWithFallback(cdns, (err, usedUrl) => {
-        if (err) reject(err);
-        else resolve(usedUrl);
-      });
-    });
-  </script>
 </head>
 
 <body>
@@ -80,7 +49,6 @@
 
           <button class="btn btn-primary full" type="submit">Login</button>
 
-          <!-- Status / Debug -->
           <p id="loginMsg" class="small" style="margin-top:10px;"></p>
 
           <p class="small">No account?
@@ -107,86 +75,10 @@
     <i class="fab fa-whatsapp"></i>
   </a>
 
-  <!-- ✅ LOGIN LOGIC -->
-  <script>
-    document.addEventListener("DOMContentLoaded", async () => {
-      const msg  = document.getElementById("loginMsg");
-      const form = document.getElementById("loginForm");
-
-      msg.textContent = "Loading login system...";
-      msg.style.color = "#ffd66e";
-
-      // Your Supabase keys
-      const SUPABASE_URL = "https://isyaavusunsombknvhsz.supabase.co";
-      const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlzeWFhdnVzdW5zb21ia252aHN6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk5NDExOTEsImV4cCI6MjA4NTUxNzE5MX0.SrOKP_Xm2Joi9QPStyAYFGmziavkXvpXbgGfG1LtEfA";
-
-      // Wait for Supabase library to load (from any CDN)
-      let usedCdn = "";
-      try {
-        usedCdn = await window.__supabaseReady;
-      } catch (e) {
-        msg.textContent = "ERROR: Supabase library could not load (all CDNs failed). Try another network or disable adblock.";
-        msg.style.color = "#ffb3b3";
-        console.error(e);
-        return;
-      }
-
-      if (!window.supabase) {
-        msg.textContent = "ERROR: Supabase loaded but not available. (Very rare) Refresh page.";
-        msg.style.color = "#ffb3b3";
-        return;
-      }
-
-      msg.textContent = "Supabase loaded ✅ (" + usedCdn + ")";
-      msg.style.color = "#7CFFB3";
-
-      // Create client
-      const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-      // If already logged in, redirect
-      try {
-        const { data } = await sb.auth.getSession();
-        if (data?.session) {
-          msg.textContent = "Already logged in ✅ Redirecting...";
-          msg.style.color = "#7CFFB3";
-          setTimeout(() => window.location.href = "index.html", 400);
-          return;
-        }
-      } catch (e) {
-        console.warn("getSession error:", e);
-      }
-
-      // Submit login
-      form.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        msg.textContent = "Logging in...";
-        msg.style.color = "#ffd66e";
-
-        const email = document.getElementById("loginEmail").value.trim();
-        const password = document.getElementById("loginPassword").value;
-
-        try {
-          const { error } = await sb.auth.signInWithPassword({ email, password });
-
-          if (error) {
-            msg.textContent = "SUPABASE ERROR: " + error.message;
-            msg.style.color = "#ffb3b3";
-            return;
-          }
-
-          msg.textContent = "Login successful ✅ Redirecting...";
-          msg.style.color = "#7CFFB3";
-          setTimeout(() => window.location.href = "index.html", 600);
-
-        } catch (err) {
-          msg.textContent = "NETWORK ERROR: " + (err?.message || err);
-          msg.style.color = "#ffb3b3";
-          console.error(err);
-        }
-      });
-    });
-  </script>
-
+  <!-- ✅ Scripts (Correct order) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabaseClient.js"></script>
+  <script src="js/login.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>
