@@ -10,7 +10,6 @@
 </head>
 
 <body>
-
   <div class="topbar">Login — Secure. Smart. Simple.</div>
 
   <header class="header">
@@ -31,8 +30,9 @@
       </nav>
 
       <div class="actions">
-        <a class="btn btn-ghost" href="login.html">Login</a>
-        <a class="btn btn-primary" href="signup.html">Sign Up</a>
+        <a class="btn btn-ghost" href="login.html" id="loginBtn">Login</a>
+        <a class="btn btn-primary" href="signup.html" id="signupBtn">Sign Up</a>
+        <a class="btn btn-ghost" href="#" id="logoutBtn" style="display:none;">Logout</a>
       </div>
     </div>
   </header>
@@ -48,7 +48,6 @@
           <input class="input" id="loginPassword" type="password" placeholder="Password" required>
 
           <button class="btn btn-primary full" type="submit">Login</button>
-
           <p id="loginMsg" class="small" style="margin-top:10px;"></p>
 
           <p class="small">No account?
@@ -78,7 +77,7 @@
   <!-- ✅ Scripts (Correct order) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabaseClient.js"></script>
-  <script src="js/login.js"></script>
+  <script src="js/authSupabase.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>
