@@ -1676,4 +1676,43 @@ footer,
   font-weight: 800;
   margin: 10px 0 14px;
   color: #ffd700;
+}/* Layout helper (if not already) */
+.plans-grid{
+  display:grid;
+  gap:18px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+/* Make badges position correctly on .plan */
+.plan{ position:relative; overflow:hidden; }
+.badge{ position:absolute; top:12px; right:12px; }
+
+/* Premium VIP look */
+.premium-plan{
+  border:1px solid rgba(255,215,0,.45);
+  background: linear-gradient(180deg, #141414, #0b0b0b);
+  box-shadow: 0 0 25px rgba(255,215,0,.15), inset 0 0 20px rgba(255,215,0,.05);
+}
+
+.premium-plan::before{
+  content:"";
+  position:absolute;
+  top:-50%;
+  left:-50%;
+  width:200%;
+  height:200%;
+  background: linear-gradient(120deg, transparent 40%, rgba(255,215,0,.12), transparent 60%);
+  animation: premiumShine 6s infinite linear;
+}
+
+@keyframes premiumShine{
+  from{ transform:translateX(-50%); }
+  to{ transform:translateX(50%); }
+}
+
+.badge-premium{
+  background: linear-gradient(135deg,#facc15,#eab308);
+  color:#000;
+  font-weight:800;
+  box-shadow:0 0 15px rgba(255,215,0,.6);
 }
