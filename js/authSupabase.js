@@ -1,10 +1,11 @@
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", () => {
   const loginForm = document.getElementById("loginForm");
   const signupForm = document.getElementById("signupForm");
   const logoutBtn = document.getElementById("logoutBtn");
 
+  // ✅ Always use window.sb
   if (!window.sb) {
-    console.error("Supabase not loaded");
+    console.error("Supabase client not loaded (window.sb missing)");
     return;
   }
 
@@ -16,10 +17,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       const email = document.getElementById("loginEmail").value.trim();
       const password = document.getElementById("loginPassword").value;
 
-      const { error } = await sb.auth.signInWithPassword({ email, password });
+      const msg = document.getElementById("loginMsg");
+      if (msg) msg.textContent = "Logging in...";
+
+      const { error } = await window.sb.auth.signInWithPassword({ email, password });
 
       if (error) {
-        document.getElementById("loginMsg").textContent = error.message;
+        if (msg) msg.textContent = error.message;
         return;
       }
 
@@ -35,22 +39,25 @@ document.addEventListener("DOMContentLoaded", async () => {
       const email = document.getElementById("suEmail").value.trim();
       const password = document.getElementById("suPass").value;
 
-      const { error } = await sb.auth.signUp({ email, password });
+      const msg = document.getElementById("signupMsg");
+      if (msg) msg.textContent = "Creating account...";
+
+      const { error } = await window.sb.auth.signUp({ email, password });
 
       if (error) {
-        document.getElementById("signupMsg").textContent = error.message;
+        if (msg) msg.textContent = error.message;
         return;
       }
 
-      document.getElementById("signupMsg").textContent =
-        "Signup successful. Please login.";
+      if (msg) msg.textContent = "Signup successful ✅ Please login.";
     });
   }
 
   // LOGOUT
   if (logoutBtn) {
-    logoutBtn.addEventListener("click", async () => {
-      await sb.auth.signOut();
+    logoutBtn.addEventListener("click", async (e) => {
+      e.preventDefault();
+      await window.sb.auth.signOut();
       window.location.href = "login.html";
     });
   }
