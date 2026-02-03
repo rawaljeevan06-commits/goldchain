@@ -41,7 +41,56 @@ document.addEventListener("DOMContentLoaded", () => {
       window.location.href = "login.html";
       return;
     }
+// ================================
+// CLEAR PLAN + RESET DASHBOARD UI
+// ================================
+const clearPlanBtn = document.getElementById("clearPlanBtn");
+const planNameEl2 = document.getElementById("dashPlanName");
+const planInfoEl2 = document.getElementById("dashPlanInfo");
+const weeklyProfitEl2 = document.getElementById("weeklyProfitValue");
+const dashAmount2 = document.getElementById("dashAmount");
+const dashCalcResult2 = document.getElementById("dashCalcResult");
 
+function renderPlanFromStorage() {
+  const saved = localStorage.getItem("goldchain_selected_plan");
+  if (!saved) {
+    if (planNameEl2) planNameEl2.textContent = "Not selected";
+    if (planInfoEl2) planInfoEl2.textContent = "";
+    if (weeklyProfitEl2) weeklyProfitEl2.textContent = "$0.00";
+    return null;
+  }
+
+  try {
+    const plan = JSON.parse(saved);
+    if (planNameEl2) planNameEl2.textContent = plan.plan || "Selected";
+    if (planInfoEl2) planInfoEl2.textContent = `${plan.rate}% weekly • ${plan.withdraw}`;
+    return plan;
+  } catch (e) {
+    if (planNameEl2) planNameEl2.textContent = "Not selected";
+    if (planInfoEl2) planInfoEl2.textContent = "";
+    return null;
+  }
+}
+
+// Run once on dashboard load
+renderPlanFromStorage();
+
+// Clear plan button
+if (clearPlanBtn) {
+  clearPlanBtn.addEventListener("click", () => {
+    localStorage.removeItem("goldchain_selected_plan");
+
+    // Reset UI
+    if (planNameEl2) planNameEl2.textContent = "Not selected";
+    if (planInfoEl2) planInfoEl2.textContent = "";
+    if (weeklyProfitEl2) weeklyProfitEl2.textContent = "$0.00";
+    if (dashCalcResult2) {
+      dashCalcResult2.style.display = "none";
+      dashCalcResult2.innerHTML = "";
+    }
+    if (dashAmount2) dashAmount2.value = "";
+  });
+}
     // Show user email (if element exists)
     const userEmailEl = document.getElementById("userEmail");
     if (userEmailEl) {
