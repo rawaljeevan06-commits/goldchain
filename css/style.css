@@ -1863,3 +1863,28 @@ footer,
   50%{ transform:scale(1.06); }
   100%{ transform:scale(1); }
 }
+/* ===== FINAL BADGE FIX (OVERRIDE ALL) ===== */
+
+.plan-card{
+  position: relative;
+}
+
+/* Default badge (Growth, Starter, Pro, Premium) */
+.plan-card > .badge:not(.badge-offer){
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 4;
+}
+
+/* Limited Offer badge */
+.plan-card > .badge-offer{
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 6;
+  background: linear-gradient(135deg,#facc15,#eab308);
+  color:#000;
+  font-weight:900;
+  box-shadow: 0 6px 20px rgba(240,185,11,.45);
+}
