@@ -43,6 +43,87 @@ window.location.href = next;
       window.location.href = "login.html";
       return;
     }
+    // ================================
+// DB SYNC: load + save user investments
+// ================================
+async function loadInvestmentFromDB(userId) {
+  const { data, error } = await window.sb
+    .from("user_investments")
+    .select("*")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (error) {
+    console.log("DB load error:", error.message);
+    return null;
+  }
+  return data || null;
+}
+
+async function saveInvestmentToDB(userId, payload) {
+  const row = {
+    user_id: userId,
+    ...payload,
+    updated_at: new Date().toISOString(),
+  };
+
+  const { error } = await window.sb.from("user_investments").upsert(row);
+  if (error) console.log("DB save error:", error.message);
+}
+
+// Run DB load once
+const userId = data.user.id;
+const dbRow = await loadInvestmentFromDB(userId);
+
+// Merge logic: prefer localStorage if exists
+let localPlan = null;
+let savedPlanStr = localStorage.getItem("goldchain_selected_plan");
+if (savedPlanStr) {
+  try { localPlan = JSON.parse(savedPlanStr); } catch {}
+}
+
+if (dbRow) {
+  // If DB has plan and local missing → restore local from DB
+  if (!localPlan && dbRow.plan) {
+    const restored = {
+      plan: dbRow.plan,
+      rate: String(dbRow.rate ?? ""),
+      withdraw: dbRow.withdraw ?? "",
+      savedAt: dbRow.updated_at ?? new Date().toISOString(),
+    };
+    localStorage.setItem("goldchain_selected_plan", JSON.stringify(restored));
+
+    const planNameEl = document.getElementById("dashPlanName");
+    const planInfoEl = document.getElementById("dashPlanInfo");
+    if (planNameEl) planNameEl.textContent = restored.plan;
+    if (planInfoEl) planInfoEl.textContent = `${restored.rate}% weekly • ${restored.withdraw}`;
+  }
+
+  // If DB has amount → fill dashboard input (if exists)
+  const dashAmount = document.getElementById("dashAmount");
+  if (dashAmount && dbRow.amount) dashAmount.value = dbRow.amount;
+}
+
+// If local plan exists → ensure DB matches (upsert)
+if (localPlan) {
+  await saveInvestmentToDB(userId, {
+    plan: localPlan.plan,
+    rate: Number(localPlan.rate),
+    withdraw: localPlan.withdraw,
+  });
+}
+
+// When user calculates profit → save amount to DB too
+const dashCalcBtn = document.getElementById("dashCalcBtn");
+const dashAmountEl = document.getElementById("dashAmount");
+
+if (dashCalcBtn && dashAmountEl) {
+  dashCalcBtn.addEventListener("click", async () => {
+    const amt = Number(dashAmountEl.value);
+    if (!amt || amt <= 0) return;
+    await saveInvestmentToDB(userId, { amount: amt });
+  });
+}
 // ================================
 // CLEAR PLAN + RESET DASHBOARD UI
 // ================================
