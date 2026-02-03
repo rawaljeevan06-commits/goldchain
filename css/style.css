@@ -1793,3 +1793,73 @@ footer,
   background: linear-gradient(180deg,#171717,#0b0b0b) !important;
   box-shadow: 0 0 35px rgba(255,215,0,.22), inset 0 0 20px rgba(255,215,0,.10) !important;
 }
+/* ===== GLOBAL GLOW FOR ALL PLANS ===== */
+.plan-card.glow{
+  border: 1px solid rgba(240,185,11,0.30);
+  background: linear-gradient(180deg,#151515,#0b0b0b);
+  box-shadow:
+    0 0 18px rgba(240,185,11,0.12),
+    inset 0 0 14px rgba(240,185,11,0.05);
+  position: relative;
+  overflow: hidden;
+}
+
+/* subtle moving shine */
+.plan-card.glow::before{
+  content:"";
+  position:absolute;
+  top:-60%;
+  left:-60%;
+  width:220%;
+  height:220%;
+  background: linear-gradient(
+    120deg,
+    transparent 42%,
+    rgba(240,185,11,0.12),
+    transparent 58%
+  );
+  animation: cardShine 10s linear infinite;
+  pointer-events:none;
+  opacity:.6;
+}
+
+@keyframes cardShine{
+  from{ transform: translateX(-50%); }
+  to{ transform: translateX(50%); }
+}
+
+/* ===== PREMIUM STRONGER ===== */
+.plan-card.premium-plan{
+  border: 2px solid rgba(255,215,0,0.75);
+  box-shadow:
+    0 0 36px rgba(255,215,0,0.28),
+    inset 0 0 22px rgba(255,215,0,0.12);
+}
+
+/* ===== OFFER BADGE ===== */
+.badge-offer{
+  position:absolute;
+  top:14px;
+  left:14px;
+  padding:6px 12px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.4px;
+  text-transform:uppercase;
+  color:#000;
+  background: linear-gradient(135deg,#facc15,#eab308);
+  box-shadow:0 6px 20px rgba(240,185,11,.45);
+  z-index:5;
+}
+
+/* pulse effect for limited offer */
+.badge-offer{
+  animation: pulseOffer 1.6s infinite;
+}
+
+@keyframes pulseOffer{
+  0%{ transform:scale(1); }
+  50%{ transform:scale(1.06); }
+  100%{ transform:scale(1); }
+}
