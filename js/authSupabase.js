@@ -68,6 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const dashAmount = document.getElementById("dashAmount");
   const dashCalcBtn = document.getElementById("dashCalcBtn");
   const dashCalcResult = document.getElementById("dashCalcResult");
+  const weeklyProfitEl = document.getElementById("weeklyProfitValue");
 
   // Weekly Profit card value
   const weeklyProfitEl = document.querySelector(
