@@ -127,7 +127,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         const weeklyProfit = amount * (Number(savedPlan.rate) / 100);
-
+const weeklyProfitEl = document.getElementById("weeklyProfitValue");
+if (weeklyProfitEl) {
+  weeklyProfitEl.textContent = `$${weeklyProfit.toFixed(2)}`;
+}
         dashCalcResult.innerHTML = `
           ✅ <b>Plan:</b> ${savedPlan.plan}<br>
           ✅ <b>Weekly Rate:</b> ${savedPlan.rate}%<br>
