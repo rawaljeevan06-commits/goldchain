@@ -1,64 +1,54 @@
 document.addEventListener("DOMContentLoaded", async () => {
-  if (!window.sb) {
-    console.error("Supabase client not loaded");
+  // -------- Load selected plan --------
+  const planBox = document.getElementById("selectedPlanBox");
+
+  const planStr = localStorage.getItem("goldchain_selected_plan");
+
+  if (!planStr) {
+    if (planBox) {
+      planBox.innerHTML = "❌ No plan selected. Please choose a plan first.";
+    }
     return;
   }
 
-  // ✅ must be logged in to pay
-  const { data, error } = await window.sb.auth.getUser();
-  if (error || !data?.user) {
-    // send back to login, then return to payment after login
+  let plan;
+  try {
+    plan = JSON.parse(planStr);
+  } catch (e) {
+    if (planBox) {
+      planBox.innerHTML = "❌ Failed to load plan data.";
+    }
+    return;
+  }
+
+  if (planBox) {
+    planBox.innerHTML = `
+      <b>${plan.plan}</b><br>
+      ${plan.rate}% Weekly<br>
+      ${plan.withdraw}
+    `;
+  }
+
+  // -------- Supabase login check --------
+  if (!window.sb) {
+    console.error("Supabase not loaded");
+    return;
+  }
+
+  const { data } = await window.sb.auth.getUser();
+  if (!data?.user) {
+    // remember where to come back
     localStorage.setItem("goldchain_after_login", "payment.html");
     window.location.href = "login.html";
     return;
   }
 
-  // read selected plan from homepage plan.js
-  const plan = localStorage.getItem("selectedPlan");
-  const rate = localStorage.getItem("selectedRate");
-  const withdraw = localStorage.getItem("selectedWithdraw");
-
-  const box = document.getElementById("selectedPlanBox");
-  const emailEl = document.getElementById("payUserEmail");
-
-  if (emailEl) emailEl.textContent = data.user.email;
-
-  if (!plan || !rate || !withdraw) {
-    box.innerHTML = `
-      <p class="small">❌ No plan selected. Please go back and choose a plan.</p>
-      <a class="btn btn-primary" href="index.html#plans" style="margin-top:10px;">Choose Plan</a>
-    `;
-    return;
-  }
-
-  // show plan
-  box.innerHTML = `
-    <h3>${plan}</h3>
-    <p class="small"><b>Weekly Rate:</b> ${rate}%</p>
-    <p class="small"><b>Withdraw:</b> ${withdraw}</p>
-  `;
-
-  // DEMO payment button
-  const payBtn = document.getElementById("payDemoBtn");
-  const payMsg = document.getElementById("payMsg");
-
+  // -------- Demo payment button --------
+  const payBtn = document.getElementById("payNowBtn");
   if (payBtn) {
     payBtn.addEventListener("click", () => {
-      // ✅ save to dashboard format (so dashboard can show it)
-      const dashPlan = {
-        plan: plan,
-        rate: rate,
-        withdraw: withdraw,
-      };
-      localStorage.setItem("goldchain_selected_plan", JSON.stringify(dashPlan));
-
-      // optional: clear temporary selected plan
-      // localStorage.removeItem("selectedPlan");
-      // localStorage.removeItem("selectedRate");
-      // localStorage.removeItem("selectedWithdraw");
-
-      if (payMsg) payMsg.textContent = "✅ Payment successful (demo). Plan activated!";
-      setTimeout(() => (window.location.href = "dashboard.html"), 900);
+      alert("✅ Demo payment successful!");
+      window.location.href = "dashboard.html";
     });
   }
 });
