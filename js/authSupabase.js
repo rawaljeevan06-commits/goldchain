@@ -28,6 +28,42 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       window.location.href = "dashboard.html";
+      // ================================
+  // DASHBOARD: protect + show plan
+  // ================================
+  const isDashboard = window.location.pathname.toLowerCase().includes("dashboard");
+
+  if (isDashboard) {
+    // Protect dashboard (must be logged in)
+    const { data, error } = await window.sb.auth.getUser();
+
+    if (error || !data?.user) {
+      window.location.href = "login.html";
+      return;
+    }
+
+    // Show user email (if element exists)
+    const userEmailEl = document.getElementById("userEmail");
+    if (userEmailEl) {
+      userEmailEl.textContent = "Logged in as: " + data.user.email;
+    }
+
+    // Show selected plan from localStorage
+    const planNameEl = document.getElementById("dashPlanName");
+    const planInfoEl = document.getElementById("dashPlanInfo");
+    const savedPlan = localStorage.getItem("goldchain_selected_plan");
+
+    if (savedPlan && planNameEl && planInfoEl) {
+      try {
+        const plan = JSON.parse(savedPlan);
+        planNameEl.textContent = plan.plan || "Selected";
+        planInfoEl.textContent = `${plan.rate}% weekly • ${plan.withdraw}`;
+      } catch (e) {
+        planNameEl.textContent = "Not selected";
+        planInfoEl.textContent = "";
+      }
+    }
+  }
     });
   }
 
