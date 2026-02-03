@@ -48,6 +48,17 @@
         <li>Add live chart and WhatsApp button</li>
       </ul>
     </section>
+    <div class="dash-box">
+  <h2>Profit Calculator (Dashboard)</h2>
+  <p class="muted">Enter your investment amount to see weekly profit for your selected plan.</p>
+
+  <div class="calc-row">
+    <input type="number" id="dashAmount" placeholder="Enter amount in USD (e.g. 1000)" min="0" />
+    <button class="btn btn-primary" id="dashCalcBtn">Calculate</button>
+  </div>
+
+  <div id="dashCalcResult" class="calc-result" style="display:none;"></div>
+</div>
   </div>
 
   <!-- ✅ REQUIRED SCRIPTS (ORDER MATTERS) -->
