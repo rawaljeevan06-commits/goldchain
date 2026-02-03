@@ -43,6 +43,7 @@
 
       <div class="card" style="margin-top:16px;">
         <h3>Payment Method</h3>
+        <p class="small">Logged in as: <b id="payUserEmail"></b></p>
         <p class="small">For now this is a demo flow. Next we will connect USDT/BTC/ETH or manual proof upload.</p>
 
         <div style="margin-top:12px; display:grid; gap:10px;">
@@ -57,5 +58,13 @@
   </section>
 
   <script src="payment.js"></script>
+  <!-- Supabase library -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- Supabase auth + client -->
+<script src="authSupabase.js"></script>
+
+<!-- Payment logic -->
+<script src="payment.js"></script>
 </body>
 </html>
