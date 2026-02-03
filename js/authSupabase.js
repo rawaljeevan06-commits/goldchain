@@ -68,6 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const dashAmount = document.getElementById("dashAmount");
   const dashCalcBtn = document.getElementById("dashCalcBtn");
   const dashCalcResult = document.getElementById("dashCalcResult");
+    
   const weeklyProfitEl = document.getElementById("weeklyProfitValue");
 
   // Weekly Profit card value
@@ -95,6 +96,9 @@ document.addEventListener("DOMContentLoaded", () => {
       const plan = JSON.parse(saved);
       const rate = Number(plan.rate) / 100;
       const weeklyProfit = amount * rate;
+      if (weeklyProfitEl) {
+  weeklyProfitEl.textContent = `$${weeklyProfit.toFixed(2)}`;
+}
 
       dashCalcResult.innerHTML = `
         ✅ <b>Plan:</b> ${plan.plan}<br>
