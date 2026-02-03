@@ -1417,3 +1417,53 @@ h1, h2, h3{
 .btn-outline:hover{
   opacity: 0.9;
 }
+/* =========================
+   GLOBAL BACKGROUND SYSTEM
+   ========================= */
+
+body {
+  background-color: #0b0f19;
+  color: #fff;
+}
+
+/* HERO SECTION */
+.hero,
+.hero-section {
+  background: linear-gradient(
+      rgba(0,0,0,0.55),
+      rgba(0,0,0,0.55)
+    ),
+    url("../images/bg1.jpg") center / cover no-repeat;
+}
+
+/* PLANS SECTION */
+.plans,
+.plans-section {
+  background: linear-gradient(
+      rgba(0,0,0,0.65),
+      rgba(0,0,0,0.65)
+    ),
+    url("../images/bg2.jpg") center / cover no-repeat;
+}
+
+/* FOOTER */
+footer,
+.footer {
+  background: linear-gradient(
+      rgba(0,0,0,0.75),
+      rgba(0,0,0,0.75)
+    ),
+    url("../images/bg3.jpg") center / cover no-repeat;
+}
+
+/* MOBILE SAFETY */
+@media (max-width: 768px) {
+  .hero,
+  .hero-section,
+  .plans,
+  .plans-section,
+  footer,
+  .footer {
+    background-attachment: scroll;
+  }
+}
