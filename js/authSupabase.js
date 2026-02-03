@@ -8,6 +8,22 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
+  // helper: decide where to go after login
+  const getNextAfterLogin = () => {
+    // priority 1: if user selected a plan on homepage
+    // (your plan.js currently saves: selectedPlan/selectedRate/selectedWithdraw)
+    const selectedPlan = localStorage.getItem("selectedPlan");
+
+    if (selectedPlan) return "payment.html";
+
+    // priority 2: manual saved redirect
+    const savedNext = localStorage.getItem("goldchain_after_login");
+    if (savedNext) return savedNext;
+
+    // default
+    return "dashboard.html";
+  };
+
   // =========================
   // LOGIN
   // =========================
@@ -31,8 +47,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
       }
 
-      const next =
-        localStorage.getItem("goldchain_after_login") || "dashboard.html";
+      const next = getNextAfterLogin();
       localStorage.removeItem("goldchain_after_login");
       window.location.href = next;
     });
@@ -59,6 +74,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       if (msg) msg.textContent = "Signup successful ✅ Please login.";
+      // (optional) If you want auto-login after signup, tell me, we can do it.
     });
   }
 
@@ -141,7 +157,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           ✅ <b>Withdraw:</b> ${savedPlan.withdraw}
         `;
 
-        // ✅ update Weekly Profit card (NO duplicate const)
+        // ✅ update Weekly Profit card
         if (weeklyProfitEl) {
           weeklyProfitEl.textContent = `$${weeklyProfit.toFixed(2)}`;
         }
