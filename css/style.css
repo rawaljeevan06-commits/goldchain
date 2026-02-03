@@ -1532,3 +1532,105 @@ footer,
     background-attachment: scroll;
   }
 }
+/* Plans page background */
+.plans-page {
+  background-image: url("/goldchain/images/bg2.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+}
+
+/* dark overlay so text stays readable */
+.plans-page .overlay {
+  background: rgba(0,0,0,0.65);
+  min-height: 100vh;
+  padding: 70px 0;
+}
+/* Premium plan card */
+.plan-card{
+  position: relative;
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 18px;
+  padding: 22px;
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(10px);
+  transition: transform .2s ease, border-color .2s ease;
+}
+
+.plan-card:hover{
+  transform: translateY(-6px);
+  border-color: rgba(255,215,0,0.45);
+}
+
+.plan-card h3{
+  margin-bottom: 8px;
+  letter-spacing: 0.2px;
+}
+
+.plan-card .rate{
+  font-size: 28px;
+  font-weight: 800;
+  margin: 10px 0;
+}
+
+.plan-card .features{
+  margin: 12px 0 18px;
+  opacity: .95;
+}
+
+.badge-offer{
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  background: rgba(255,215,0,0.18);
+  border: 1px solid rgba(255,215,0,0.35);
+}
+.plans-slider-wrap{
+  position: relative;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 46px;
+}
+
+.plans-slider{
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(280px, 1fr);
+  gap: 16px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  padding: 6px 2px 18px;
+}
+
+.plans-slider::-webkit-scrollbar{ height: 8px; }
+.plans-slider::-webkit-scrollbar-thumb{ background: rgba(255,255,255,0.2); border-radius: 999px; }
+
+.plan-card{ scroll-snap-align: start; }
+
+.slider-btn{
+  position: absolute;
+  top: 45%;
+  transform: translateY(-50%);
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.25);
+  background: rgba(0,0,0,0.35);
+  color: #fff;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.slider-btn.prev{ left: 8px; }
+.slider-btn.next{ right: 8px; }
+
+@media (max-width: 768px){
+  .plans-slider-wrap{ padding: 0 10px; }
+  .slider-btn{ display: none; }
+}
