@@ -62,6 +62,52 @@ document.addEventListener("DOMContentLoaded", () => {
         planNameEl.textContent = "Not selected";
         planInfoEl.textContent = "";
       }
+      // ================================
+  // DASHBOARD PROFIT CALCULATOR
+  // ================================
+  const dashAmount = document.getElementById("dashAmount");
+  const dashCalcBtn = document.getElementById("dashCalcBtn");
+  const dashCalcResult = document.getElementById("dashCalcResult");
+
+  // Weekly Profit card value
+  const weeklyProfitEl = document.querySelector(
+    '.card h3:contains("Weekly Profit")'
+  ) || document.querySelector(".card:last-child .big");
+
+  if (dashAmount && dashCalcBtn && dashCalcResult) {
+    dashCalcBtn.addEventListener("click", () => {
+      const amount = Number(dashAmount.value);
+      const saved = localStorage.getItem("goldchain_selected_plan");
+
+      dashCalcResult.style.display = "block";
+
+      if (!amount || amount <= 0) {
+        dashCalcResult.innerHTML = "❌ Please enter a valid amount.";
+        return;
+      }
+
+      if (!saved) {
+        dashCalcResult.innerHTML = "❌ No plan selected.";
+        return;
+      }
+
+      const plan = JSON.parse(saved);
+      const rate = Number(plan.rate) / 100;
+      const weeklyProfit = amount * rate;
+
+      dashCalcResult.innerHTML = `
+        ✅ <b>Plan:</b> ${plan.plan}<br>
+        ✅ <b>Weekly Rate:</b> ${plan.rate}%<br>
+        ✅ <b>Weekly Profit:</b> $${weeklyProfit.toFixed(2)}<br>
+        ✅ <b>Withdraw:</b> ${plan.withdraw}
+      `;
+
+      // Update Weekly Profit card
+      if (weeklyProfitEl) {
+        weeklyProfitEl.textContent = `$${weeklyProfit.toFixed(2)}`;
+      }
+    });
+  }
     }
   }
     });
