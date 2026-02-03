@@ -1,20 +1,27 @@
-// Redirect user when clicking a plan
-
 document.addEventListener("DOMContentLoaded", () => {
   const planButtons = document.querySelectorAll(".choose-plan");
 
   planButtons.forEach(btn => {
     btn.addEventListener("click", () => {
-      // Save selected plan info
-      const plan = btn.dataset.plan;
-      const rate = btn.dataset.rate;
-      const withdraw = btn.dataset.withdraw;
+      const planData = {
+        plan: btn.dataset.plan,
+        rate: btn.dataset.rate,
+        withdraw: btn.dataset.withdraw
+      };
 
-      localStorage.setItem("selectedPlan", plan);
-      localStorage.setItem("selectedRate", rate);
-      localStorage.setItem("selectedWithdraw", withdraw);
+      // ✅ Save plan in ONE object (important)
+      localStorage.setItem(
+        "goldchain_selected_plan",
+        JSON.stringify(planData)
+      );
 
-      // Redirect to login page
+      // ✅ Tell login where to go after login
+      localStorage.setItem(
+        "goldchain_after_login",
+        "payment.html"
+      );
+
+      // ✅ Redirect to login
       window.location.href = "login.html";
     });
   });
