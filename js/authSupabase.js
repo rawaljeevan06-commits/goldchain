@@ -27,7 +27,9 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      window.location.href = "dashboard.html";
+     const next = localStorage.getItem("goldchain_after_login") || "dashboard.html";
+localStorage.removeItem("goldchain_after_login");
+window.location.href = next;
       // ================================
   // DASHBOARD: protect + show plan
   // ================================
