@@ -7,7 +7,26 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.error("Supabase client not loaded");
     return;
   }
+// =========================
+// AUTH STATE LISTENER
+// =========================
+window.sb.auth.onAuthStateChange((event, session) => {
+  const path = window.location.pathname.toLowerCase();
 
+  // Protect dashboard
+  if (path.includes("dashboard")) {
+    if (!session?.user) {
+      window.location.href = "login.html";
+    }
+  }
+
+  // Prevent logged-in users from seeing login page
+  if (path.includes("login")) {
+    if (session?.user) {
+      window.location.href = "dashboard.html";
+    }
+  }
+});
   // helper: decide where to go after login
   const getNextAfterLogin = () => {
     // priority 1: if user selected a plan on homepage
@@ -77,20 +96,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       // (optional) If you want auto-login after signup, tell me, we can do it.
     });
   }
-
-  // =========================
-  // DASHBOARD ONLY
-  // =========================
-  const isDashboard = window.location.pathname
-    .toLowerCase()
-    .includes("dashboard");
-
-  if (isDashboard) {
-    const { data, error } = await window.sb.auth.getUser();
-    if (error || !data?.user) {
-      window.location.href = "login.html";
-      return;
-    }
 
     // show email
     const userEmailEl = document.getElementById("userEmail");
