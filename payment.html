@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Payment | GoldChain</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <div class="topbar">Complete your payment to activate your plan.</div>
+
+  <header class="header">
+    <div class="container header-in">
+      <a class="brand" href="index.html">
+        <img src="images/logo.png" alt="GoldChain Logo">
+        <span>GoldChain</span>
+      </a>
+
+      <nav class="nav">
+        <a href="index.html">Home</a>
+        <a href="index.html#plans" class="active">Plans</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+
+      <div class="actions">
+        <a class="btn btn-ghost" href="login.html">Login</a>
+        <a class="btn btn-primary" href="signup.html">Sign Up</a>
+      </div>
+    </div>
+  </header>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-title">
+        <h2>Your Selected Plan</h2>
+        <a href="index.html#plans">Change Plan →</a>
+      </div>
+
+      <div class="card" id="selectedPlanBox">
+        <p class="small">Loading your plan…</p>
+      </div>
+
+      <div class="card" style="margin-top:16px;">
+        <h3>Payment Method</h3>
+        <p class="small">For now this is a demo flow. Next we will connect USDT/BTC/ETH or manual proof upload.</p>
+
+        <div style="margin-top:12px; display:grid; gap:10px;">
+          <button class="btn btn-primary" id="payDemoBtn">Pay Now (Demo)</button>
+          <a class="btn btn-ghost" href="dashboard.html">Go to Dashboard</a>
+        </div>
+
+        <p class="small" id="payMsg" style="margin-top:10px;"></p>
+      </div>
+
+    </div>
+  </section>
+
+  <script src="payment.js"></script>
+</body>
+</html>
