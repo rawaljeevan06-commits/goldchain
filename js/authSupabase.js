@@ -116,13 +116,45 @@ if (localPlan) {
 // When user calculates profit → save amount to DB too
 const dashCalcBtn = document.getElementById("dashCalcBtn");
 const dashAmountEl = document.getElementById("dashAmount");
-
 if (dashCalcBtn && dashAmountEl) {
   dashCalcBtn.addEventListener("click", async () => {
-    const amt = Number(dashAmountEl.value);
-    if (!amt || amt <= 0) return;
-    await saveInvestmentToDB(userId, { amount: amt });
-  });
+  const amt = Number(dashAmountEl.value);
+
+  const resultEl = document.getElementById("dashCalcResult");
+  if (resultEl) resultEl.style.display = "block";
+
+  // Step 5 — block if no plan
+  const saved = localStorage.getItem("goldchain_selected_plan");
+  if (!saved) {
+    if (resultEl) resultEl.innerHTML = "❌ Please select a plan first.";
+    return;
+  }
+
+  if (!amt || amt <= 0) {
+    if (resultEl) resultEl.innerHTML = "❌ Enter a valid amount.";
+    return;
+  }
+
+  const plan = JSON.parse(saved);
+  const weeklyProfit = amt * (Number(plan.rate) / 100);
+
+  if (resultEl) {
+    resultEl.innerHTML = `
+      ✅ <b>Plan:</b> ${plan.plan}<br>
+      ✅ <b>Weekly Rate:</b> ${plan.rate}%<br>
+      ✅ <b>Weekly Profit:</b> $${weeklyProfit.toFixed(2)}<br>
+      ✅ <b>Withdraw:</b> ${plan.withdraw}
+    `;
+  }
+
+  const weeklyProfitEl = document.getElementById("weeklyProfitValue");
+  if (weeklyProfitEl) {
+    weeklyProfitEl.textContent = `$${weeklyProfit.toFixed(2)}`;
+  }
+
+  // Save to DB
+  await saveInvestmentToDB(userId, { amount: amt });
+});
 }
 // ================================
 // CLEAR PLAN + RESET DASHBOARD UI
