@@ -1409,3 +1409,11 @@ h1, h2, h3{
   background: rgba(0,0,0,0.35);
   line-height: 1.6;
 }
+.btn-outline{
+  border: 1px solid rgba(255,255,255,0.25);
+  background: transparent;
+  color: #fff;
+}
+.btn-outline:hover{
+  opacity: 0.9;
+}
