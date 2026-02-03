@@ -1634,3 +1634,46 @@ footer,
   .plans-slider-wrap{ padding: 0 10px; }
   .slider-btn{ display: none; }
 }
+/* =========================
+   PREMIUM PLAN + OFFER BADGE
+   ========================= */
+
+.plan{
+  position: relative;
+  border-radius: 18px;
+  padding: 22px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.18);
+  backdrop-filter: blur(10px);
+  transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+}
+
+.plan:hover{
+  transform: translateY(-8px);
+  border-color: rgba(255,215,0,0.45);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.35);
+}
+
+/* Offer badge */
+.badge-offer{
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .5px;
+  color: #ffd700;
+  background: rgba(255,215,0,0.18);
+  border: 1px solid rgba(255,215,0,0.45);
+  text-transform: uppercase;
+}
+
+/* Rate emphasis */
+.plan .rate{
+  font-size: 28px;
+  font-weight: 800;
+  margin: 10px 0 14px;
+  color: #ffd700;
+}
