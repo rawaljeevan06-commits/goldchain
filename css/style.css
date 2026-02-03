@@ -1372,3 +1372,40 @@ h1, h2, h3{
   border: 1px solid rgba(255,255,255,0.15);
   background: rgba(0,0,0,0.6);
 }
+/* =========================
+   PROFIT CALCULATOR
+========================= */
+.calc-box{
+  margin-top: 18px;
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.03);
+}
+
+.calc-row{
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.calc-row input{
+  flex: 1;
+  min-width: 220px;
+  padding: 12px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(0,0,0,0.35);
+  color: #fff;
+  outline: none;
+}
+
+.calc-result{
+  margin-top: 12px;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(0,0,0,0.35);
+  line-height: 1.6;
+}
