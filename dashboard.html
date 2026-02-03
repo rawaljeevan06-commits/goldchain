@@ -8,20 +8,46 @@
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
+  <div class="dash-wrap">
+    <header class="dash-top">
+      <div>
+        <h1 class="dash-title">GoldChain Dashboard</h1>
+        <p class="dash-sub">You are successfully logged in ✅</p>
+        <p id="userEmail" class="dash-email"></p>
+      </div>
 
-  <header class="header">
-    <div class="container header-in">
-      <h2>GoldChain Dashboard</h2>
-      <a href="#" id="logoutBtn" class="btn btn-primary">Logout</a>
-    </div>
-  </header>
+      <button id="logoutBtn" class="btn btn-logout">Logout</button>
+    </header>
 
-  <section class="section">
-    <div class="container">
-      <h1>Welcome to Dashboard ✅</h1>
-      <p>You are successfully logged in.</p>
-    </div>
-  </section>
+    <section class="dash-cards">
+      <div class="card">
+        <h3>Account</h3>
+        <p class="muted">Status</p>
+        <p class="big">Active ✅</p>
+      </div>
+
+      <div class="card">
+        <h3>Plan</h3>
+        <p class="muted">Current plan</p>
+        <p class="big">Starter</p>
+      </div>
+
+      <div class="card">
+        <h3>Weekly Profit</h3>
+        <p class="muted">Estimated</p>
+        <p class="big">$0.00</p>
+      </div>
+    </section>
+
+    <section class="dash-box">
+      <h2>Next Steps</h2>
+      <ul>
+        <li>Connect your investment plans page</li>
+        <li>Add offers & plan calculator</li>
+        <li>Add live chart and WhatsApp button</li>
+      </ul>
+    </section>
+  </div>
 
   <!-- ✅ REQUIRED SCRIPTS (ORDER MATTERS) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
