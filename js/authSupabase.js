@@ -76,41 +76,47 @@ document.addEventListener("DOMContentLoaded", async () => {
       return;
     }
 
-    const userId = data.user.id;
-
     // show email
     const userEmailEl = document.getElementById("userEmail");
     if (userEmailEl) {
       userEmailEl.textContent = "Logged in as: " + data.user.email;
     }
 
-    // load plan
+    // elements
     const planNameEl = document.getElementById("dashPlanName");
     const planInfoEl = document.getElementById("dashPlanInfo");
     const weeklyProfitEl = document.getElementById("weeklyProfitValue");
 
+    const dashAmount = document.getElementById("dashAmount");
+    const dashCalcBtn = document.getElementById("dashCalcBtn");
+    const dashCalcResult = document.getElementById("dashCalcResult");
+    const clearPlanBtn = document.getElementById("clearPlanBtn");
+
+    // load plan from localStorage
     const savedPlanStr = localStorage.getItem("goldchain_selected_plan");
     let savedPlan = null;
 
     if (savedPlanStr) {
       try {
         savedPlan = JSON.parse(savedPlanStr);
-        if (planNameEl) planNameEl.textContent = savedPlan.plan;
+        if (planNameEl) planNameEl.textContent = savedPlan.plan || "Selected";
         if (planInfoEl)
           planInfoEl.textContent = `${savedPlan.rate}% weekly • ${savedPlan.withdraw}`;
-      } catch {}
-    } else {
+      } catch (e) {
+        savedPlan = null;
+      }
+    }
+
+    // if no plan
+    if (!savedPlan) {
       if (planNameEl) planNameEl.textContent = "Not selected";
+      if (planInfoEl) planInfoEl.textContent = "";
       if (weeklyProfitEl) weeklyProfitEl.textContent = "$0.00";
     }
 
     // =========================
     // PROFIT CALCULATOR
     // =========================
-    const dashAmount = document.getElementById("dashAmount");
-    const dashCalcBtn = document.getElementById("dashCalcBtn");
-    const dashCalcResult = document.getElementById("dashCalcResult");
-
     if (dashCalcBtn && dashAmount && dashCalcResult) {
       dashCalcBtn.addEventListener("click", () => {
         dashCalcResult.style.display = "block";
@@ -127,10 +133,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         const weeklyProfit = amount * (Number(savedPlan.rate) / 100);
-const weeklyProfitEl = document.getElementById("weeklyProfitValue");
-if (weeklyProfitEl) {
-  weeklyProfitEl.textContent = `$${weeklyProfit.toFixed(2)}`;
-}
+
         dashCalcResult.innerHTML = `
           ✅ <b>Plan:</b> ${savedPlan.plan}<br>
           ✅ <b>Weekly Rate:</b> ${savedPlan.rate}%<br>
@@ -138,6 +141,7 @@ if (weeklyProfitEl) {
           ✅ <b>Withdraw:</b> ${savedPlan.withdraw}
         `;
 
+        // ✅ update Weekly Profit card (NO duplicate const)
         if (weeklyProfitEl) {
           weeklyProfitEl.textContent = `$${weeklyProfit.toFixed(2)}`;
         }
@@ -147,14 +151,19 @@ if (weeklyProfitEl) {
     // =========================
     // CLEAR PLAN
     // =========================
-    const clearPlanBtn = document.getElementById("clearPlanBtn");
     if (clearPlanBtn) {
       clearPlanBtn.addEventListener("click", () => {
         localStorage.removeItem("goldchain_selected_plan");
+        savedPlan = null;
+
         if (planNameEl) planNameEl.textContent = "Not selected";
         if (planInfoEl) planInfoEl.textContent = "";
         if (weeklyProfitEl) weeklyProfitEl.textContent = "$0.00";
-        if (dashCalcResult) dashCalcResult.style.display = "none";
+
+        if (dashCalcResult) {
+          dashCalcResult.style.display = "none";
+          dashCalcResult.innerHTML = "";
+        }
         if (dashAmount) dashAmount.value = "";
       });
     }
