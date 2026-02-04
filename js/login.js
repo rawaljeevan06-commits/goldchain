@@ -1,12 +1,14 @@
 // js/login.js
-import { auth } from "./firebase.js";
-import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("loginForm");
   const msg = document.getElementById("loginMsg");
 
   if (!form) return;
+
+  if (!window.fbAuth) {
+    msg.textContent = "Firebase not loaded. Check script order.";
+    return;
+  }
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -17,16 +19,17 @@ document.addEventListener("DOMContentLoaded", () => {
     msg.textContent = "Logging in...";
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const res = await window.fbAuth.signInWithEmailAndPassword(email, password);
+      msg.textContent = "Login successful ✅";
 
-      msg.textContent = "Login successful ✅ Redirecting...";
+      // redirect
       setTimeout(() => {
         window.location.href = "dashboard.html";
-      }, 700);
+      }, 600);
 
     } catch (err) {
-      msg.textContent = err.message;
       console.error(err);
+      msg.textContent = err?.message || "Login failed";
     }
   });
 });
