@@ -66,27 +66,29 @@
 </div>
   </div>
 
-<!-- Firebase (compat) -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script type="module">
+  import { auth } from "./js/firebase.js";
+  import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
-<!-- firebase init -->
-<script src="js/firebase.js"></script>
-
-<!-- dashboard auth guard -->
-<script>
-  auth.onAuthStateChanged((user) => {
+  // Protect dashboard
+  onAuthStateChanged(auth, (user) => {
     if (!user) {
       window.location.replace("login.html");
     }
   });
-<script type="module">
-  import { auth } from "./js/firebase.js";
-  import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
-  onAuthStateChanged(auth, (user) => {
-    if (!user) window.location.replace("login.html");
-  });
+  // Logout
+  const logoutBtn = document.getElementById("logoutBtn");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", async (e) => {
+      e.preventDefault();
+      await signOut(auth);
+      window.location.replace("login.html");
+    });
+  }
+</script>
+</body>
+</html>
 </script>
 </body>
 </html>
