@@ -67,7 +67,6 @@
   <div class="plan reveal">
     <div class="tag">Starter</div>
     <span class="badge badge-offer">OFFER</span>
-
     <h3>$350 Plan</h3>
     <div class="rate">1.5% weekly</div>
 
@@ -76,7 +75,6 @@
       <div class="plan-feature"><i class="fa-solid fa-chart-line"></i><span><b>Rate:</b> 1.5% weekly</span></div>
       <div class="plan-feature"><i class="fa-solid fa-clock"></i><span><b>Withdraw:</b> After 45 days</span></div>
     </div>
-
     <button class="btn btn-primary pay-btn"
       data-plan="Starter $350" data-rate="1.5" data-withdraw="After 45 days"
       style="margin-top:12px;">Pay Now</button>
@@ -180,6 +178,35 @@
     selectedPlan.amount = m ? Number(m[1]) : "";
 
     localStorage.setItem("selectedPlan", JSON.stringify(selectedPlan));
+    window.location.href = "payment.html";
+  });
+</script>
+  <script>
+  document.addEventListener("click", function (e) {
+    const btn = e.target.closest(".pay-btn");
+    if (!btn) return;
+
+    // Read plan data from button
+    const name = btn.dataset.plan;
+    const rate = btn.dataset.rate;
+    const withdraw = btn.dataset.withdraw;
+
+    const match = name.match(/\$([0-9]+)/);
+    const amount = match ? Number(match[1]) : "";
+
+    const selectedPlan = {
+      name,
+      amount,
+      percent: rate,
+      withdraw
+    };
+
+    // SAVE plan
+    localStorage.setItem("selectedPlan", JSON.stringify(selectedPlan));
+
+    console.log("✅ Plan saved:", selectedPlan);
+
+    // Go to payment page
     window.location.href = "payment.html";
   });
 </script>
