@@ -63,11 +63,19 @@
   console.log("✅ Dashboard loaded");
 
   /* ---------- PLAN HELPERS ---------- */
-  function getPlan() {
-    const raw = localStorage.getItem("selectedPlan");
-    if (!raw) return null;
-    try { return JSON.parse(raw); } catch { return null; }
+ function getPlan() {
+  const raw =
+    localStorage.getItem("selectedPlan") ||
+    sessionStorage.getItem("selectedPlan");
+
+  if (!raw) return null;
+
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return null;
   }
+}
 
   function renderPlan() {
     const plan = getPlan();
