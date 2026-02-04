@@ -54,7 +54,6 @@
     </div>
   </section>
 
-  <!-- Firebase logic INLINE (no path/caching issues) -->
   <script type="module">
     import { auth } from "./js/firebase.js";
     import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
@@ -65,35 +64,37 @@
     const payMsg = document.getElementById("payMsg");
     const logoutBtn = document.getElementById("logoutBtn");
 
-    // Protect page
     onAuthStateChanged(auth, (user) => {
       if (!user) {
         window.location.replace("login.html");
         return;
       }
+
       emailEl.textContent = user.email || "(no email)";
 
-      // Load selected plan
       const raw = localStorage.getItem("selectedPlan");
       if (!raw) {
         planBox.innerHTML = '<p class="small">No plan selected. Please go back and choose a plan.</p>';
         return;
       }
-      const plan = JSON.parse(raw);
-      planBox.innerHTML = `
-        <h3>${plan.name}</h3>
-        <p class="small"><b>Investment:</b> $${plan.amount}</p>
-        <p class="small"><b>Weekly Return:</b> ${plan.percent}%</p>
-        <p class="small"><b>Withdrawal:</b> ${plan.withdraw}</p>
-      `;
+
+      try {
+        const plan = JSON.parse(raw);
+        planBox.innerHTML = `
+          <h3>${plan.name || ""}</h3>
+          <p class="small"><b>Investment:</b> $${plan.amount ?? ""}</p>
+          <p class="small"><b>Weekly Return:</b> ${plan.percent ?? ""}%</p>
+          <p class="small"><b>Withdrawal:</b> ${plan.withdraw ?? ""}</p>
+        `;
+      } catch (e) {
+        planBox.innerHTML = '<p class="small">Plan data error. Please select your plan again.</p>';
+      }
     });
 
-    // Demo payment
     payBtn.addEventListener("click", () => {
       payMsg.textContent = "✅ Demo payment successful.";
     });
 
-    // Logout
     logoutBtn.addEventListener("click", async () => {
       await signOut(auth);
       window.location.replace("login.html");
