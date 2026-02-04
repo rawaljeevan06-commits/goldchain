@@ -3,7 +3,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/fireba
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBrNIJ-NAMZ1iSnib8zPLDqICBBawL3GRM",
+  apiKey: "AIzaSyBrNIJ-NAMZ1iSnib8PLDqICBBawL3GRM",
   authDomain: "goldchain-e5470.firebaseapp.com",
   projectId: "goldchain-e5470",
   storageBucket: "goldchain-e5470.firebasestorage.app",
