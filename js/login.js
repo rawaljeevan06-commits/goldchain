@@ -1,8 +1,6 @@
 // js/login.js
 import { auth } from "./firebase.js";
-import {
-  signInWithEmailAndPassword,
-} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("loginForm");
@@ -17,22 +15,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const password = document.getElementById("loginPassword").value;
 
     msg.textContent = "Logging in...";
-    msg.style.color = "#ffffff";
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
 
-      msg.textContent = "Login successful ✅";
-      msg.style.color = "#7CFFB3";
-
-      // redirect after login
+      msg.textContent = "Login successful ✅ Redirecting...";
       setTimeout(() => {
         window.location.href = "dashboard.html";
-      }, 500);
+      }, 700);
 
     } catch (err) {
       msg.textContent = err.message;
-      msg.style.color = "#ff3b3b";
       console.error(err);
     }
   });
