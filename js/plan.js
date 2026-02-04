@@ -1,41 +1,33 @@
 // js/plans.js
-document.addEventListener("DOMContentLoaded", () => {
-  // Plan buttons
-  document.querySelectorAll(".pay-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const selectedPlan = {
-        name: btn.dataset.name,
-        amount: Number(btn.dataset.amount || 0),
-        percent: Number(btn.dataset.percent || 0),
-        withdraw: btn.dataset.withdraw || ""
-      };
+console.log("✅ plans.js loaded");
 
-      const raw = JSON.stringify(selectedPlan);
+function saveSelectedPlan(plan) {
+  const raw = JSON.stringify(plan);
+  localStorage.setItem("selectedPlan", raw);
+  sessionStorage.setItem("selectedPlan", raw); // helps Safari
+}
 
-      // ✅ Save in BOTH (Safari + Chrome stable)
-      localStorage.setItem("selectedPlan", raw);
-      sessionStorage.setItem("selectedPlan", raw);
+document.querySelectorAll(".pay-btn").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const plan = {
+      name: btn.dataset.name,
+      amount: Number(btn.dataset.amount),
+      percent: Number(btn.dataset.percent),
+      withdraw: btn.dataset.withdraw,
+    };
 
-      // ✅ Save history (optional, keeps last 20)
-      const historyRaw = localStorage.getItem("planHistory");
-      const history = historyRaw ? JSON.parse(historyRaw) : [];
-      history.unshift({ ...selectedPlan, time: new Date().toISOString() });
-      localStorage.setItem("planHistory", JSON.stringify(history.slice(0, 20)));
+    saveSelectedPlan(plan);
 
-      // ✅ Small delay helps Safari commit storage
-      setTimeout(() => {
-        window.location.href = "dashboard.html";
-      }, 200);
-    });
+    alert(`✅ Plan selected: ${plan.name}`);
+    window.location.href = "dashboard.html";
   });
-
-  // Clear selected plan
-  const resetBtn = document.getElementById("resetPlanBtn");
-  if (resetBtn) {
-    resetBtn.addEventListener("click", () => {
-      localStorage.removeItem("selectedPlan");
-      sessionStorage.removeItem("selectedPlan");
-      alert("✅ Selected plan cleared");
-    });
-  }
 });
+
+const resetBtn = document.getElementById("resetPlanBtn");
+if (resetBtn) {
+  resetBtn.addEventListener("click", () => {
+    localStorage.removeItem("selectedPlan");
+    sessionStorage.removeItem("selectedPlan");
+    alert("✅ Selected plan cleared");
+  });
+}
