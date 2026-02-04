@@ -1,58 +1,54 @@
-document.addEventListener("DOMContentLoaded", async () => {
-  const planBox = document.getElementById("selectedPlanBox");
-  const payUserEmail = document.getElementById("payUserEmail");
-  const payMsg = document.getElementById("payMsg");
-  const payBtn = document.getElementById("payNowBtn");
+import { auth } from "./firebase.js";
+import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
-  // Must have Supabase client
-  if (!window.sb) {
-    if (payMsg) payMsg.textContent = "❌ Supabase client not loaded.";
+// UI elements
+const emailEl = document.getElementById("payUserEmail");
+const planBox = document.getElementById("selectedPlanBox");
+const payBtn = document.getElementById("payNowBtn");
+const payMsg = document.getElementById("payMsg");
+const logoutBtn = document.getElementById("logoutBtn");
+
+// 1) Protect payment page (must be logged in)
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    window.location.replace("login.html");
+    return;
+  }
+  emailEl.textContent = user.email || "(no email)";
+});
+
+// 2) Load selected plan (from localStorage)
+function renderPlan() {
+  // You can store this from plans page later:
+  // localStorage.setItem("selectedPlan", JSON.stringify({ name, amount, percent, withdraw }))
+  const raw = localStorage.getItem("selectedPlan");
+
+  if (!raw) {
+    planBox.innerHTML = `<p class="small">No plan selected yet. Please choose a plan first.</p>`;
     return;
   }
 
-  // 1) Must be logged in to use payment page
-  const { data: userData } = await window.sb.auth.getUser();
-  if (!userData?.user) {
-    // send to login then come back here
-    localStorage.setItem("goldchain_after_login", "payment.html");
-    window.location.href = "login.html";
-    return;
-  }
-
-  // show email
-  if (payUserEmail) payUserEmail.textContent = userData.user.email;
-
-  // 2) Load selected plan from localStorage
-  const planStr = localStorage.getItem("goldchain_selected_plan");
-  if (!planStr) {
-    if (planBox) planBox.innerHTML = `<p class="small">❌ No plan selected. Please go back and choose a plan.</p>`;
-    return;
-  }
-
-  let plan;
   try {
-    plan = JSON.parse(planStr);
-  } catch {
-    if (planBox) planBox.innerHTML = `<p class="small">❌ Plan data corrupted. Please choose again.</p>`;
-    return;
-  }
-
-  // show plan details
-  if (planBox) {
+    const plan = JSON.parse(raw);
     planBox.innerHTML = `
-      <h3 style="margin-bottom:8px;">${plan.plan}</h3>
-      <p class="small"><b>${plan.rate}% weekly</b> • ${plan.withdraw}</p>
+      <h3>${plan.name || "Selected Plan"}</h3>
+      <p class="small"><b>Amount:</b> $${plan.amount || "-"}</p>
+      <p class="small"><b>Return:</b> ${plan.percent || "-"}% weekly</p>
+      <p class="small"><b>Withdraw:</b> ${plan.withdraw || "-"}</p>
     `;
+  } catch (e) {
+    planBox.innerHTML = `<p class="small">Plan data is corrupted. Please select your plan again.</p>`;
   }
+}
+renderPlan();
 
-  // 3) Demo payment button
-  if (payBtn) {
-    payBtn.addEventListener("click", () => {
-      localStorage.setItem("goldchain_paid", "yes");
-      if (payMsg) payMsg.textContent = "✅ Payment successful (Demo). Redirecting to dashboard...";
-      setTimeout(() => {
-        window.location.href = "dashboard.html";
-      }, 800);
-    });
-  }
+// 3) Demo payment button
+payBtn.addEventListener("click", () => {
+  payMsg.textContent = "✅ Demo payment successful. (Real gateway can be added.)";
+});
+
+// 4) Logout
+logoutBtn.addEventListener("click", async () => {
+  await signOut(auth);
+  window.location.replace("login.html");
 });
