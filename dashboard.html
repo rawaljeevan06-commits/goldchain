@@ -145,5 +145,24 @@
       dashCalcResult.textContent = `Estimated weekly profit at ${rate}%: $${profit.toFixed(2)}`;
     });
   </script>
+        <script>
+  // ✅ CHECK SELECTED PLAN ON DASHBOARD LOAD
+  const raw = localStorage.getItem("selectedPlan");
+  const plan = raw ? JSON.parse(raw) : null;
+
+  if (!plan) {
+    alert("No plan selected. Please choose a plan first.");
+    window.location.href = "plans.html";
+    return;
+  }
+
+  // ✅ PAY NOW BUTTON
+  const payNowBtn = document.getElementById("payNowBtn");
+  if (payNowBtn) {
+    payNowBtn.addEventListener("click", () => {
+      window.location.href = "payment.html";
+    });
+  }
+</script>
 </body>
 </html>
