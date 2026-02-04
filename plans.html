@@ -163,5 +163,25 @@
   </a>
 
   <script src="js/main.js"></script>
+  <script>
+  // Save selected plan and go to payment page
+  document.addEventListener("click", function (e) {
+    const btn = e.target.closest(".pay-btn");
+    if (!btn) return;
+
+    const selectedPlan = {
+      name: btn.dataset.plan || "Plan",
+      percent: (btn.dataset.rate || "") + "",
+      withdraw: btn.dataset.withdraw || ""
+    };
+
+    // Try to extract amount number from the plan text like "Starter $350"
+    const m = selectedPlan.name.match(/\$([0-9]+)/);
+    selectedPlan.amount = m ? Number(m[1]) : "";
+
+    localStorage.setItem("selectedPlan", JSON.stringify(selectedPlan));
+    window.location.href = "payment.html";
+  });
+</script>
 </body>
 </html>
