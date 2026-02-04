@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -60,80 +61,98 @@
         <h2>All Plans</h2>
         <a href="signup.html">Start →</a>
       </div>
-      
-    <div class="plans-grid">
 
-  <!-- STARTER -->
-  <div class="plan reveal">
-    <div class="tag">Starter</div>
-    <span class="badge badge-offer">OFFER</span>
-    <h3>$350 Plan</h3>
-    <div class="rate">1.5% weekly</div>
+      <div class="plans-grid">
 
-    <div class="plan-features">
-      <div class="plan-feature"><i class="fa-solid fa-coins"></i><span><b>Amount:</b> $350</span></div>
-      <div class="plan-feature"><i class="fa-solid fa-chart-line"></i><span><b>Rate:</b> 1.5% weekly</span></div>
-      <div class="plan-feature"><i class="fa-solid fa-clock"></i><span><b>Withdraw:</b> After 45 days</span></div>
-    </div>
-   <button type="button" class="btn btn-primary pay-btn"
-  data-plan="Starter $350" data-rate="1.5" data-withdraw="After 45 days"
-  onclick="goPay(this)" style="margin-top:12px;">Pay Now</button>
+        <!-- STARTER -->
+        <div class="plan reveal">
+          <div class="tag">Starter</div>
+          <span class="badge badge-offer">OFFER</span>
+          <h3>$350 Plan</h3>
+          <div class="rate">1.5% weekly</div>
 
-  <!-- GROWTH -->
-  <div class="plan reveal">
-    <div class="tag pop">Most Popular</div>
-    <span class="badge badge-best">BEST</span>
+          <div class="plan-features">
+            <div class="plan-feature"><i class="fa-solid fa-coins"></i><span><b>Amount:</b> $350</span></div>
+            <div class="plan-feature"><i class="fa-solid fa-chart-line"></i><span><b>Rate:</b> 1.5% weekly</span></div>
+            <div class="plan-feature"><i class="fa-solid fa-clock"></i><span><b>Withdraw:</b> After 45 days</span></div>
+          </div>
 
-    <h3>$700 Plan</h3>
-    <div class="rate">2% weekly</div>
+          <button type="button" class="btn btn-primary pay-btn"
+            data-plan="Starter $350"
+            data-rate="1.5"
+            data-withdraw="After 45 days"
+            onclick="goPay(this)"
+            style="margin-top:12px;">Pay Now</button>
+        </div>
 
-    <div class="plan-features">
-      <div class="plan-feature"><i class="fa-solid fa-coins"></i><span><b>Amount:</b> $700</span></div>
-      <div class="plan-feature"><i class="fa-solid fa-chart-line"></i><span><b>Rate:</b> 2% weekly</span></div>
-      <div class="plan-feature"><i class="fa-solid fa-clock"></i><span><b>Withdraw:</b> After 1 month</span></div>
-    </div>
+        <!-- GROWTH -->
+        <div class="plan reveal">
+          <div class="tag pop">Most Popular</div>
+          <span class="badge badge-best">BEST</span>
 
-   <button type="button" class="btn btn-primary pay-btn"
-  data-plan="Starter $750" data-rate="2" data-withdraw="After one month"
-  onclick="goPay(this)" style="margin-top:12px;">Pay Now</button>
+          <h3>$700 Plan</h3>
+          <div class="rate">2% weekly</div>
 
-  <!-- PRO -->
-  <div class="plan reveal">
-    <div class="tag">Pro</div>
-    <span class="badge badge-hot">HOT</span>
+          <div class="plan-features">
+            <div class="plan-feature"><i class="fa-solid fa-coins"></i><span><b>Amount:</b> $700</span></div>
+            <div class="plan-feature"><i class="fa-solid fa-chart-line"></i><span><b>Rate:</b> 2% weekly</span></div>
+            <div class="plan-feature"><i class="fa-solid fa-clock"></i><span><b>Withdraw:</b> After 1 month</span></div>
+          </div>
 
-    <h3>$1000 Plan</h3>
-    <div class="rate">3% weekly</div>
+          <button type="button" class="btn btn-primary pay-btn"
+            data-plan="Growth $700"
+            data-rate="2"
+            data-withdraw="After 1 month"
+            onclick="goPay(this)"
+            style="margin-top:12px;">Pay Now</button>
+        </div>
 
-    <div class="plan-features">
-      <div class="plan-feature"><i class="fa-solid fa-coins"></i><span><b>Amount:</b> $1000</span></div>
-      <div class="plan-feature"><i class="fa-solid fa-chart-line"></i><span><b>Rate:</b> 3% weekly</span></div>
-      <div class="plan-feature"><i class="fa-solid fa-clock"></i><span><b>Withdraw:</b> After 15 days</span></div>
-    </div>
+        <!-- PRO -->
+        <div class="plan reveal">
+          <div class="tag">Pro</div>
+          <span class="badge badge-hot">HOT</span>
 
-   <button type="button" class="btn btn-primary pay-btn"
-  data-plan="Starter $1000" data-rate="3" data-withdraw="After 15 days"
-  onclick="goPay(this)" style="margin-top:12px;">Pay Now</button>
+          <h3>$1000 Plan</h3>
+          <div class="rate">3% weekly</div>
 
-  <!-- PREMIUM (VIP LOOK) -->
-  <div class="plan reveal premium-plan">
-    <div class="tag">Premium</div>
-    <span class="badge badge-premium">PREMIUM</span>
+          <div class="plan-features">
+            <div class="plan-feature"><i class="fa-solid fa-coins"></i><span><b>Amount:</b> $1000</span></div>
+            <div class="plan-feature"><i class="fa-solid fa-chart-line"></i><span><b>Rate:</b> 3% weekly</span></div>
+            <div class="plan-feature"><i class="fa-solid fa-clock"></i><span><b>Withdraw:</b> After 15 days</span></div>
+          </div>
 
-    <h3>$5000+ Plan</h3>
-    <div class="rate">4% weekly</div>
+          <button type="button" class="btn btn-primary pay-btn"
+            data-plan="Pro $1000"
+            data-rate="3"
+            data-withdraw="After 15 days"
+            onclick="goPay(this)"
+            style="margin-top:12px;">Pay Now</button>
+        </div>
 
-    <div class="plan-features">
-      <div class="plan-feature"><i class="fa-solid fa-coins"></i><span><b>Amount:</b> $5000+</span></div>
-      <div class="plan-feature"><i class="fa-solid fa-chart-line"></i><span><b>Rate:</b> 4% weekly</span></div>
-      <div class="plan-feature"><i class="fa-solid fa-clock"></i><span><b>Withdraw:</b> Weekly</span></div>
-    </div>
+        <!-- PREMIUM -->
+        <div class="plan reveal premium-plan">
+          <div class="tag">Premium</div>
+          <span class="badge badge-premium">PREMIUM</span>
 
-   <button type="button" class="btn btn-primary pay-btn"
-  data-plan="Starter $5000" data-rate="4" data-withdraw="After one week"
-  onclick="goPay(this)" style="margin-top:12px;">Pay Now</button>
+          <h3>$5000+ Plan</h3>
+          <div class="rate">4% weekly</div>
 
-</div>
+          <div class="plan-features">
+            <div class="plan-feature"><i class="fa-solid fa-coins"></i><span><b>Amount:</b> $5000+</span></div>
+            <div class="plan-feature"><i class="fa-solid fa-chart-line"></i><span><b>Rate:</b> 4% weekly</span></div>
+            <div class="plan-feature"><i class="fa-solid fa-clock"></i><span><b>Withdraw:</b> Weekly</span></div>
+          </div>
+
+          <button type="button" class="btn btn-primary pay-btn"
+            data-plan="Premium $5000+"
+            data-rate="4"
+            data-withdraw="Weekly"
+            onclick="goPay(this)"
+            style="margin-top:12px;">Pay Now</button>
+        </div>
+
+      </div>
+
       <div class="chart-box" style="margin-top:18px;">
         <p class="small"><strong>Tip:</strong> If you need help choosing a plan, contact us anytime.</p>
       </div>
@@ -157,69 +176,23 @@
   </a>
 
   <script src="js/main.js"></script>
+
+  <!-- ONLY ONE plan save function (NO duplicates) -->
   <script>
-  // Save selected plan and go to payment page
-  document.addEventListener("click", function (e) {
-    const btn = e.target.closest(".pay-btn");
-    if (!btn) return;
+    function goPay(btn) {
+      const name = btn.getAttribute("data-plan") || "Plan";
+      const rate = btn.getAttribute("data-rate") || "";
+      const withdraw = btn.getAttribute("data-withdraw") || "";
 
-    const selectedPlan = {
-      name: btn.dataset.plan || "Plan",
-      percent: (btn.dataset.rate || "") + "",
-      withdraw: btn.dataset.withdraw || ""
-    };
+      const m = name.match(/\$([0-9]+)/);
+      const amount = m ? Number(m[1]) : "";
 
-    // Try to extract amount number from the plan text like "Starter $350"
-    const m = selectedPlan.name.match(/\$([0-9]+)/);
-    selectedPlan.amount = m ? Number(m[1]) : "";
+      const selectedPlan = { name, amount, percent: rate, withdraw };
 
-    localStorage.setItem("selectedPlan", JSON.stringify(selectedPlan));
-    window.location.href = "payment.html";
-  });
-</script>
-  <script>
-  document.addEventListener("click", function (e) {
-    const btn = e.target.closest(".pay-btn");
-    if (!btn) return;
+      localStorage.setItem("selectedPlan", JSON.stringify(selectedPlan));
+      window.location.href = "payment.html";
+    }
+  </script>
 
-    // Read plan data from button
-    const name = btn.dataset.plan;
-    const rate = btn.dataset.rate;
-    const withdraw = btn.dataset.withdraw;
-
-    const match = name.match(/\$([0-9]+)/);
-    const amount = match ? Number(match[1]) : "";
-
-    const selectedPlan = {
-      name,
-      amount,
-      percent: rate,
-      withdraw
-    };
-
-    // SAVE plan
-    localStorage.setItem("selectedPlan", JSON.stringify(selectedPlan));
-
-    console.log("✅ Plan saved:", selectedPlan);
-
-    // Go to payment page
-    window.location.href = "payment.html";
-  });
-</script>
-    <script>
-  function goPay(btn) {
-    const name = btn.getAttribute("data-plan") || "Plan";
-    const rate = btn.getAttribute("data-rate") || "";
-    const withdraw = btn.getAttribute("data-withdraw") || "";
-
-    const m = name.match(/\$([0-9]+)/);
-    const amount = m ? Number(m[1]) : "";
-
-    const selectedPlan = { name, amount, percent: rate, withdraw };
-
-    localStorage.setItem("selectedPlan", JSON.stringify(selectedPlan));
-    window.location.href = "payment.html";
-  }
-</script>
 </body>
 </html>
