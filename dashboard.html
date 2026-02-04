@@ -1,166 +1,98 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Dashboard | GoldChain</title>
-  <link rel="stylesheet" href="css/style.css" />
-</head>
+import { auth } from "./js/firebase.js";
+import {
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
-<body>
+console.log("✅ Dashboard loaded");
 
-  <div class="dash-wrap">
-    <header class="dash-top">
-      <div>
-        <h1 class="dash-title">GoldChain Dashboard</h1>
-        <p class="dash-sub">You are successfully logged in ✅</p>
-        <p id="userEmail" class="dash-email"></p>
-      </div>
-
-      <div style="display:flex; gap:10px; flex-wrap:wrap;">
-        <button id="logoutBtn" class="btn btn-logout" type="button">Logout</button>
-        <button id="clearPlanBtn" class="btn btn-outline" type="button">Clear Plan</button>
-        <button id="payNowBtn" class="btn btn-primary" type="button">Pay Now</button>
-      </div>
-    </header>
-
-    <section class="dash-cards">
-      <div class="card">
-        <h3>Account</h3>
-        <p class="muted">Status</p>
-        <p class="big">Active ✅</p>
-      </div>
-
-      <div class="card">
-        <h3>Plan</h3>
-        <p class="muted">Current plan</p>
-        <p class="big" id="dashPlanName">Not selected</p>
-        <p class="muted" id="dashPlanInfo"></p>
-      </div>
-
-      <div class="card">
-        <h3>Weekly Profit</h3>
-        <p class="muted">Estimated</p>
-        <p class="big" id="weeklyProfitValue">$0.00</p>
-      </div>
-    </section>
-
-    <div class="dash-box">
-      <h2>Profit Calculator</h2>
-      <p class="muted">Enter amount to calculate weekly profit.</p>
-
-      <div class="calc-row">
-        <input type="number" id="dashAmount" placeholder="Enter amount in USD" />
-        <button class="btn btn-primary" id="dashCalcBtn">Calculate</button>
-      </div>
-
-      <div id="dashCalcResult" class="calc-result" style="display:none;"></div>
-    </div>
-  </div>
-
-<!-- ✅ ONE SCRIPT ONLY -->
-<script type="module">
-  console.log("✅ Dashboard loaded");
-
-  /* ---------- PLAN HELPERS ---------- */
- function getPlan() {
+/* ---------- PLAN HELPERS ---------- */
+function getPlan() {
   const raw =
     localStorage.getItem("selectedPlan") ||
     sessionStorage.getItem("selectedPlan");
 
   if (!raw) return null;
 
-  try {
-    return JSON.parse(raw);
-  } catch {
-    return null;
-  }
+  try { return JSON.parse(raw); }
+  catch { return null; }
 }
 
-  function renderPlan() {
-    const plan = getPlan();
-    const nameEl = document.getElementById("dashPlanName");
-    const infoEl = document.getElementById("dashPlanInfo");
-    const profitEl = document.getElementById("weeklyProfitValue");
+function renderPlan() {
+  const plan = getPlan();
+  const nameEl = document.getElementById("dashPlanName");
+  const infoEl = document.getElementById("dashPlanInfo");
+  const profitEl = document.getElementById("weeklyProfitValue");
 
-    if (!plan) {
-      nameEl.textContent = "Not selected";
-      infoEl.textContent = "";
-      profitEl.textContent = "$0.00";
-      return;
-    }
-
-    nameEl.textContent = plan.name || "Selected Plan";
-    infoEl.textContent =
-      `$${plan.amount} • ${plan.percent}% weekly • ${plan.withdraw}`;
+  if (!plan) {
+    nameEl.textContent = "Not selected";
+    infoEl.textContent = "Go to Plans and choose a plan.";
+    profitEl.textContent = "$0.00";
+    return;
   }
 
+  nameEl.textContent = plan.name || "Selected Plan";
+  infoEl.textContent = `$${plan.amount} • ${plan.percent}% weekly • ${plan.withdraw}`;
+  profitEl.textContent = "$0.00";
+}
+
+renderPlan();
+
+/* ---------- AUTH PROTECT ---------- */
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    location.href = "login.html";
+    return;
+  }
+  const emailEl = document.getElementById("userEmail");
+  if (emailEl) emailEl.textContent = user.email || "";
+});
+
+/* ---------- BUTTONS ---------- */
+document.getElementById("payNowBtn").addEventListener("click", () => {
+  if (!getPlan()) {
+    alert("No plan selected. Please choose a plan first.");
+    location.href = "plans.html";
+    return;
+  }
+  location.href = "payment.html";
+});
+
+document.getElementById("clearPlanBtn").addEventListener("click", () => {
+  localStorage.removeItem("selectedPlan");
+  sessionStorage.removeItem("selectedPlan");
   renderPlan();
 
-  /* ---------- BUTTONS ---------- */
-  document.getElementById("payNowBtn").onclick = () => {
-    if (!getPlan()) {
-      alert("No plan selected. Please choose a plan first.");
-      location.href = "plans.html";
-      return;
-    }
-    location.href = "payment.html";
-  };
+  // optional cleanup UI
+  document.getElementById("dashCalcResult").style.display = "none";
+  document.getElementById("dashAmount").value = "";
+  alert("Plan cleared");
+});
 
-  document.getElementById("clearPlanBtn").onclick = () => {
-    localStorage.removeItem("selectedPlan");
-sessionStorage.removeItem("selectedPlan"); // 🔴 IMPORTANT
-renderPlan();
-alert("Plan cleared");
-  };
+document.getElementById("dashCalcBtn").addEventListener("click", () => {
+  const plan = getPlan();
+  const result = document.getElementById("dashCalcResult");
 
-  document.getElementById("dashCalcBtn").onclick = () => {
-    const plan = getPlan();
-    const result = document.getElementById("dashCalcResult");
-
-    if (!plan) {
-      result.style.display = "block";
-      result.textContent = "Please select a plan first.";
-      return;
-    }
-
-    const amount = Number(document.getElementById("dashAmount").value);
-    if (!amount || amount <= 0) {
-      result.style.display = "block";
-      result.textContent = "Enter a valid amount.";
-      return;
-    }
-
-    const profit = (amount * Number(plan.percent)) / 100;
+  if (!plan) {
     result.style.display = "block";
-    result.textContent = `Estimated weekly profit: $${profit.toFixed(2)}`;
-    document.getElementById("weeklyProfitValue").textContent =
-      `$${profit.toFixed(2)}`;
-  };
-
-  document.getElementById("logoutBtn").onclick = () => {
-    location.href = "login.html";
-  };
-
-  /* ---------- FIREBASE (SAFE) ---------- */
-  try {
-    const { auth } = await import("./js/firebase.js");
-    const { onAuthStateChanged, signOut } =
-      await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js");
-
-    onAuthStateChanged(auth, (user) => {
-      if (!user) location.href = "login.html";
-      document.getElementById("userEmail").textContent = user.email || "";
-    });
-
-    document.getElementById("logoutBtn").onclick = async () => {
-      await signOut(auth);
-      location.href = "login.html";
-    };
-  } catch (e) {
-    console.warn("Firebase skipped (dashboard still works)");
+    result.textContent = "Please select a plan first.";
+    return;
   }
-</script>
 
-</body>
-</html>
+  const amount = Number(document.getElementById("dashAmount").value || 0);
+  if (!amount || amount <= 0) {
+    result.style.display = "block";
+    result.textContent = "Enter a valid amount.";
+    return;
+  }
+
+  const profit = (amount * Number(plan.percent || 0)) / 100;
+  result.style.display = "block";
+  result.textContent = `Estimated weekly profit: $${profit.toFixed(2)}`;
+  document.getElementById("weeklyProfitValue").textContent = `$${profit.toFixed(2)}`;
+});
+
+document.getElementById("logoutBtn").addEventListener("click", async () => {
+  await signOut(auth);
+  location.href = "login.html";
+});
