@@ -64,10 +64,7 @@
 
     // ---------- PLAN HELPERS ----------
     function getPlan() {
-      const raw =
-        localStorage.getItem("selectedPlan") ||
-        sessionStorage.getItem("selectedPlan");
-
+      const raw = localStorage.getItem("selectedPlan");
       if (!raw) return null;
 
       try {
