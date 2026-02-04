@@ -66,74 +66,51 @@
     </div>
   </div>
 
-  <script type="module">
-    import { auth } from "./js/firebase.js";
-    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+<script type="module">
+  import { auth } from "./js/firebase.js";
+  import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
-    const userEmailEl = document.getElementById("userEmail");
-    const logoutBtn = document.getElementById("logoutBtn");
-    const clearPlanBtn = document.getElementById("clearPlanBtn");
+  console.log("✅ dashboard module loaded");
 
-    const dashPlanName = document.getElementById("dashPlanName");
-    const dashPlanInfo = document.getElementById("dashPlanInfo");
-    const weeklyProfitValue = document.getElementById("weeklyProfitValue");
+  // Protect dashboard
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      window.location.replace("login.html");
+    }
+  });
 
-    const dashAmount = document.getElementById("dashAmount");
-    const dashCalcBtn = document.getElementById("dashCalcBtn");
-    const dashCalcResult = document.getElementById("dashCalcResult");
-
-    // Protect dashboard + show email + load plan
-    onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        window.location.replace("login.html");
-        return;
-      }
-      userEmailEl.textContent = user.email || "";
-
-      const raw = localStorage.getItem("selectedPlan");
-      if (!raw) {
-        dashPlanName.textContent = "Not selected";
-        dashPlanInfo.textContent = "";
-        weeklyProfitValue.textContent = "$0.00";
-        return;
-      }
-
-      try {
-        const plan = JSON.parse(raw);
-        dashPlanName.textContent = plan.name || "Selected plan";
-        dashPlanInfo.textContent = `${plan.percent || ""}% weekly • ${plan.withdraw || ""}`;
-
-        // If amount exists, show estimated weekly profit
-        const amount = Number(plan.amount || 0);
-        const rate = Number(plan.percent || 0);
-        const profit = amount && rate ? (amount * rate) / 100 : 0;
-        weeklyProfitValue.textContent = `$${profit.toFixed(2)}`;
-      } catch (e) {
-        dashPlanName.textContent = "Not selected";
-        dashPlanInfo.textContent = "";
-        weeklyProfitValue.textContent = "$0.00";
-      }
-    });
-
-    // Logout
-    logoutBtn.addEventListener("click", async () => {
+  // Logout
+  const logoutBtn = document.getElementById("logoutBtn");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", async (e) => {
+      e.preventDefault();
       await signOut(auth);
       window.location.replace("login.html");
     });
-// Pay Now from dashboard (only if plan exists)
-const payNowBtn = document.getElementById("payNowBtn");
-if (payNowBtn) {
-  payNowBtn.addEventListener("click", () => {
-    const plan = localStorage.getItem("selectedPlan");
-    if (!plan) {
-      alert("No plan selected. Please choose a plan first.");
-      window.location.href = "plans.html";
-      return;
-    }
-    window.location.href = "payment.html";
-  });
-}
-    // Clear Plan
+  }
+
+  // ✅ PAY NOW BUTTON LOGIC (PASTE HERE)
+  const payNowBtn = document.getElementById("payNowBtn");
+  console.log("payNowBtn found?", !!payNowBtn);
+
+  if (payNowBtn) {
+    payNowBtn.addEventListener("click", () => {
+      console.log("✅ Pay Now clicked");
+
+      const plan = localStorage.getItem("selectedPlan");
+      console.log("selectedPlan =", plan);
+
+      if (!plan) {
+        alert("No plan selected. Please choose a plan first.");
+        window.location.href = "plans.html";
+        return;
+      }
+
+      window.location.href = "payment.html";
+    });
+  }
+
+</script>  // Clear Plan
     clearPlanBtn.addEventListener("click", () => {
       localStorage.removeItem("selectedPlan");
       dashPlanName.textContent = "Not selected";
