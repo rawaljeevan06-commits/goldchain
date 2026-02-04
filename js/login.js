@@ -4,18 +4,25 @@ import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/1
 const form = document.getElementById("loginForm");
 const msg = document.getElementById("loginMsg");
 
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
+const emailInput = document.getElementById("loginEmail");
+const passInput = document.getElementById("loginPassword");
 
-  const email = loginEmail.value.trim();
-  const password = loginPassword.value;
+if (!form || !emailInput || !passInput) {
+  console.error("Login form elements not found");
+} else {
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-  msg.textContent = "Logging in...";
+    const email = emailInput.value.trim();
+    const password = passInput.value;
 
-  try {
-    await signInWithEmailAndPassword(auth, email, password);
-    window.location.replace("dashboard.html");
-  } catch (err) {
-    msg.textContent = err.message;
-  }
-});
+    msg.textContent = "Logging in...";
+
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      window.location.replace("dashboard.html");
+    } catch (err) {
+      msg.textContent = `Firebase: Error (${err.code || "unknown"}).`;
+    }
+  });
+}
