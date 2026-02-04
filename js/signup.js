@@ -1,41 +1,46 @@
+// js/signup.js
 import { auth } from "./firebase.js";
-import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-
-console.log("✅ signup.js loaded");
+import { createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("✅ DOM loaded");
-
   const form = document.getElementById("signupForm");
   const msg = document.getElementById("signupMsg");
 
-  console.log("FORM FOUND?", !!form);
-  console.log("MSG FOUND?", !!msg);
-
   if (!form || !msg) {
-    alert("Signup form or signupMsg ID not found. Check IDs in signup.html");
+    console.log("❌ signupForm or signupMsg not found");
     return;
   }
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const email = document.getElementById("email")?.value?.trim();
-    const password = document.getElementById("password")?.value;
+    const name = document.getElementById("name").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
 
     msg.textContent = "Creating account...";
-    console.log("Submitting:", email);
+    msg.style.color = "#fff";
 
     try {
       const userCred = await createUserWithEmailAndPassword(auth, email, password);
-      console.log("✅ CREATED:", userCred.user.uid);
 
-      msg.textContent = "Account created ✅ Redirecting...";
-      setTimeout(() => (window.location.href = "login.html"), 800);
+      // optional: store displayName
+      if (name) {
+        await updateProfile(userCred.user, { displayName: name });
+      }
+
+      msg.textContent = "Account created ✅ Redirecting to login...";
+      msg.style.color = "#7CFFB3";
+
+      setTimeout(() => {
+        window.location.href = "login.html";
+      }, 800);
 
     } catch (err) {
       console.error("❌ SIGNUP ERROR:", err);
-      msg.textContent = "ERROR: " + err.message;
+      msg.textContent = "ERROR: " + (err?.message || err);
+      msg.style.color = "#ff3b3b";
     }
   });
 });
