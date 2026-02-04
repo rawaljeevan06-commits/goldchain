@@ -9,4 +9,4 @@
   );
 
   console.log("Supabase client ready:", !!window.sb);
-</script>
+
