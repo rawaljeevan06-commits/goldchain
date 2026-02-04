@@ -1,3 +1,4 @@
+console.log("✅ payment.js loaded");
 import { auth } from "./firebase.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
