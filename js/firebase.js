@@ -13,4 +13,4 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 
-console.log("✅ firebase.js loaded and exported auth");
+console.log("firebase ready");
