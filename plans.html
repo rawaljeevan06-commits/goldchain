@@ -206,5 +206,20 @@
     window.location.href = "payment.html";
   });
 </script>
+    <script>
+  function goPay(btn) {
+    const name = btn.getAttribute("data-plan") || "Plan";
+    const rate = btn.getAttribute("data-rate") || "";
+    const withdraw = btn.getAttribute("data-withdraw") || "";
+
+    const m = name.match(/\$([0-9]+)/);
+    const amount = m ? Number(m[1]) : "";
+
+    const selectedPlan = { name, amount, percent: rate, withdraw };
+
+    localStorage.setItem("selectedPlan", JSON.stringify(selectedPlan));
+    window.location.href = "payment.html";
+  }
+</script>
 </body>
 </html>
