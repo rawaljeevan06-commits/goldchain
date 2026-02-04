@@ -177,7 +177,7 @@
       localStorage.removeItem("selectedPlan");
       alert("✅ selectedPlan cleared");
     }
-    <script>
+   <script>
   function selectPlan(btn) {
     const selectedPlan = {
       name: btn.dataset.name,
@@ -188,16 +188,21 @@
 
     const value = JSON.stringify(selectedPlan);
 
-    // ✅ Save in BOTH places (Safari fix)
+    // ✅ Safari-safe storage
     localStorage.setItem("selectedPlan", value);
     sessionStorage.setItem("selectedPlan", value);
 
-    // ✅ Small delay so Safari commits storage
+    // ✅ Delay so Safari commits storage
     setTimeout(() => {
       window.location.href = "dashboard.html";
     }, 300);
   }
+
+  function resetPlan() {
+    localStorage.removeItem("selectedPlan");
+    sessionStorage.removeItem("selectedPlan");
+    alert("✅ selectedPlan cleared");
+  }
 </script>
-  </script>
 </body>
 </html>
