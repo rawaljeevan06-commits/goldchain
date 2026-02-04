@@ -109,8 +109,9 @@
 
   document.getElementById("clearPlanBtn").onclick = () => {
     localStorage.removeItem("selectedPlan");
-    renderPlan();
-    alert("Plan cleared");
+sessionStorage.removeItem("selectedPlan"); // 🔴 IMPORTANT
+renderPlan();
+alert("Plan cleared");
   };
 
   document.getElementById("dashCalcBtn").onclick = () => {
