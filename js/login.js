@@ -1,21 +1,14 @@
-<script>
+// js/login.js
+import { auth } from "./firebase.js";
+import {
+  signInWithEmailAndPassword,
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("loginForm");
   const msg = document.getElementById("loginMsg");
 
-  if (!window.supabase) {
-    msg.textContent = "Supabase client not loaded.";
-    return;
-  }
-
-  // ✅ CREATE CLIENT (VERY IMPORTANT)
-  const SUPABASE_URL = "https://isyaavusunsombknvhsz.supabase.co";
-  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlzeWFhdnVzdW5zb21ia252aHN6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk5NDExOTEsImV4cCI6MjA4NTUxNzE5MX0.SrOKP_Xm2Joi9QPStyAYFGmziavkXvpXbgGfG1LtEfA";
-
-  const supabaseClient = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_ANON_KEY
-  );
+  if (!form) return;
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -24,22 +17,23 @@ document.addEventListener("DOMContentLoaded", () => {
     const password = document.getElementById("loginPassword").value;
 
     msg.textContent = "Logging in...";
+    msg.style.color = "#ffffff";
 
-    const { data, error } = await supabaseClient.auth.signInWithPassword({
-      email,
-      password
-    });
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
 
-    if (error) {
-      msg.textContent = error.message;
-      return;
+      msg.textContent = "Login successful ✅";
+      msg.style.color = "#7CFFB3";
+
+      // redirect after login
+      setTimeout(() => {
+        window.location.href = "dashboard.html";
+      }, 500);
+
+    } catch (err) {
+      msg.textContent = err.message;
+      msg.style.color = "#ff3b3b";
+      console.error(err);
     }
-
-    msg.textContent = "Login successful ✅";
-    console.log("User:", data.user);
-
-    // redirect if you want
-    // window.location.href = "dashboard.html";
   });
 });
-</script>
