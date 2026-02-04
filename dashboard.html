@@ -80,7 +80,13 @@
       window.location.replace("login.html");
     }
   });
+<script type="module">
+  import { auth } from "./js/firebase.js";
+  import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+  onAuthStateChanged(auth, (user) => {
+    if (!user) window.location.replace("login.html");
+  });
 </script>
 </body>
 </html>
-
