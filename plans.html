@@ -5,10 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Plans | GoldChain Investment</title>
   <link rel="stylesheet" href="css/style.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
-<body>
 
+<body>
   <div class="topbar">GoldChain Investment Plans — Choose what fits you.</div>
 
   <header class="header">
@@ -18,180 +17,178 @@
         <span>GoldChain</span>
       </a>
 
-      <button class="nav-toggle" type="button" aria-label="Menu">☰</button>
-
       <nav class="nav">
         <a href="index.html">Home</a>
-        <a href="plans.html" class="active">Plans</a>
-        <a href="about.html">Our Impact</a>
-        <a href="faq.html">FAQ</a>
-        <a href="contact.html">Contact</a>
+        <a class="active" href="plans.html">Plans</a>
+        <a href="index.html#impact">Our Impact</a>
+        <a href="index.html#faq">FAQ</a>
+        <a href="index.html#contact">Contact</a>
       </nav>
 
-      <div class="actions">
+      <div class="nav-cta">
         <a class="btn btn-ghost" href="login.html">Login</a>
         <a class="btn btn-primary" href="signup.html">Sign Up</a>
       </div>
     </div>
   </header>
 
-  <section class="hero bg" style="background-image:url('images/bg1.jpg')">
-    <div class="container hero-grid">
-      <div>
-        <h1>Choose Your Plan</h1>
-        <p>All plans are shown clearly with weekly rate and withdrawal period.</p>
-        <div class="badges">
-          <span class="badge">Clear Terms</span>
-          <span class="badge">Simple</span>
-          <span class="badge">Support Available</span>
+  <main class="container" style="padding:24px 0;">
+    <section class="hero-lite">
+      <h1>Choose Your Plan</h1>
+      <p class="muted">All plans are shown clearly with weekly rate and withdrawal period.</p>
+
+      <div class="reminder-box">
+        <div>
+          <h3 style="margin:0 0 6px;">Reminder</h3>
+          <p class="muted" style="margin:0;">Investment involves risk. Read the plan terms carefully.</p>
         </div>
+        <a class="btn btn-outline" href="index.html#contact">Ask a Question</a>
+      </div>
+    </section>
+
+    <h2 style="margin:26px 0 14px;">All Plans</h2>
+
+    <div class="grid plans">
+
+      <!-- PLAN 1 -->
+      <div class="plan-card">
+        <div class="plan-head">
+          <h3>Starter Plan</h3>
+          <span class="badge">MIN</span>
+        </div>
+        <p class="price"><b>$350</b></p>
+        <ul class="plan-features">
+          <li>✅ <b>1.5%</b> weekly</li>
+          <li>✅ Withdraw after <b>45 days</b></li>
+          <li>✅ Beginner friendly</li>
+        </ul>
+        <button
+          class="btn btn-primary pay-btn"
+          type="button"
+          data-name="Starter Plan"
+          data-amount="350"
+          data-percent="1.5"
+          data-withdraw="After 45 days"
+          onclick="selectPlan(this)"
+        >
+          Choose Plan
+        </button>
       </div>
 
-      <div class="card">
-        <h3>Reminder</h3>
-        <p class="small">Investment involves risk. Read the plan terms carefully.</p>
-        <a class="btn btn-ghost" href="contact.html" style="margin-top:12px;">Ask a Question</a>
-      </div>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="container">
-      <div class="section-title">
-        <h2>All Plans</h2>
-        <a href="signup.html">Start →</a>
-      </div>
-
-      <div class="plans-grid">
-
-        <!-- STARTER -->
-        <div class="plan reveal">
-          <div class="tag">Starter</div>
-          <span class="badge badge-offer">OFFER</span>
-          <h3>$350 Plan</h3>
-          <div class="rate">1.5% weekly</div>
-
-          <div class="plan-features">
-            <div class="plan-feature"><i class="fa-solid fa-coins"></i><span><b>Amount:</b> $350</span></div>
-            <div class="plan-feature"><i class="fa-solid fa-chart-line"></i><span><b>Rate:</b> 1.5% weekly</span></div>
-            <div class="plan-feature"><i class="fa-solid fa-clock"></i><span><b>Withdraw:</b> After 45 days</span></div>
-          </div>
-
-          <button type="button" class="btn btn-primary pay-btn"
-            data-plan="Starter $350"
-            data-rate="1.5"
-            data-withdraw="After 45 days"
-            onclick="goPay(this)"
-            style="margin-top:12px;">Pay Now</button>
-        </div>
-
-        <!-- GROWTH -->
-        <div class="plan reveal">
-          <div class="tag pop">Most Popular</div>
-          <span class="badge badge-best">BEST</span>
-
-          <h3>$700 Plan</h3>
-          <div class="rate">2% weekly</div>
-
-          <div class="plan-features">
-            <div class="plan-feature"><i class="fa-solid fa-coins"></i><span><b>Amount:</b> $700</span></div>
-            <div class="plan-feature"><i class="fa-solid fa-chart-line"></i><span><b>Rate:</b> 2% weekly</span></div>
-            <div class="plan-feature"><i class="fa-solid fa-clock"></i><span><b>Withdraw:</b> After 1 month</span></div>
-          </div>
-
-          <button type="button" class="btn btn-primary pay-btn"
-            data-plan="Growth $700"
-            data-rate="2"
-            data-withdraw="After 1 month"
-            onclick="goPay(this)"
-            style="margin-top:12px;">Pay Now</button>
-        </div>
-
-        <!-- PRO -->
-        <div class="plan reveal">
-          <div class="tag">Pro</div>
+      <!-- PLAN 2 -->
+      <div class="plan-card">
+        <div class="plan-head">
+          <h3>Growth Plan</h3>
           <span class="badge badge-hot">HOT</span>
-
-          <h3>$1000 Plan</h3>
-          <div class="rate">3% weekly</div>
-
-          <div class="plan-features">
-            <div class="plan-feature"><i class="fa-solid fa-coins"></i><span><b>Amount:</b> $1000</span></div>
-            <div class="plan-feature"><i class="fa-solid fa-chart-line"></i><span><b>Rate:</b> 3% weekly</span></div>
-            <div class="plan-feature"><i class="fa-solid fa-clock"></i><span><b>Withdraw:</b> After 15 days</span></div>
-          </div>
-
-          <button type="button" class="btn btn-primary pay-btn"
-            data-plan="Pro $1000"
-            data-rate="3"
-            data-withdraw="After 15 days"
-            onclick="goPay(this)"
-            style="margin-top:12px;">Pay Now</button>
         </div>
-
-        <!-- PREMIUM -->
-        <div class="plan reveal premium-plan">
-          <div class="tag">Premium</div>
-          <span class="badge badge-premium">PREMIUM</span>
-
-          <h3>$5000+ Plan</h3>
-          <div class="rate">4% weekly</div>
-
-          <div class="plan-features">
-            <div class="plan-feature"><i class="fa-solid fa-coins"></i><span><b>Amount:</b> $5000+</span></div>
-            <div class="plan-feature"><i class="fa-solid fa-chart-line"></i><span><b>Rate:</b> 4% weekly</span></div>
-            <div class="plan-feature"><i class="fa-solid fa-clock"></i><span><b>Withdraw:</b> Weekly</span></div>
-          </div>
-
-          <button type="button" class="btn btn-primary pay-btn"
-            data-plan="Premium $5000+"
-            data-rate="4"
-            data-withdraw="Weekly"
-            onclick="goPay(this)"
-            style="margin-top:12px;">Pay Now</button>
-        </div>
-
+        <p class="price"><b>$700</b></p>
+        <ul class="plan-features">
+          <li>✅ <b>2%</b> weekly</li>
+          <li>✅ Withdraw after <b>1 month</b></li>
+          <li>✅ Balanced returns</li>
+        </ul>
+        <button
+          class="btn btn-primary pay-btn"
+          type="button"
+          data-name="Growth Plan"
+          data-amount="700"
+          data-percent="2"
+          data-withdraw="After 1 month"
+          onclick="selectPlan(this)"
+        >
+          Choose Plan
+        </button>
       </div>
 
-      <div class="chart-box" style="margin-top:18px;">
-        <p class="small"><strong>Tip:</strong> If you need help choosing a plan, contact us anytime.</p>
+      <!-- PLAN 3 -->
+      <div class="plan-card">
+        <div class="plan-head">
+          <h3>Gold Plan</h3>
+          <span class="badge badge-pro">PRO</span>
+        </div>
+        <p class="price"><b>$1000</b></p>
+        <ul class="plan-features">
+          <li>✅ <b>3%</b> weekly</li>
+          <li>✅ Withdraw after <b>15 days</b></li>
+          <li>✅ Faster access</li>
+        </ul>
+        <button
+          class="btn btn-primary pay-btn"
+          type="button"
+          data-name="Gold Plan"
+          data-amount="1000"
+          data-percent="3"
+          data-withdraw="After 15 days"
+          onclick="selectPlan(this)"
+        >
+          Choose Plan
+        </button>
       </div>
+
+      <!-- PLAN 4 -->
+      <div class="plan-card">
+        <div class="plan-head">
+          <h3>VIP Plan</h3>
+          <span class="badge badge-best">BEST</span>
+        </div>
+        <p class="price"><b>$5000+</b></p>
+        <ul class="plan-features">
+          <li>✅ <b>4%</b> weekly</li>
+          <li>✅ Withdraw <b>weekly</b></li>
+          <li>✅ Premium support</li>
+        </ul>
+        <button
+          class="btn btn-primary pay-btn"
+          type="button"
+          data-name="VIP Plan"
+          data-amount="5000"
+          data-percent="4"
+          data-withdraw="Weekly"
+          onclick="selectPlan(this)"
+        >
+          Choose Plan
+        </button>
+      </div>
+
     </div>
-  </section>
 
-  <footer class="footer">
-    <div class="container footer-in">
-      <p class="small">©️ 2026 GoldChain Investment. All rights reserved.</p>
-      <div class="social">
-        <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
-        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
-        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
-      </div>
+    <div style="margin-top:18px;">
+      <button class="btn btn-outline" type="button" onclick="resetPlan()">
+        Clear Selected Plan (Test)
+      </button>
+    </div>
+  </main>
+
+  <footer class="footer" style="margin-top:40px;">
+    <div class="container">
+      <p>&copy; 2026 GoldChain Investment. All rights reserved.</p>
     </div>
   </footer>
 
-  <a class="whatsapp-float" href="https://wa.me/9779851406537" target="_blank" aria-label="WhatsApp Chat">
-    <i class="fab fa-whatsapp"></i>
-  </a>
-
-  <script src="js/main.js"></script>
-
-  <!-- ONLY ONE plan save function (NO duplicates) -->
+  <!-- ✅ ONE SIMPLE SCRIPT -->
   <script>
-    function goPay(btn) {
-      const name = btn.getAttribute("data-plan") || "Plan";
-      const rate = btn.getAttribute("data-rate") || "";
-      const withdraw = btn.getAttribute("data-withdraw") || "";
+    function selectPlan(btn) {
+      const selectedPlan = {
+        name: btn.dataset.name,
+        amount: Number(btn.dataset.amount),
+        percent: Number(btn.dataset.percent),
+        withdraw: btn.dataset.withdraw
+      };
 
-      const m = name.match(/\$([0-9]+)/);
-      const amount = m ? Number(m[1]) : "";
-
-      const selectedPlan = { name, amount, percent: rate, withdraw };
-
+      // Save plan in localStorage (Dashboard reads this)
       localStorage.setItem("selectedPlan", JSON.stringify(selectedPlan));
-window.location.href = "dashboard.html";    }
-  </script>
 
+      // Quick confirmation (remove later if you want)
+      alert("✅ Plan selected: " + selectedPlan.name);
+
+      // Go dashboard (then Pay Now works)
+      window.location.href = "dashboard.html";
+    }
+
+    function resetPlan() {
+      localStorage.removeItem("selectedPlan");
+      alert("✅ selectedPlan cleared");
+    }
+  </script>
 </body>
 </html>
