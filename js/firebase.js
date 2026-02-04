@@ -3,10 +3,12 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/fireba
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
 const firebaseConfig = {
-  apiKey: "PASTE_API_KEY_HERE",
-  authDomain: "PASTE_AUTH_DOMAIN_HERE",
-  projectId: "PASTE_PROJECT_ID_HERE",
-  appId: "PASTE_APP_ID_HERE"
+  apiKey: "AIzaSyBrNIJ-NAMZ1iSnib8zPLDqICBBawL3GRM",
+  authDomain: "goldchain-e5470.firebaseapp.com",
+  projectId: "goldchain-e5470",
+  storageBucket: "goldchain-e5470.firebasestorage.app",
+  messagingSenderId: "614150237166",
+  appId: "1:614150237166:web:c3e9b7f8549a78e5a87cff"
 };
 
 const app = initializeApp(firebaseConfig);
