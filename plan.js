@@ -1,36 +1,32 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const buttons = document.querySelectorAll(".choose-plan");
+// js/plans.js
+console.log("✅ plans.js loaded");
 
-  buttons.forEach((btn) => {
-    btn.addEventListener("click", async () => {
-      // 1) Save selected plan
-      const selectedPlan = {
-        plan: btn.dataset.plan,
-        rate: btn.dataset.rate,
-        withdraw: btn.dataset.withdraw,
-      };
+function saveSelectedPlan(plan) {
+  const raw = JSON.stringify(plan);
+  localStorage.setItem("selectedPlan", raw);
+  sessionStorage.setItem("selectedPlan", raw); // Safari help
+}
 
-      localStorage.setItem("goldchain_selected_plan", JSON.stringify(selectedPlan));
+document.querySelectorAll(".pay-btn").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const plan = {
+      name: btn.dataset.name,
+      amount: Number(btn.dataset.amount),
+      percent: Number(btn.dataset.percent),
+      withdraw: btn.dataset.withdraw,
+    };
 
-      // 2) Set where to go AFTER login
-      localStorage.setItem("goldchain_after_login", "payment.html");
-
-      // 3) If Supabase client exists, check login
-      if (window.sb) {
-        try {
-          const { data } = await window.sb.auth.getUser();
-          if (data?.user) {
-            // already logged in
-            window.location.href = "payment.html";
-            return;
-          }
-        } catch (e) {
-          // ignore and redirect to login
-        }
-      }
-
-      // not logged in
-      window.location.href = "login.html";
-    });
+    saveSelectedPlan(plan);
+    alert(`✅ Plan selected: ${plan.name}`);
+    window.location.href = "dashboard.html";
   });
 });
+
+const resetBtn = document.getElementById("resetPlanBtn");
+if (resetBtn) {
+  resetBtn.addEventListener("click", () => {
+    localStorage.removeItem("selectedPlan");
+    sessionStorage.removeItem("selectedPlan");
+    alert("✅ Selected plan cleared");
+  });
+}
