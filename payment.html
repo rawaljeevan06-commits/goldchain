@@ -18,7 +18,6 @@
       </a>
 
       <nav class="nav">
-        <a href="index.html">Home</a>
         <a href="plans.html" class="active">Plans</a>
         <a href="contact.html">Contact</a>
       </nav>
@@ -44,7 +43,6 @@
       <div class="card" style="margin-top:16px;">
         <h3>Payment Method</h3>
         <p class="small">Logged in as: <b id="payUserEmail"></b></p>
-        <p class="small">Demo flow for now. Later we can connect USDT/BTC/ETH or manual proof upload.</p>
 
         <div style="margin-top:12px; display:grid; gap:10px;">
           <button class="btn btn-primary" id="payNowBtn" type="button">Pay Now (Demo)</button>
@@ -56,7 +54,51 @@
     </div>
   </section>
 
-  <!-- Firebase payment logic -->
-  <script type="module" src="./js/payment.js?v=123"></script>
+  <!-- Firebase logic INLINE (no path/caching issues) -->
+  <script type="module">
+    import { auth } from "./js/firebase.js";
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+    const emailEl = document.getElementById("payUserEmail");
+    const planBox = document.getElementById("selectedPlanBox");
+    const payBtn = document.getElementById("payNowBtn");
+    const payMsg = document.getElementById("payMsg");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    // Protect page
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.replace("login.html");
+        return;
+      }
+      emailEl.textContent = user.email || "(no email)";
+
+      // Load selected plan
+      const raw = localStorage.getItem("selectedPlan");
+      if (!raw) {
+        planBox.innerHTML = '<p class="small">No plan selected. Please go back and choose a plan.</p>';
+        return;
+      }
+      const plan = JSON.parse(raw);
+      planBox.innerHTML = `
+        <h3>${plan.name}</h3>
+        <p class="small"><b>Investment:</b> $${plan.amount}</p>
+        <p class="small"><b>Weekly Return:</b> ${plan.percent}%</p>
+        <p class="small"><b>Withdrawal:</b> ${plan.withdraw}</p>
+      `;
+    });
+
+    // Demo payment
+    payBtn.addEventListener("click", () => {
+      payMsg.textContent = "✅ Demo payment successful.";
+    });
+
+    // Logout
+    logoutBtn.addEventListener("click", async () => {
+      await signOut(auth);
+      window.location.replace("login.html");
+    });
+  </script>
+
 </body>
 </html>
