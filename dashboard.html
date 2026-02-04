@@ -120,7 +120,19 @@
       await signOut(auth);
       window.location.replace("login.html");
     });
-
+// Pay Now from dashboard (only if plan exists)
+const payNowBtn = document.getElementById("payNowBtn");
+if (payNowBtn) {
+  payNowBtn.addEventListener("click", () => {
+    const plan = localStorage.getItem("selectedPlan");
+    if (!plan) {
+      alert("No plan selected. Please choose a plan first.");
+      window.location.href = "plans.html";
+      return;
+    }
+    window.location.href = "payment.html";
+  });
+}
     // Clear Plan
     clearPlanBtn.addEventListener("click", () => {
       localStorage.removeItem("selectedPlan");
