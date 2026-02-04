@@ -3,206 +3,78 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Plans | GoldChain Investment</title>
+  <title>Plans | GoldChain</title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
 
 <body>
   <div class="topbar">GoldChain Investment Plans — Choose what fits you.</div>
 
-  <header class="header">
-    <div class="container header-in">
-      <a class="brand" href="index.html">
-        <img src="images/logo.png" alt="GoldChain Logo">
-        <span>GoldChain</span>
-      </a>
-
-      <nav class="nav">
-        <a href="index.html">Home</a>
-        <a class="active" href="plans.html">Plans</a>
-        <a href="index.html#impact">Our Impact</a>
-        <a href="index.html#faq">FAQ</a>
-        <a href="index.html#contact">Contact</a>
-      </nav>
-
-      <div class="nav-cta">
-        <a class="btn btn-ghost" href="login.html">Login</a>
-        <a class="btn btn-primary" href="signup.html">Sign Up</a>
-      </div>
-    </div>
-  </header>
-
   <main class="container" style="padding:24px 0;">
-    <section class="hero-lite">
-      <h1>Choose Your Plan</h1>
-      <p class="muted">All plans are shown clearly with weekly rate and withdrawal period.</p>
-
-      <div class="reminder-box">
-        <div>
-          <h3 style="margin:0 0 6px;">Reminder</h3>
-          <p class="muted" style="margin:0;">Investment involves risk. Read the plan terms carefully.</p>
-        </div>
-        <a class="btn btn-outline" href="index.html#contact">Ask a Question</a>
-      </div>
-    </section>
-
-    <h2 style="margin:26px 0 14px;">All Plans</h2>
+    <h1>All Plans</h1>
+    <p class="muted">Select a plan to continue to dashboard.</p>
 
     <div class="grid plans">
 
-      <!-- PLAN 1 -->
       <div class="plan-card">
-        <div class="plan-head">
-          <h3>Starter Plan</h3>
-          <span class="badge">MIN</span>
-        </div>
-        <p class="price"><b>$350</b></p>
-        <ul class="plan-features">
-          <li>✅ <b>1.5%</b> weekly</li>
-          <li>✅ Withdraw after <b>45 days</b></li>
-          <li>✅ Beginner friendly</li>
-        </ul>
-        <button
-          class="btn btn-primary pay-btn"
-          type="button"
+        <h3>Starter Plan</h3>
+        <p><b>$350</b> — <b>1.5%</b> weekly</p>
+        <p class="muted">Withdraw after 45 days</p>
+        <button class="btn btn-primary pay-btn"
           data-name="Starter Plan"
           data-amount="350"
           data-percent="1.5"
-          data-withdraw="After 45 days"
-          onclick="selectPlan(this)"
-        >
+          data-withdraw="After 45 days">
           Choose Plan
         </button>
       </div>
 
-      <!-- PLAN 2 -->
       <div class="plan-card">
-        <div class="plan-head">
-          <h3>Growth Plan</h3>
-          <span class="badge badge-hot">HOT</span>
-        </div>
-        <p class="price"><b>$700</b></p>
-        <ul class="plan-features">
-          <li>✅ <b>2%</b> weekly</li>
-          <li>✅ Withdraw after <b>1 month</b></li>
-          <li>✅ Balanced returns</li>
-        </ul>
-        <button
-          class="btn btn-primary pay-btn"
-          type="button"
+        <h3>Growth Plan</h3>
+        <p><b>$700</b> — <b>2%</b> weekly</p>
+        <p class="muted">Withdraw after 1 month</p>
+        <button class="btn btn-primary pay-btn"
           data-name="Growth Plan"
           data-amount="700"
           data-percent="2"
-          data-withdraw="After 1 month"
-          onclick="selectPlan(this)"
-        >
+          data-withdraw="After 1 month">
           Choose Plan
         </button>
       </div>
 
-      <!-- PLAN 3 -->
       <div class="plan-card">
-        <div class="plan-head">
-          <h3>Gold Plan</h3>
-          <span class="badge badge-pro">PRO</span>
-        </div>
-        <p class="price"><b>$1000</b></p>
-        <ul class="plan-features">
-          <li>✅ <b>3%</b> weekly</li>
-          <li>✅ Withdraw after <b>15 days</b></li>
-          <li>✅ Faster access</li>
-        </ul>
-        <button
-          class="btn btn-primary pay-btn"
-          type="button"
+        <h3>Gold Plan</h3>
+        <p><b>$1000</b> — <b>3%</b> weekly</p>
+        <p class="muted">Withdraw after 15 days</p>
+        <button class="btn btn-primary pay-btn"
           data-name="Gold Plan"
           data-amount="1000"
           data-percent="3"
-          data-withdraw="After 15 days"
-          onclick="selectPlan(this)"
-        >
+          data-withdraw="After 15 days">
           Choose Plan
         </button>
       </div>
 
-      <!-- PLAN 4 -->
       <div class="plan-card">
-        <div class="plan-head">
-          <h3>VIP Plan</h3>
-          <span class="badge badge-best">BEST</span>
-        </div>
-        <p class="price"><b>$5000+</b></p>
-        <ul class="plan-features">
-          <li>✅ <b>4%</b> weekly</li>
-          <li>✅ Withdraw <b>weekly</b></li>
-          <li>✅ Premium support</li>
-        </ul>
-        <button
-          class="btn btn-primary pay-btn"
-          type="button"
+        <h3>VIP Plan</h3>
+        <p><b>$5000+</b> — <b>4%</b> weekly</p>
+        <p class="muted">Withdraw weekly</p>
+        <button class="btn btn-primary pay-btn"
           data-name="VIP Plan"
           data-amount="5000"
           data-percent="4"
-          data-withdraw="Weekly"
-          onclick="selectPlan(this)"
-        >
+          data-withdraw="Weekly">
           Choose Plan
         </button>
       </div>
 
     </div>
 
-    <div style="margin-top:18px;">
-      <button class="btn btn-outline" type="button" onclick="resetPlan()">
-        Clear Selected Plan (Test)
-      </button>
+    <div style="margin-top:16px;">
+      <button id="resetPlanBtn" class="btn btn-outline" type="button">Clear Selected Plan</button>
     </div>
   </main>
 
-  <footer class="footer" style="margin-top:40px;">
-    <div class="container">
-      <p>&copy; 2026 GoldChain Investment. All rights reserved.</p>
-    </div>
-  </footer>
-
-  <!-- ✅ ONE SIMPLE SCRIPT -->
-  <script>
-   
-      // Quick confirmation (remove later if you want)
-      alert("✅ Plan selected: " + selectedPlan.name);
-
-    }
-
-    function resetPlan() {
-      localStorage.removeItem("selectedPlan");
-      alert("✅ selectedPlan cleared");
-    }
-   <script>
-  function selectPlan(btn) {
-    const selectedPlan = {
-      name: btn.dataset.name,
-      amount: Number(btn.dataset.amount),
-      percent: Number(btn.dataset.percent),
-      withdraw: btn.dataset.withdraw
-    };
-
-    const value = JSON.stringify(selectedPlan);
-
-    // ✅ Safari-safe storage
-    localStorage.setItem("selectedPlan", value);
-    sessionStorage.setItem("selectedPlan", value);
-
-    // ✅ Delay so Safari commits storage
-    setTimeout(() => {
-      window.location.href = "dashboard.html";
-    }, 300);
-  }
-
-  function resetPlan() {
-    localStorage.removeItem("selectedPlan");
-    sessionStorage.removeItem("selectedPlan");
-    alert("✅ selectedPlan cleared");
-  }
-</script>
+  <script src="js/plans.js"></script>
 </body>
 </html>
