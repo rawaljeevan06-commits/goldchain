@@ -1,3 +1,10 @@
+// js/signup.js
+import { auth } from "./firebase.js";
+import {
+  createUserWithEmailAndPassword,
+  updateProfile,
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
 document.addEventListener("DOMContentLoaded", () => {
   const signupForm = document.getElementById("signupForm");
   const msg = document.getElementById("signupMsg");
@@ -13,28 +20,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const password = document.getElementById("password").value;
 
     try {
-      const { data, error } = await sb.auth.signUp({
-        email,
-        password,
-        options: {
-          data: { name, phone, plan: "basic" },
-        },
-      });
+      // Create user
+      const userCred = await createUserWithEmailAndPassword(auth, email, password);
 
-      if (error) {
-        msg.textContent = "SUPABASE ERROR: " + error.message;
-        msg.style.color = "#ff3b3b";
-        return;
-      }
+      // Set display name (Firebase supports displayName)
+      await updateProfile(userCred.user, { displayName: name });
 
-      // If email confirmation is ON
-      if (!data?.session) {
-        msg.textContent = "Account created ✅ Check your email to confirm.";
-        msg.style.color = "#7CFFB3";
-        return;
-      }
+      // Save extra fields locally (optional)
+      // If you want to store phone + plan in database, we will add Firestore next
+      localStorage.setItem(
+        "goldchain_profile",
+        JSON.stringify({ name, phone, plan: "basic", email })
+      );
 
-      // If email confirmation is OFF
       msg.textContent = "Account created ✅ Redirecting to home...";
       msg.style.color = "#7CFFB3";
 
@@ -43,7 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }, 800);
 
     } catch (err) {
-      msg.textContent = "NETWORK ERROR: " + (err?.message || err);
+      msg.textContent = "ERROR: " + (err?.message || err);
       msg.style.color = "#ff3b3b";
       console.error(err);
     }
