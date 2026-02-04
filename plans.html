@@ -167,28 +167,37 @@
 
   <!-- ✅ ONE SIMPLE SCRIPT -->
   <script>
-    function selectPlan(btn) {
-      const selectedPlan = {
-        name: btn.dataset.name,
-        amount: Number(btn.dataset.amount),
-        percent: Number(btn.dataset.percent),
-        withdraw: btn.dataset.withdraw
-      };
-
-      // Save plan in localStorage (Dashboard reads this)
-      localStorage.setItem("selectedPlan", JSON.stringify(selectedPlan));
-
+   
       // Quick confirmation (remove later if you want)
       alert("✅ Plan selected: " + selectedPlan.name);
 
-      // Go dashboard (then Pay Now works)
-      window.location.href = "dashboard.html";
     }
 
     function resetPlan() {
       localStorage.removeItem("selectedPlan");
       alert("✅ selectedPlan cleared");
     }
+    <script>
+  function selectPlan(btn) {
+    const selectedPlan = {
+      name: btn.dataset.name,
+      amount: Number(btn.dataset.amount),
+      percent: Number(btn.dataset.percent),
+      withdraw: btn.dataset.withdraw
+    };
+
+    const value = JSON.stringify(selectedPlan);
+
+    // ✅ Save in BOTH places (Safari fix)
+    localStorage.setItem("selectedPlan", value);
+    sessionStorage.setItem("selectedPlan", value);
+
+    // ✅ Small delay so Safari commits storage
+    setTimeout(() => {
+      window.location.href = "dashboard.html";
+    }, 300);
+  }
+</script>
   </script>
 </body>
 </html>
