@@ -86,10 +86,14 @@
     <i class="fab fa-whatsapp"></i>
   </a>
 
-  <!-- ✅ Scripts (Correct order) -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/supabaseClient.js"></script>
-  <script src="js/authSupabase.js"></script>
-  <script src="js/main.js"></script>
-</body>
-</html>
+ <!-- Supabase library -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- Create client -->
+<script src="js/supabaseClient.js"></script>
+
+<!-- Signup logic -->
+<script src="js/signup.js"></script>
+
+<!-- Optional: only keep if it’s just UI (menu/scroll), not auth -->
+<script src="js/main.js"></script>
