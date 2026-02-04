@@ -1,32 +1,30 @@
 // js/plans.js
-console.log("✅ plans.js loaded");
 
-function saveSelectedPlan(plan) {
-  const raw = JSON.stringify(plan);
-  localStorage.setItem("selectedPlan", raw);
-  sessionStorage.setItem("selectedPlan", raw); // Safari help
-}
+document.addEventListener("DOMContentLoaded", () => {
+  const buttons = document.querySelectorAll(".pay-btn");
+  const resetBtn = document.getElementById("resetPlanBtn");
 
-document.querySelectorAll(".pay-btn").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    const plan = {
-      name: btn.dataset.name,
-      amount: Number(btn.dataset.amount),
-      percent: Number(btn.dataset.percent),
-      withdraw: btn.dataset.withdraw,
-    };
+  buttons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const plan = {
+        name: btn.dataset.name,
+        amount: btn.dataset.amount,
+        percent: btn.dataset.percent,
+        withdraw: btn.dataset.withdraw,
+      };
 
-    saveSelectedPlan(plan);
-    alert(`✅ Plan selected: ${plan.name}`);
-    window.location.href = "dashboard.html";
+      // ✅ Save ONLY to localStorage (works on Safari + Chrome)
+      localStorage.setItem("selectedPlan", JSON.stringify(plan));
+
+      // ✅ Go dashboard
+      window.location.href = "dashboard.html";
+    });
   });
+
+  if (resetBtn) {
+    resetBtn.addEventListener("click", () => {
+      localStorage.removeItem("selectedPlan");
+      alert("Selected plan cleared");
+    });
+  }
 });
-
-const resetBtn = document.getElementById("resetPlanBtn");
-if (resetBtn) {
-  resetBtn.addEventListener("click", () => {
-    localStorage.removeItem("selectedPlan");
-    sessionStorage.removeItem("selectedPlan");
-    alert("✅ Selected plan cleared");
-  });
-}
