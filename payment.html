@@ -19,13 +19,13 @@
 
       <nav class="nav">
         <a href="index.html">Home</a>
-        <a href="index.html#plans" class="active">Plans</a>
+        <a href="plans.html" class="active">Plans</a>
         <a href="contact.html">Contact</a>
       </nav>
 
       <div class="actions">
-        <a class="btn btn-ghost" href="login.html">Login</a>
-        <a class="btn btn-primary" href="signup.html">Sign Up</a>
+        <a class="btn btn-ghost" href="dashboard.html">Dashboard</a>
+        <button class="btn btn-primary" id="logoutBtn" type="button">Logout</button>
       </div>
     </div>
   </header>
@@ -34,7 +34,7 @@
     <div class="container">
       <div class="section-title">
         <h2>Your Selected Plan</h2>
-        <a href="index.html#plans">Change Plan →</a>
+        <a href="plans.html">Change Plan →</a>
       </div>
 
       <div class="card" id="selectedPlanBox">
@@ -44,34 +44,19 @@
       <div class="card" style="margin-top:16px;">
         <h3>Payment Method</h3>
         <p class="small">Logged in as: <b id="payUserEmail"></b></p>
-        <p class="small">For now this is a demo flow. Next we will connect USDT/BTC/ETH or manual proof upload.</p>
+        <p class="small">Demo flow for now. Later we can connect USDT/BTC/ETH or manual proof upload.</p>
 
         <div style="margin-top:12px; display:grid; gap:10px;">
-         <button class="btn btn-primary" id="payNowBtn">
-  Pay Now (Demo)
-</button>
+          <button class="btn btn-primary" id="payNowBtn" type="button">Pay Now (Demo)</button>
           <a class="btn btn-ghost" href="dashboard.html">Go to Dashboard</a>
         </div>
 
         <p class="small" id="payMsg" style="margin-top:10px;"></p>
       </div>
-
     </div>
   </section>
 
-<!-- Supabase library -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<!-- Supabase library -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<!-- Supabase client (must be after library) -->
-<script src="js/supabaseClient.js"></script>
-
-<!-- Auth logic -->
-<script src="authSupabase.js"></script>
-
-<!-- Payment logic -->
-<script src="payment.js"></script>
+  <!-- Firebase payment logic -->
+  <script type="module" src="js/payment.js"></script>
 </body>
 </html>
