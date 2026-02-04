@@ -8,43 +8,40 @@ const payBtn = document.getElementById("payNowBtn");
 const payMsg = document.getElementById("payMsg");
 const logoutBtn = document.getElementById("logoutBtn");
 
-// 1) Protect payment page (must be logged in)
+// 1) Protect payment page + show user email
 onAuthStateChanged(auth, (user) => {
   if (!user) {
     window.location.replace("login.html");
     return;
   }
+
   emailEl.textContent = user.email || "(no email)";
+  loadPlan(); // load plan AFTER user is confirmed
 });
 
-// 2) Load selected plan (from localStorage)
-function renderPlan() {
-  // You can store this from plans page later:
-  // localStorage.setItem("selectedPlan", JSON.stringify({ name, amount, percent, withdraw }))
+// 2) Load selected plan from localStorage
+function loadPlan() {
   const raw = localStorage.getItem("selectedPlan");
 
   if (!raw) {
-    planBox.innerHTML = `<p class="small">No plan selected yet. Please choose a plan first.</p>`;
+    planBox.innerHTML =
+      `<p class="small">No plan selected. Please go back and choose a plan.</p>`;
     return;
   }
 
-  try {
-    const plan = JSON.parse(raw);
-    planBox.innerHTML = `
-      <h3>${plan.name || "Selected Plan"}</h3>
-      <p class="small"><b>Amount:</b> $${plan.amount || "-"}</p>
-      <p class="small"><b>Return:</b> ${plan.percent || "-"}% weekly</p>
-      <p class="small"><b>Withdraw:</b> ${plan.withdraw || "-"}</p>
-    `;
-  } catch (e) {
-    planBox.innerHTML = `<p class="small">Plan data is corrupted. Please select your plan again.</p>`;
-  }
-}
-renderPlan();
+  const plan = JSON.parse(raw);
 
-// 3) Demo payment button
+  planBox.innerHTML = `
+    <h3>${plan.name}</h3>
+    <p class="small"><b>Investment:</b> $${plan.amount}</p>
+    <p class="small"><b>Weekly Return:</b> ${plan.percent}%</p>
+    <p class="small"><b>Withdrawal:</b> ${plan.withdraw}</p>
+  `;
+}
+
+// 3) Demo payment
 payBtn.addEventListener("click", () => {
-  payMsg.textContent = "✅ Demo payment successful. (Real gateway can be added.)";
+  payMsg.textContent = "✅ Demo payment successful.";
 });
 
 // 4) Logout
