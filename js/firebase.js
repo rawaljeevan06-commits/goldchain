@@ -1,5 +1,6 @@
 // js/firebase.js
-// Firebase init (global)
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBrNIJ-NAMZ1iSnib8zPLDqICBBawL3GRM",
@@ -10,7 +11,5 @@ const firebaseConfig = {
   appId: "1:614150237166:web:c3e9b7f8549a78e5a87cff"
 };
 
-firebase.initializeApp(firebaseConfig);
-window.fbAuth = firebase.auth();
-
-console.log("Firebase ready ✅");
+const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
