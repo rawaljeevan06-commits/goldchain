@@ -152,10 +152,20 @@
     });
   </script>
 <script type="module">
-  import { getStored } from "./js/storage.js";
-
   console.log("✅ dashboard module loaded");
+function getSelectedPlan() {
+  const raw =
+    localStorage.getItem("selectedPlan") ||
+    sessionStorage.getItem("selectedPlan");
 
+  if (!raw) return null;
+
+  try {
+    return JSON.parse(raw);
+  } catch (e) {
+    return raw;
+  }
+}
   const payNowBtn = document.getElementById("payNowBtn");
   console.log("payNowBtn found?", !!payNowBtn);
 
