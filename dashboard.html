@@ -8,7 +8,6 @@
 </head>
 
 <body>
-
   <div class="dash-wrap">
     <header class="dash-top">
       <div>
@@ -31,9 +30,10 @@
         <p class="big">Active ✅</p>
       </div>
 
+      <!-- ✅ PAYMENT STATUS CARD (only ONE) -->
       <div class="card">
         <h3>Payment Status</h3>
-        <p class="muted" id="paymentStatusText">Checking...</p>
+        <p id="paymentStatusText" class="dash-sub">Checking…</p>
       </div>
 
       <div class="card">
@@ -64,69 +64,113 @@
   </div>
 
   <script type="module">
-    console.log("✅ Dashboard loaded");
-
-    const $ = (id) => document.getElementById(id);
-
-    // ---------- PLAN HELPERS (Safari-safe) ----------
-    function loadPlanSafely() {
-      let raw = null;
-      try { raw = localStorage.getItem("selectedPlan"); } catch (e) {}
-      if (!raw) {
-        try { raw = sessionStorage.getItem("selectedPlan"); } catch (e) {}
-      }
-      if (!raw) return null;
-
-      try { return JSON.parse(raw); } catch (e) { return null; }
-    }
-
-    function renderPlan() {
-      const plan = loadPlanSafely();
-      const nameEl = $("dashPlanName");
-      const infoEl = $("dashPlanInfo");
-      const profitEl = $("weeklyProfitValue");
-
-      if (!plan) {
-        nameEl.textContent = "Not selected";
-        infoEl.textContent = "";
-        profitEl.textContent = "$0.00";
-        return;
+    // -----------------------------
+    // Safari-safe init
+    // -----------------------------
+    async function init() {
+      console.log("✅ Dashboard loaded");
+function $(id) {
+  return document.getElementById(id);
+}
+      // --- PLAN CATALOG (used if stored plan is just a string like "Growth - $700")
+      function planFromAmount(amount) {
+        const a = Number(amount) || 0;
+        if (a >= 5000) return { name: "VIP Plan", amount: a, percent: 4, withdraw: "Withdraw weekly" };
+        if (a >= 1000) return { name: "Premium Plan", amount: a, percent: 3, withdraw: "Withdraw after 15 days" };
+        if (a >= 700) return { name: "Growth Plan", amount: a, percent: 2, withdraw: "Withdraw after 1 month" };
+        if (a >= 350) return { name: "Basic Plan", amount: a, percent: 1.5, withdraw: "Withdraw after 45 days" };
+        return null;
       }
 
-      nameEl.textContent = plan.name || "Selected Plan";
-      const amt = plan.amount ?? "";
-      const pct = plan.percent ?? "";
-      const wd = plan.withdraw ?? "";
-      infoEl.textContent = `$${amt} • ${pct}% weekly • ${wd}`;
-    }
+      // ---------- SAFARI-SAFE PLAN GETTER ----------
+      function getPlan() {
+        let raw = null; try {
+          raw = sessionStorage.getItem("selectedPlan") || localStorage.getItem("selectedPlan");
+        } catch (e) {
+          raw = null;
+        }
+        if (!raw) return null;
 
-    // ---------- PAYMENT STATUS ----------
-    function renderPaymentStatus() {
-      const statusEl = $("paymentStatusText");
-      if (!statusEl) return;
+        // Try JSON first
+        try {
+          const obj = JSON.parse(raw);
+          if (obj && typeof obj === "object" && (obj.name || obj.amount)) {
+            // normalize
+            const amount = Number(obj.amount) || 0;
+            const percent = Number(obj.percent) || planFromAmount(amount)?.percent || 0;
+            const withdraw = obj.withdraw || planFromAmount(amount)?.withdraw || "";
+            return { name: obj.name || "Selected Plan", amount, percent, withdraw };
+          }
+        } catch (e) {}
 
-      let proof = null;
-      try { proof = JSON.parse(localStorage.getItem("paymentProof") || "null"); } catch (e) {}
+        // If it's NOT JSON, treat as text like "Growth - $700"
+        const txt = String(raw);
+        const m = txt.match(/(\d+(\.\d+)?)/); // first number
+        const amount = m ? Number(m[1]) : 0;
+        const fallback = planFromAmount(amount);
+        if (fallback) return fallback;
 
-      if (proof && proof.txid) {
-        statusEl.textContent = "⏳ Payment Pending — Waiting for verification";
-      } else {
-        statusEl.textContent = "❌ No payment submitted";
+        // last fallback: show raw text
+        return { name: txt, amount: amount || 0, percent: 0, withdraw: "" };
       }
-    }
 
-    // ---------- BUTTONS ----------
-    const payNowBtn = $("payNowBtn");
-    const clearBtn = $("clearPlanBtn");
-    const calcBtn = $("dashCalcBtn");
-    const logoutBtn = $("logoutBtn");
+      function renderPlan() {
+        const plan = getPlan();
+        const nameEl = document.getElementById("dashPlanName");
+        const infoEl = document.getElementById("dashPlanInfo");
+        const profitEl = document.getElementById("weeklyProfitValue");
 
-    renderPlan();
-    renderPaymentStatus();
+        if (!plan) {
+          nameEl.textContent = "Not selected";
+          infoEl.textContent = "";
+          profitEl.textContent = "$0.00";
+          return;
+        }
 
-    if (payNowBtn) {
-      payNowBtn.addEventListener("click", () => {
-        const plan = loadPlanSafely();
+        nameEl.textContent = plan.name || "Selected Plan";
+        const amountText = plan.amount ? `$${plan.amount}` : "";
+        const percentText = plan.percent ? `${plan.percent}% weekly` : "";
+        const withdrawText = plan.withdraw || "";
+        infoEl.textContent = [amountText, percentText, withdrawText].filter(Boolean).join(" • ");
+      }
+
+      // ---------- PAYMENT STATUS ----------
+      function renderPaymentStatus() {
+        const statusEl = document.getElementById("paymentStatusText");
+        const payBtn = document.getElementById("payNowBtn");
+        const calcBtn = document.getElementById("dashCalcBtn");
+        if (!statusEl) return;
+
+        let proof = null;
+        try { proof = JSON.parse(localStorage.getItem("paymentProof") || "null"); } catch (e) {}
+
+        if (proof && proof.txid) {
+          statusEl.textContent = "⏳ Payment Pending — Waiting for verification";
+          // lock buttons (as you wanted)
+          if (payBtn) payBtn.disabled = true;
+          if (calcBtn) calcBtn.disabled = false;
+        } else {
+          statusEl.textContent = "❌ No payment submitted";
+          if (payBtn) payBtn.disabled = false;
+          if (calcBtn) calcBtn.disabled = false;
+        }
+      }
+
+      // ---------- BUTTONS ----------
+      const payNowBtn = document.getElementById("payNowBtn");
+      const clearBtn = document.getElementById("clearPlanBtn");
+      const calcBtn = document.getElementById("dashCalcBtn");
+      const logoutBtn = document.getElementById("logoutBtn");
+      logoutBtn?.addEventListener("click", () => {
+  alert("Logout button clicked ✅");
+});
+
+      // Render immediately (works even before auth finishes)
+      renderPlan();
+      renderPaymentStatus();
+
+      payNowBtn?.addEventListener("click", () => {
+        const plan = getPlan();
         if (!plan) {
           alert("No plan selected. Please choose a plan first.");
           window.location.href = "plans.html";
@@ -134,22 +178,22 @@
         }
         window.location.href = "payment.html";
       });
-    }
 
-    if (clearBtn) {
-      clearBtn.addEventListener("click", () => {
-        try { localStorage.removeItem("selectedPlan"); } catch (e) {}
-        try { sessionStorage.removeItem("selectedPlan"); } catch (e) {}
+      clearBtn?.addEventListener("click", () => {
+        try {
+          localStorage.removeItem("selectedPlan");
+          sessionStorage.removeItem("selectedPlan");
+          // optional: also clear payment proof
+          // localStorage.removeItem("paymentProof");
+        } catch (e) {}
         renderPlan();
+        renderPaymentStatus();
         alert("Plan cleared");
       });
-    }
 
-    if (calcBtn) {
-      calcBtn.addEventListener("click", () => {
-        const plan = loadPlanSafely();
-        const result = $("dashCalcResult");
-        if (!result) return;
+      calcBtn?.addEventListener("click", () => {
+        const plan = getPlan();
+        const result = document.getElementById("dashCalcResult");
 
         if (!plan) {
           result.style.display = "block";
@@ -157,53 +201,71 @@
           return;
         }
 
-        const amount = Number($("dashAmount")?.value);
+        const amount = Number(document.getElementById("dashAmount").value);
         if (!amount || amount <= 0) {
           result.style.display = "block";
           result.textContent = "Enter a valid amount.";
           return;
         }
 
-        const pct = Number(plan.percent || 0);
-        const profit = (amount * pct) / 100;
-
+        const profit = (amount * Number(plan.percent || 0)) / 100;
         result.style.display = "block";
         result.textContent = `Estimated weekly profit: $${profit.toFixed(2)}`;
-        $("weeklyProfitValue").textContent = `$${profit.toFixed(2)}`;
+        document.getElementById("weeklyProfitValue").textContent = `$${profit.toFixed(2)}`;
       });
+
+      // ---------- FIREBASE AUTH PROTECT ----------
+     // ---------- FIREBASE AUTH PROTECT (SAFE: won't break buttons) ----------
+try {
+  const { auth } = await import("./js/firebase.js");
+  const { onAuthStateChanged, signOut } =
+    await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js");
+
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      window.location.replace("login.html");
+      return;
     }
+    document.getElementById("userEmail").textContent = user.email || "";
+  });
 
-    // ---------- FIREBASE AUTH PROTECT ----------
-    let auth, onAuthStateChanged, signOut;
-
+  logoutBtn.addEventListener("click", async () => {
     try {
-      ({ auth } = await import("./js/firebase.js"));
-      ({ onAuthStateChanged, signOut } =
-        await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js"));
-    } catch (e) {
-      console.log("❌ Firebase import failed:", e);
+      await signOut(auth);
+    } catch (e) {}
+    window.location.replace("login.html");
+  });
+} catch (e) {
+  console.log("Firebase import failed:", e);
+
+  // fallback: still allow logout button to work
+  logoutBtn.addEventListener("click", () => {
+    window.location.replace("login.html");
+  });
+}
+      return;
+        }
+        document.getElementById("userEmail").textContent = user.email || "";
+      });
+
+     logoutBtn?.addEventListener("click", async () => {
+  try {
+    // Try Firebase signout (best)
+    const { auth } = await import("./js/firebase.js");
+    const { signOut } = await import(
+      "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js"
+    );
+    await signOut(auth);
+  } catch (e) {
+    console.log("Firebase logout failed, redirecting anyway:", e);
+  }
+
+  // Always redirect (this guarantees logout works)
+  window.location.href = "login.html";
+});
     }
 
-    if (auth && onAuthStateChanged) {
-      onAuthStateChanged(auth, (user) => {
-        if (!user) {
-          window.location.replace("login.html");
-          return;
-        }
-        $("userEmail").textContent = user.email || "";
-      });
-    }
-
-    if (logoutBtn) {
-      logoutBtn.addEventListener("click", async () => {
-        try {
-          if (auth && signOut) await signOut(auth);
-        } catch (e) {
-          console.log("Logout error:", e);
-        }
-        window.location.href = "login.html";
-      });
-    }
+    init();
   </script>
 
 </body>
