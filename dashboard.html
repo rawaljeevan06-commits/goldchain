@@ -31,7 +31,6 @@
         <p class="big">Active ✅</p>
       </div>
 
-      <!-- ✅ Payment Status card -->
       <div class="card">
         <h3>Payment Status</h3>
         <p class="muted" id="paymentStatusText">Checking…</p>
@@ -82,17 +81,58 @@
     const resultEl  = document.getElementById("dashCalcResult");
 
     // ----------------- SAFE STORAGE -----------------
-    function loadPlanSafely() {
-      let raw = null;
-      try { raw = localStorage.getItem("selectedPlan"); } catch(e) {}
-      if (!raw) { try { raw = sessionStorage.getItem("selectedPlan"); } catch(e) {} }
-      if (!raw) return null;
-      try { return JSON.parse(raw); } catch(e) { return null; }
+    function getStorage(key) {
+      try { return localStorage.getItem(key); } catch(e) { return null; }
+    }
+    function getSession(key) {
+      try { return sessionStorage.getItem(key); } catch(e) { return null; }
     }
 
-    function loadPaymentProof() {
-      let raw = null;
-      try { raw = localStorage.getItem("paymentProof"); } catch(e) {}
+    // Percent rules (fallback)
+    function percentByAmount(amount) {
+      const a = Number(amount) || 0;
+      if (a >= 5000) return 4;
+      if (a >= 1000) return 3;
+      if (a >= 700) return 2;
+      if (a >= 350) return 1.5;
+      return 0;
+    }
+
+    // ✅ Handles BOTH:
+    // 1) JSON stored plan {name, amount, percent, withdraw}
+    // 2) plain string "Basic - $350" or "Growth - $700"
+    function loadPlanSafely() {
+      const raw = getSession("selectedPlan") || getStorage("selectedPlan");
+      if (!raw) return null;
+
+      // Try JSON first
+      try {
+        const obj = JSON.parse(raw);
+        if (obj && typeof obj === "object") {
+          const amount = Number(obj.amount || 0);
+          return {
+            name: obj.name || "Selected Plan",
+            amount,
+            percent: Number(obj.percent || percentByAmount(amount)),
+            withdraw: obj.withdraw || ""
+          };
+        }
+      } catch(e) {}
+
+      // Try parse string
+      // Examples: "Basic - $350" / "Growth Plan - $700"
+      const amtMatch = raw.match(/(\d{2,})/);
+      const amount = amtMatch ? Number(amtMatch[1]) : 0;
+      return {
+        name: raw.replace(/\s+/g, " ").trim(),
+        amount,
+        percent: percentByAmount(amount),
+        withdraw: ""
+      };
+    }
+
+    function loadLocalPaymentProof() {
+      const raw = getStorage("paymentProof");
       if (!raw) return null;
       try { return JSON.parse(raw); } catch(e) { return null; }
     }
@@ -102,110 +142,143 @@
       const plan = loadPlanSafely();
 
       if (!plan) {
-        if (nameEl) nameEl.textContent = "Not selected";
-        if (infoEl) infoEl.textContent = "";
-        if (profitEl) profitEl.textContent = "$0.00";
+        nameEl.textContent = "Not selected";
+        infoEl.textContent = "";
+        profitEl.textContent = "$0.00";
         return;
       }
 
-      if (nameEl) nameEl.textContent = plan.name || "Selected Plan";
-      if (infoEl) infoEl.textContent = `$${plan.amount} • ${plan.percent}% weekly • ${plan.withdraw}`;
+      nameEl.textContent = plan.name || "Selected Plan";
+
+      const withdrawText = plan.withdraw ? ` • ${plan.withdraw}` : "";
+      infoEl.textContent = `$${plan.amount} • ${plan.percent}% weekly${withdrawText}`;
     }
 
-    // ----------------- PAYMENT STATUS -----------------
-    function renderPaymentStatus() {
-      if (!statusEl) return;
+    // ----------------- PAYMENT STATUS (Firestore first) -----------------
+    function setStatus(text) {
+      if (statusEl) statusEl.textContent = text;
+    }
 
-      const proof = loadPaymentProof();
+    async function renderPaymentStatusFromFirestore(user) {
+      // default
+      setStatus("Checking…");
 
+      // 1) Try Firestore (global)
+      try {
+        const { db } = await import("./js/firebase.js");
+        const {
+          collection,
+          query,
+          where,
+          orderBy,
+          limit,
+          getDocs
+        } = await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js");
+
+        const q = query(
+          collection(db, "payments"),
+          where("uid", "==", user.uid),
+          orderBy("createdAt", "desc"),
+          limit(1)
+        );
+
+        const snap = await getDocs(q);
+
+        if (!snap.empty) {
+          const doc = snap.docs[0].data();
+          const st = (doc.status || "").toLowerCase();
+
+          if (st === "verified") {
+            setStatus("✅ Payment Verified — Full access unlocked");
+            return;
+          }
+          if (st === "pending") {
+            setStatus("⏳ Payment Pending — Waiting for verification");
+            return;
+          }
+
+          // Unknown status fallback
+          setStatus(`ℹ️ Payment Status: ${doc.status || "Unknown"}`);
+          return;
+        }
+      } catch (e) {
+        console.log("Firestore payment status failed, fallback to local:", e);
+      }
+
+      // 2) Fallback: localStorage (same device)
+      const proof = loadLocalPaymentProof();
       if (proof && proof.txid) {
-        statusEl.textContent = "⏳ Payment Pending — Waiting for verification";
-
-        // Optional: lock buttons while pending
-        // if (payNowBtn) payNowBtn.disabled = true;
-        // if (calcBtn) calcBtn.disabled = true;
-
+        setStatus("⏳ Payment Pending — Waiting for verification");
       } else {
-        statusEl.textContent = "❌ No payment submitted";
+        setStatus("❌ No payment submitted");
       }
     }
 
     // ----------------- BUTTONS -----------------
-    if (payNowBtn) {
-      payNowBtn.addEventListener("click", () => {
-        const plan = loadPlanSafely();
-        if (!plan) {
-          alert("No plan selected. Please choose a plan first.");
-          window.location.href = "plans.html";
-          return;
-        }
-        window.location.href = "payment.html";
-      });
-    }
+    payNowBtn?.addEventListener("click", () => {
+      const plan = loadPlanSafely();
+      if (!plan) {
+        alert("No plan selected. Please choose a plan first.");
+        window.location.href = "plans.html";
+        return;
+      }
+      window.location.href = "payment.html";
+    });
 
-    if (clearBtn) {
-      clearBtn.addEventListener("click", () => {
-        try { localStorage.removeItem("selectedPlan"); } catch(e) {}
-        try { sessionStorage.removeItem("selectedPlan"); } catch(e) {}
-        renderPlan();
-        alert("Plan cleared");
-      });
-    }
+    clearBtn?.addEventListener("click", () => {
+      try { localStorage.removeItem("selectedPlan"); } catch(e) {}
+      try { sessionStorage.removeItem("selectedPlan"); } catch(e) {}
+      renderPlan();
+      alert("Plan cleared");
+    });
 
-    if (calcBtn) {
-      calcBtn.addEventListener("click", () => {
-        const plan = loadPlanSafely();
+    calcBtn?.addEventListener("click", () => {
+      const plan = loadPlanSafely();
 
-        if (!plan) {
-          if (resultEl) {
-            resultEl.style.display = "block";
-            resultEl.textContent = "Please select a plan first.";
-          }
-          return;
-        }
+      if (!plan) {
+        resultEl.style.display = "block";
+        resultEl.textContent = "Please select a plan first.";
+        return;
+      }
 
-        const amount = Number(document.getElementById("dashAmount").value);
-        if (!amount || amount <= 0) {
-          if (resultEl) {
-            resultEl.style.display = "block";
-            resultEl.textContent = "Enter a valid amount.";
-          }
-          return;
-        }
+      const amount = Number(document.getElementById("dashAmount").value);
+      if (!amount || amount <= 0) {
+        resultEl.style.display = "block";
+        resultEl.textContent = "Enter a valid amount.";
+        return;
+      }
 
-        const profit = (amount * Number(plan.percent)) / 100;
-        if (resultEl) {
-          resultEl.style.display = "block";
-          resultEl.textContent = `Estimated weekly profit: $${profit.toFixed(2)}`;
-        }
-        if (profitEl) profitEl.textContent = `$${profit.toFixed(2)}`;
-      });
-    }
+      const profit = (amount * Number(plan.percent || 0)) / 100;
+      resultEl.style.display = "block";
+      resultEl.textContent = `Estimated weekly profit: $${profit.toFixed(2)}`;
+      profitEl.textContent = `$${profit.toFixed(2)}`;
+    });
 
-    // ----------------- LOGOUT (ALWAYS WORKS) -----------------
-    if (logoutBtn) {
-      // fallback redirect always works
-      logoutBtn.addEventListener("click", () => {
-        window.location.replace("login.html");
-      });
-    }
+    // ----------------- LOGOUT fallback (always works) -----------------
+    logoutBtn?.addEventListener("click", () => {
+      window.location.replace("login.html");
+    });
 
-    // ----------------- FIREBASE AUTH PROTECT (SAFE) -----------------
+    // ----------------- FIREBASE AUTH PROTECT -----------------
     (async () => {
       try {
         const { auth } = await import("./js/firebase.js");
         const { onAuthStateChanged, signOut } =
           await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js");
 
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
           if (!user) {
             window.location.replace("login.html");
             return;
           }
+
           if (emailEl) emailEl.textContent = user.email || "";
+
+          // ✅ Update payment status using Firestore (global)
+          await renderPaymentStatusFromFirestore(user);
         });
 
-        // Replace logout with real signOut
+        // Real signOut
         if (logoutBtn) {
           logoutBtn.onclick = async () => {
             try { await signOut(auth); } catch(e) {}
@@ -214,13 +287,16 @@
         }
       } catch (e) {
         console.log("Firebase import failed:", e);
-        // fallback logout still works
+        // If Firebase fails, we still show local payment status
+        const proof = loadLocalPaymentProof();
+        if (proof && proof.txid) setStatus("⏳ Payment Pending — Waiting for verification");
+        else setStatus("❌ No payment submitted");
       }
     })();
 
     // ----------------- INITIAL RENDER -----------------
     renderPlan();
-    renderPaymentStatus();
+    // Payment status will be updated after auth loads
   </script>
 
 </body>
