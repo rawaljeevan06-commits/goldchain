@@ -1,16 +1,10 @@
 // js/payment.js (MODULE)
 
 import { auth, db } from "./firebase.js";
-import {
-  addDoc,
-  collection,
-  serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { addDoc, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-import {
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-
+// ---------- Helpers ----------
 function loadPlanSafely() {
   let raw = null;
   try { raw = localStorage.getItem("selectedPlan"); } catch (e) {}
@@ -19,25 +13,6 @@ function loadPlanSafely() {
   }
   return raw;
 }
-
-// ✅ PUT YOUR REAL WALLET ADDRESSES HERE
-const WALLETS = {
-  USDT_TRC20: {
-    label: "USDT (TRC20)",
-    networkText: "Network: TRON (TRC20) — send USDT on TRC20 only",
-    address: "TCqayESg8BwzJGFtSydc84NSvxkGHhtyz8"
-  },
-  BTC: {
-    label: "Bitcoin (BTC)",
-    networkText: "Network: Bitcoin (BTC)",
-    address: "13sU6KbrP8x3G4T8STs7ESeqSxM1VF3EyZ"
-  },
-  ETH: {
-    label: "Ethereum (ETH)",
-    networkText: "Network: Ethereum (ERC20)",
-    address: "0x1a803ebbc60b6bbc70dfcbb60cf60099d96717e9"
-  }
-};
 
 function makeQrUrl(text) {
   const encoded = encodeURIComponent(text);
@@ -62,7 +37,27 @@ function fallbackCopy(text) {
   return ok;
 }
 
+// ✅ PUT YOUR REAL WALLET ADDRESSES HERE
+const WALLETS = {
+  USDT_TRC20: {
+    label: "USDT (TRC20)",
+    networkText: "Network: TRON (TRC20) — send USDT on TRC20 only",
+    address: "TCqayESg8BwzJGFtSydc84NSvxkGHhtyz8"
+  },
+  BTC: {
+    label: "Bitcoin (BTC)",
+    networkText: "Network: Bitcoin (BTC)",
+    address: "13sU6KbrP8x3G4T8STs7ESeqSxM1VF3EyZ"
+  },
+  ETH: {
+    label: "Ethereum (ETH)",
+    networkText: "Network: Ethereum (ERC20)",
+    address: "0x1a803ebbc60b6bbc70dfcbb60cf60099d96717e9"
+  }
+};
+
 document.addEventListener("DOMContentLoaded", () => {
+  // ---------- Elements ----------
   const selectedPlanText = document.getElementById("selectedPlanText");
   const payAmount = document.getElementById("payAmount");
   const payNetwork = document.getElementById("payNetwork");
@@ -75,14 +70,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const submitProofBtn = document.getElementById("submitProofBtn");
   const payMsg = document.getElementById("payMsg");
 
-  // ✅ Auth protect payment page
+  // ---------- Auth protect ----------
   onAuthStateChanged(auth, (user) => {
     if (!user) {
       window.location.replace("login.html");
-      return;
     }
   });
 
+  // ---------- Load plan ----------
   const raw = loadPlanSafely();
   if (!raw) {
     alert("No plan selected. Please choose a plan first.");
@@ -90,8 +85,8 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  let plan;
-  try { plan = JSON.parse(raw); } catch (e) { plan = null; }
+  let plan = null;
+  try { plan = JSON.parse(raw); } catch (e) {}
 
   if (!plan || !plan.name || !plan.amount) {
     alert("Selected plan data is invalid. Please reselect your plan.");
@@ -102,6 +97,7 @@ document.addEventListener("DOMContentLoaded", () => {
   selectedPlanText.textContent = `Selected plan: ${plan.name}`;
   payAmount.textContent = `$${plan.amount} USD`;
 
+  // ---------- Render crypto ----------
   function renderCrypto(key) {
     const cfg = WALLETS[key];
     if (!cfg || !cfg.address || cfg.address.includes("PASTE_")) {
@@ -125,6 +121,7 @@ document.addEventListener("DOMContentLoaded", () => {
     payMsg.textContent = "";
   });
 
+  // ---------- Copy address (Safari-safe) ----------
   copyAddrBtn.addEventListener("click", async () => {
     const addr = walletAddress.textContent.trim();
     if (!addr || addr === "—") {
@@ -144,6 +141,7 @@ document.addEventListener("DOMContentLoaded", () => {
     payMsg.textContent = ok ? "✅ Address copied." : "❌ Copy blocked. Please copy manually.";
   });
 
+  // ---------- Submit proof ----------
   submitProofBtn.addEventListener("click", async () => {
     // Safari: permission request must happen inside user click
     if ("Notification" in window && Notification.permission === "default") {
@@ -172,7 +170,12 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const proof = {
+    // Lock button to avoid double clicks
+    submitProofBtn.disabled = true;
+    submitProofBtn.textContent = "Saving...";
+
+    // ✅ Local storage (same device)
+    const localProof = {
       uid: user.uid,
       email: user.email || "",
       planName: plan.name,
@@ -182,16 +185,19 @@ document.addEventListener("DOMContentLoaded", () => {
       txid,
       note,
       status: "pending",
-      createdAt: serverTimestamp()
+      createdAt: new Date().toISOString()
     };
 
-    // keep localStorage too (ok)
-    try { localStorage.setItem("paymentProof", JSON.stringify({ ...proof, createdAt: new Date().toISOString() })); } catch (e) {}
+    try { localStorage.setItem("paymentProof", JSON.stringify(localProof)); } catch (e) {}
 
+    // ✅ Firestore (works on other devices)
     payMsg.textContent = "⏳ Saving payment proof...";
 
     try {
-      await addDoc(collection(db, "payments"), proof);
+      await addDoc(collection(db, "payments"), {
+        ...localProof,
+        createdAt: serverTimestamp()
+      });
 
       payMsg.textContent = "✅ Proof saved. Status: Pending verification.";
 
@@ -204,6 +210,12 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (err) {
       console.error(err);
       payMsg.textContent = "❌ Failed to save to database. Check Firestore rules or internet.";
+      submitProofBtn.disabled = false; // allow retry
+      submitProofBtn.textContent = "I Have Paid";
+      return;
     }
+
+    // Keep disabled after success
+    submitProofBtn.textContent = "Saved ✅";
   });
 });
