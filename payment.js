@@ -40,9 +40,41 @@ function loadPlan() {
   `;
 }
 
-// 3) Demo payment
+// 3) REAL Stripe payment
 payBtn.addEventListener("click", () => {
-  payMsg.textContent = "✅ Demo payment successful.";
+  let raw = null;
+
+  try { raw = localStorage.getItem("selectedPlan"); } catch (e) {}
+  if (!raw) {
+    try { raw = sessionStorage.getItem("selectedPlan"); } catch (e) {}
+  }
+
+  if (!raw) {
+    alert("No plan selected. Please choose a plan first.");
+    window.location.href = "plans.html";
+    return;
+  }
+
+  const plan = JSON.parse(raw);
+
+  // 🔗 Stripe Payment Links (REPLACE with your real ones)
+  const STRIPE_LINKS = {
+    "Basic - $350": "PASTE_STRIPE_LINK_350",
+    "Standard - $700": "PASTE_STRIPE_LINK_700",
+    "Pro - $1000": "PASTE_STRIPE_LINK_1000",
+    "VIP - $5000+": "PASTE_STRIPE_LINK_5000"
+  };
+
+  const paymentLink = STRIPE_LINKS[plan.name];
+
+  if (!paymentLink) {
+    alert("Payment link not found. Please reselect your plan.");
+    window.location.href = "plans.html";
+    return;
+  }
+
+  // 🚀 Redirect to real Stripe checkout
+  window.location.href = paymentLink;
 });
 
 // 4) Logout
