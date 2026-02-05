@@ -94,52 +94,22 @@
     }
 
     async function loadPendingPayments() {
-  // 🔎 Check element exists
-  if (!paymentsBody) {
-    msg.textContent = "❌ ERROR: paymentsBody not found. Check <tbody id='paymentsBody'> in HTML.";
-    return;
-  }
+      paymentsBody.innerHTML = "";
+      msg.textContent = "Loading pending payments…";
 
-  paymentsBody.innerHTML = "";
-  msg.textContent = "Loading pending payments…";
+      const q = query(
+        collection(db, "payments"),
+        where("status", "==", "pending"),
+        orderBy("createdAt", "desc"),
+        limit(50)
+      );
 
-  try {
-    const q = query(
-      collection(db, "payments"),
-      where("status", "==", "pending")
-    );
+      const snap = await getDocs(q);
 
-    const snap = await getDocs(q);
-
-    if (snap.empty) {
-      msg.textContent = "✅ No pending payments.";
-      return;
-    }
-
-    msg.textContent = `Found ${snap.size} pending payment(s).`;
-
-    snap.forEach((docSnap) => {
-      const p = docSnap.data();
-      const tr = document.createElement("tr");
-
-      tr.innerHTML = `
-        <td style="padding:10px;">${p.email || "-"}</td>
-        <td style="padding:10px;">${p.planName || "-"}</td>
-        <td style="padding:10px;">$${p.amount ?? "-"}</td>
-        <td style="padding:10px;">${p.method || "-"}</td>
-        <td style="padding:10px; word-break:break-all;">${p.txid || "-"}</td>
-        <td style="padding:10px;">${p.status || "-"}</td>
-        <td style="padding:10px;">Pending</td>
-      `;
-
-      paymentsBody.appendChild(tr);
-    });
-
-  } catch (err) {
-    console.error(err);
-    msg.textContent = "❌ Firestore error: " + (err?.message || err);
-  }
-}
+      if (snap.empty) {
+        msg.textContent = "✅ No pending payments.";
+        return;
+      }
 
       msg.textContent = `Found ${snap.size} pending payment(s).`;
 
