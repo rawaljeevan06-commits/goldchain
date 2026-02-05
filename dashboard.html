@@ -6,160 +6,29 @@
   <title>Dashboard | GoldChain</title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
-
 <body>
+  <div class="topbar">Welcome to GoldChain Dashboard</div>
 
-  <div class="dash-wrap">
-    <header class="dash-top">
+  <main class="container" style="padding:24px 0;">
+    <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;">
       <div>
-        <h1 class="dash-title">GoldChain Dashboard</h1>
-        <p class="dash-sub">You are successfully logged in ✅</p>
-        <p id="userEmail" class="dash-email"></p>
+        <h1>Dashboard</h1>
+        <p class="small">Logged in as: <b id="dashEmail"></b></p>
       </div>
 
       <div style="display:flex; gap:10px; flex-wrap:wrap;">
-        <button id="logoutBtn" class="btn btn-logout" type="button">Logout</button>
-        <button id="clearPlanBtn" class="btn btn-outline" type="button">Clear Plan</button>
-        <button id="payNowBtn" class="btn btn-primary" type="button">Pay Now</button>
+        <a class="btn btn-ghost" href="plans.html">Plans</a>
+        <button class="btn btn-primary" id="payNowBtn" type="button">Pay Now</button>
+        <button class="btn btn-outline" id="logoutBtn" type="button">Logout</button>
       </div>
-    </header>
-
-    <section class="dash-cards">
-      <div class="card">
-        <h3>Account</h3>
-        <p class="muted">Status</p>
-        <p class="big">Active ✅</p>
-      </div>
-
-      <div class="card">
-        <h3>Plan</h3>
-        <p class="muted">Current plan</p>
-        <p class="big" id="dashPlanName">Not selected</p>
-        <p class="muted" id="dashPlanInfo"></p>
-      </div>
-
-      <div class="card">
-        <h3>Weekly Profit</h3>
-        <p class="muted">Estimated</p>
-        <p class="big" id="weeklyProfitValue">$0.00</p>
-      </div>
-    </section>
-
-    <div class="dash-box">
-      <h2>Profit Calculator</h2>
-      <p class="muted">Enter amount to calculate weekly profit.</p>
-
-      <div class="calc-row">
-        <input type="number" id="dashAmount" placeholder="Enter amount in USD" />
-        <button class="btn btn-primary" id="dashCalcBtn" type="button">Calculate</button>
-      </div>
-
-      <div id="dashCalcResult" class="calc-result" style="display:none;"></div>
     </div>
-  </div>
 
-  <!-- ✅ ONE SCRIPT ONLY (no storage.js here) -->
-  <script type="module">
-    console.log("✅ Dashboard loaded");
+    <div class="card" style="margin-top:16px;">
+      <h3>Your Selected Plan</h3>
+      <div id="currentPlanBox" class="small">Loading…</div>
+    </div>
+  </main>
 
-    // ---------- PLAN HELPERS (Safari-safe) ----------
-    function getPlan() {
-      const raw =
-        sessionStorage.getItem("selectedPlan") ||
-        localStorage.getItem("selectedPlan");
-
-      if (!raw) return null;
-
-      try {
-        return JSON.parse(raw);
-      } catch {
-        return null;
-      }
-    }
-
-    function renderPlan() {
-      const plan = getPlan();
-      const nameEl = document.getElementById("dashPlanName");
-      const infoEl = document.getElementById("dashPlanInfo");
-      const profitEl = document.getElementById("weeklyProfitValue");
-
-      if (!plan) {
-        nameEl.textContent = "Not selected";
-        infoEl.textContent = "";
-        profitEl.textContent = "$0.00";
-        return;
-      }
-
-      nameEl.textContent = plan.name || "Selected Plan";
-      infoEl.textContent = `$${plan.amount} • ${plan.percent}% weekly • ${plan.withdraw}`;
-    }
-
-    // ---------- BUTTONS ----------
-    const payNowBtn = document.getElementById("payNowBtn");
-    const clearBtn = document.getElementById("clearPlanBtn");
-    const calcBtn = document.getElementById("dashCalcBtn");
-    const logoutBtn = document.getElementById("logoutBtn");
-
-    renderPlan();
-
-    payNowBtn.addEventListener("click", () => {
-      const plan = getPlan();
-      if (!plan) {
-        alert("No plan selected. Please choose a plan first.");
-        window.location.href = "plans.html";
-        return;
-      }
-      window.location.href = "payment.html";
-    });
-
-    clearBtn.addEventListener("click", () => {
-      localStorage.removeItem("selectedPlan");
-      sessionStorage.removeItem("selectedPlan");
-      renderPlan();
-      alert("Plan cleared");
-    });
-
-    calcBtn.addEventListener("click", () => {
-      const plan = getPlan();
-      const result = document.getElementById("dashCalcResult");
-
-      if (!plan) {
-        result.style.display = "block";
-        result.textContent = "Please select a plan first.";
-        return;
-      }
-
-      const amount = Number(document.getElementById("dashAmount").value);
-      if (!amount || amount <= 0) {
-        result.style.display = "block";
-        result.textContent = "Enter a valid amount.";
-        return;
-      }
-
-      const profit = (amount * Number(plan.percent)) / 100;
-      result.style.display = "block";
-      result.textContent = `Estimated weekly profit: $${profit.toFixed(2)}`;
-      document.getElementById("weeklyProfitValue").textContent = `$${profit.toFixed(2)}`;
-    });
-
-    // ---------- FIREBASE AUTH PROTECT ----------
-    const { auth } = await import("./js/firebase.js");
-    const { onAuthStateChanged, signOut } =
-      await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js");
-
-    onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        window.location.replace("login.html");
-        return;
-      }
-      document.getElementById("userEmail").textContent = user.email || "";
-    });
-
-    logoutBtn.addEventListener("click", async () => {
-      await signOut(auth);
-      window.location.replace("login.html");
-    });
-  </script>
-
+  <script type="module" src="js/dashboard.js?v=1"></script>
 </body>
 </html>
