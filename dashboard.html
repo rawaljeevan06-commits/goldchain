@@ -161,6 +161,9 @@
       const clearBtn = document.getElementById("clearPlanBtn");
       const calcBtn = document.getElementById("dashCalcBtn");
       const logoutBtn = document.getElementById("logoutBtn");
+      logoutBtn?.addEventListener("click", () => {
+  alert("Logout button clicked ✅");
+});
 
       // Render immediately (works even before auth finishes)
       renderPlan();
