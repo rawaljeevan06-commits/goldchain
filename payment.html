@@ -8,7 +8,7 @@
 </head>
 <body>
 
-  <div class="topbar">Complete your payment to activate your plan.</div>
+  <div class="topbar">Complete your crypto payment to activate your plan.</div>
 
   <header class="header">
     <div class="container header-in">
@@ -18,105 +18,71 @@
       </a>
 
       <nav class="nav">
-        <a href="plans.html" class="active">Plans</a>
+        <a href="plans.html">Plans</a>
         <a href="contact.html">Contact</a>
       </nav>
 
       <div class="actions">
         <a class="btn btn-ghost" href="dashboard.html">Dashboard</a>
-<button class="btn btn-primary" id="payNowBtn" type="button">Pay Now</button>
+      </div>
     </div>
   </header>
 
   <section class="section">
     <div class="container">
-      <div class="section-title">
-        <h2>Your Selected Plan</h2>
-        <a href="plans.html">Change Plan →</a>
-      </div>
 
-      <div class="card" id="selectedPlanBox">
-        <p class="small">Loading your plan…</p>
-      </div>
-
+      <!-- CRYPTO PAYMENT UI (controlled by js/payment.js) -->
       <div class="card" style="margin-top:16px;">
-        <h3>Payment Method</h3>
-        <p class="small">Logged in as: <b id="payUserEmail"></b></p>
+        <h2>Crypto Payment</h2>
 
-        <div style="margin-top:12px; display:grid; gap:10px;">
-          <button class="btn btn-primary" id="payNowBtn" type="button">Pay Now (Demo)</button>
-          <a class="btn btn-ghost" href="dashboard.html">Go to Dashboard</a>
+        <p class="small" id="selectedPlanText">Loading selected plan…</p>
+
+        <label class="small" for="cryptoSelect">Choose crypto</label>
+        <select id="cryptoSelect" class="input" style="margin-top:6px; width:100%;">
+          <option value="USDT_TRC20">USDT (TRC20)</option>
+          <option value="BTC">Bitcoin (BTC)</option>
+          <option value="ETH">Ethereum (ETH)</option>
+        </select>
+
+        <div style="margin-top:12px;">
+          <div class="small">Send exactly:</div>
+          <div id="payAmount" style="font-size:22px;font-weight:700;">—</div>
+          <div class="small" id="payNetwork" style="opacity:.85;">—</div>
+        </div>
+
+        <div style="margin-top:12px;">
+          <div class="small">Wallet address:</div>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:6px;">
+            <code id="walletAddress" style="padding:8px 10px;background:#0b1220;border-radius:8px;color:#d7e7ff;">—</code>
+            <button class="btn btn-ghost" id="copyAddrBtn" type="button">Copy</button>
+          </div>
+        </div>
+
+        <div style="margin-top:12px;">
+          <div class="small">QR Code:</div>
+          <img id="qrImg" style="margin-top:6px;width:180px;height:180px;border-radius:10px;background:#fff;" />
+        </div>
+
+        <hr style="margin:16px 0;opacity:.2;">
+
+        <h3>Submit Payment Proof</h3>
+        <p class="small">After sending crypto, paste your TXID below.</p>
+
+        <input id="txidInput" class="input" placeholder="Paste TXID / Transaction Hash" style="margin-top:6px;width:100%;" />
+        <input id="noteInput" class="input" placeholder="Optional note (email / WhatsApp)" style="margin-top:8px;width:100%;" />
+
+        <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn btn-primary" id="submitProofBtn" type="button">I Have Paid</button>
+          <a class="btn btn-ghost" href="dashboard.html">Back to Dashboard</a>
         </div>
 
         <p class="small" id="payMsg" style="margin-top:10px;"></p>
       </div>
+
     </div>
   </section>
 
-  <script type="module">
-    import { auth } from "./js/firebase.js";
-    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-
-    const emailEl = document.getElementById("payUserEmail");
-    const planBox = document.getElementById("selectedPlanBox");
-    const payBtn = document.getElementById("payNowBtn");
-    const payMsg = document.getElementById("payMsg");
-    const logoutBtn = document.getElementById("logoutBtn");
-
-    onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        window.location.replace("login.html");
-        return;
-      }
-
-      emailEl.textContent = user.email || "(no email)";
-
-      const raw = localStorage.getItem("selectedPlan");
-      if (!raw) {
-        planBox.innerHTML = '<p class="small">No plan selected. Please go back and choose a plan.</p>';
-        return;
-      }
-
-      try {
-        const plan = JSON.parse(raw);
-        planBox.innerHTML = `
-          <h3>${plan.name || ""}</h3>
-          <p class="small"><b>Investment:</b> $${plan.amount ?? ""}</p>
-          <p class="small"><b>Weekly Return:</b> ${plan.percent ?? ""}%</p>
-          <p class="small"><b>Withdrawal:</b> ${plan.withdraw ?? ""}</p>
-        `;
-      } catch (e) {
-        planBox.innerHTML = '<p class="small">Plan data error. Please select your plan again.</p>';
-      }
-    });
-
-    payBtn.addEventListener("click", () => {
-      payMsg.textContent = "✅ Demo payment successful.";
-    });
-
-    logoutBtn.addEventListener("click", async () => {
-      await signOut(auth);
-      window.location.replace("login.html");
-    });
-  </script>
-<script type="module">
-  import { getStored } from "./js/storage.js";
-
-  const plan = getStored("selectedPlan");
-
-  if (!plan) {
-    document.body.innerHTML = `
-      <div style="max-width:520px;margin:60px auto;font-family:Arial;padding:20px;">
-        <h2>Plan not selected</h2>
-        <p>Please select a plan first.</p>
-        <a href="plans.html">Go to Plans</a>
-      </div>
-    `;
-  } else {
-    console.log("✅ Payment page got plan:", plan);
-    const el = document.getElementById("selectedPlanText");
-    if (el) el.textContent = plan;
-  }
-</script>
+  <!-- ONLY ONE SCRIPT -->
+  <script src="js/payment.js"></script>
 </body>
 </html>
