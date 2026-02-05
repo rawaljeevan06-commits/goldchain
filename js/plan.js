@@ -9,12 +9,20 @@ function saveSelectedPlan(plan) {
 
 document.querySelectorAll(".pay-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
-    const plan = {
-      name: btn.dataset.name,
-      amount: Number(btn.dataset.amount),
-      percent: Number(btn.dataset.percent),
-      withdraw: btn.dataset.withdraw,
-    };
+   const plan = {
+  name: btn.dataset.name,
+  amount: Number(btn.dataset.amount),
+  percent: Number(btn.dataset.percent),
+  withdraw: btn.dataset.withdraw,
+};
+
+const raw = JSON.stringify(plan);
+
+localStorage.setItem("selectedPlan", raw);
+sessionStorage.setItem("selectedPlan", raw);
+
+alert(`✅ Plan selected: ${plan.name}`);
+window.location.href = "dashboard.html";
 
     saveSelectedPlan(plan);
 
