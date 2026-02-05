@@ -227,14 +227,21 @@
         document.getElementById("userEmail").textContent = user.email || "";
       });
 
-      logoutBtn?.addEventListener("click", async () => {
-        try {
-          await signOut(auth);
-        } catch (e) {
-          console.log("Logout error:", e);
-        }
-        window.location.replace("login.html");
-      });
+     logoutBtn?.addEventListener("click", async () => {
+  try {
+    // Try Firebase signout (best)
+    const { auth } = await import("./js/firebase.js");
+    const { signOut } = await import(
+      "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js"
+    );
+    await signOut(auth);
+  } catch (e) {
+    console.log("Firebase logout failed, redirecting anyway:", e);
+  }
+
+  // Always redirect (this guarantees logout works)
+  window.location.href = "login.html";
+});
     }
 
     init();
