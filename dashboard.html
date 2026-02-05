@@ -65,8 +65,22 @@
 
   <script type="module">
     import { auth } from "./js/firebase.js";
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    const ADMIN_UIDS = ["40B1eYKROIXFAZLpelBhjjFTDm72"];
 
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    window.location.replace("login.html");
+    return;
+  }
+
+  if (ADMIN_UIDS.includes(user.uid)) {
+    window.location.replace("admin.html");
+    return;
+  }
+
+  // normal user continues here
+});
 onAuthStateChanged(auth, (user) => {
   if (user) {
     alert("Your UID is:\n" + user.uid);
