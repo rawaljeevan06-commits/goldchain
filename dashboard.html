@@ -151,6 +151,30 @@
       location.href = "login.html";
     });
   </script>
+<script type="module">
+  import { getStored } from "./js/storage.js";
 
+  console.log("✅ dashboard module loaded");
+
+  const payNowBtn = document.getElementById("payNowBtn");
+  console.log("payNowBtn found?", !!payNowBtn);
+
+  if (payNowBtn) {
+    payNowBtn.addEventListener("click", () => {
+      console.log("✅ Pay Now clicked");
+
+      const plan = getStored("selectedPlan");
+      console.log("selectedPlan =", plan);
+
+      if (!plan) {
+        alert("No plan selected. Please choose a plan first.");
+        window.location.href = "plans.html";
+        return;
+      }
+
+      window.location.href = "payment.html";
+    });
+  }
+</script>
 </body>
 </html>
