@@ -150,40 +150,46 @@
       await signOut(auth);
       location.href = "login.html";
     });
-  </script>
-<script type="module">
-  console.log("✅ dashboard module loaded");
-function getSelectedPlan() {
-  const raw =
-    localStorage.getItem("selectedPlan") ||
-    sessionStorage.getItem("selectedPlan");
+ <script>
+  console.log("✅ Dashboard script loaded");
 
-  if (!raw) return null;
+  function getSelectedPlan() {
+    const raw =
+      sessionStorage.getItem("selectedPlan") ||
+      localStorage.getItem("selectedPlan");
 
-  try {
-    return JSON.parse(raw);
-  } catch (e) {
-    return raw;
+    if (!raw) return null;
+
+    try {
+      return JSON.parse(raw);
+    } catch (e) {
+      return raw;
+    }
   }
-}
-  const payNowBtn = document.getElementById("payNowBtn");
-  console.log("payNowBtn found?", !!payNowBtn);
 
-  if (payNowBtn) {
-    payNowBtn.addEventListener("click", () => {
-      console.log("✅ Pay Now clicked");
+  document.addEventListener("DOMContentLoaded", () => {
+    const payNowBtn = document.getElementById("payNowBtn");
 
-     const plan = getSelectedPlan();
-console.log("selectedPlan =", plan);
-      if (!plan) {
-        alert("No plan selected. Please choose a plan first.");
-        window.location.href = "plans.html";
-        return;
-      }
+    const plan = getSelectedPlan();
+    console.log("📦 Dashboard plan =", plan);
 
-      window.location.href = "payment.html";
-    });
-  }
+    // ❌ DO NOT show popup on page load
+    // Only check when user clicks
+
+    if (payNowBtn) {
+      payNowBtn.addEventListener("click", () => {
+        const p = getSelectedPlan();
+
+        if (!p) {
+          alert("No plan selected. Please choose a plan first.");
+          window.location.href = "plans.html";
+          return;
+        }
+
+        window.location.href = "payment.html";
+      });
+    }
+  });
 </script>
 </body>
 </html>
