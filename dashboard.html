@@ -15,6 +15,7 @@
         <h1 class="dash-title">GoldChain Dashboard</h1>
         <p class="dash-sub">You are successfully logged in ✅</p>
         <p id="userEmail" class="dash-email"></p>
+        <p class="dash-sub" id="paymentStatusText" style="margin-top:6px;"></p>
         <div class="card" id="paymentStatusBox" style="margin-top:10px;">
   <p class="muted">Payment Status</p>
   <p class="big" id="paymentStatusText">Checking…</p>
@@ -64,6 +65,45 @@
   <!-- ✅ IMPORTANT: JS MUST BE INSIDE SCRIPT TAG -->
   <script type="module">
     console.log("✅ Dashboard loaded");
+    // ---------- PAYMENT STATUS + LOCK ----------
+function getPaymentStatus() {
+  try {
+    return localStorage.getItem("paymentStatus") || "none";
+  } catch (e) {
+    return "none";
+  }
+}
+
+function renderPaymentStatus() {
+  const el = document.getElementById("paymentStatusText");
+  if (!el) return;
+
+  const status = getPaymentStatus();
+
+  if (status === "verified") {
+    el.textContent = "✅ Payment Verified — Full access unlocked";
+  } else if (status === "pending") {
+    el.textContent = "⏳ Payment Pending — Waiting for verification";
+  } else {
+    el.textContent = "❌ Not Paid — Please submit payment proof";
+  }
+
+  // Lock buttons until verified
+  const locked = document.querySelectorAll(".requires-payment");
+  if (status !== "verified") {
+    locked.forEach((btn) => {
+      btn.disabled = true;
+      btn.style.opacity = "0.55";
+      btn.title = "Locked until payment is verified";
+    });
+  } else {
+    locked.forEach((btn) => {
+      btn.disabled = false;
+      btn.style.opacity = "1";
+      btn.title = "";
+    });
+  }
+}
 
     // ---------- PLAN HELPERS ----------
     function getPlan() {
@@ -95,6 +135,7 @@
     }
 
     renderPlan();
+    renderPaymentStatus();
 
     // ---------- BUTTONS ----------
     document.getElementById("payNowBtn").addEventListener("click", () => {
