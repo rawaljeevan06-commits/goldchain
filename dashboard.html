@@ -176,5 +176,33 @@
     });
   }
 </script>
+  <script>
+  // Safari-safe plan reader (localStorage + sessionStorage fallback)
+  function loadPlanSafely() {
+    let raw = null;
+    try { raw = localStorage.getItem("selectedPlan"); } catch (e) {}
+    if (!raw) {
+      try { raw = sessionStorage.getItem("selectedPlan"); } catch (e) {}
+    }
+    return raw;
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const payNowBtn = document.getElementById("payNowBtn"); // your Pay Now button id
+    if (!payNowBtn) return;
+
+    payNowBtn.addEventListener("click", () => {
+      const plan = loadPlanSafely();
+
+      if (!plan) {
+        alert("No plan selected. Please choose a plan first.");
+        window.location.href = "plans.html";
+        return; // ✅ critical
+      }
+
+      window.location.href = "payment.html";
+    });
+  });
+</script>
 </body>
 </html>
