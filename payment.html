@@ -24,7 +24,9 @@
 
       <div class="actions">
         <a class="btn btn-ghost" href="dashboard.html">Dashboard</a>
-<button class="btn btn-primary" id="payNowBtn" type="button">Pay Now</button>
+        <!-- (Optional) If you want a top button, give it a DIFFERENT id -->
+        <button class="btn btn-primary" id="payTopBtn" type="button">Pay Now</button>
+      </div>
     </div>
   </header>
 
@@ -44,10 +46,11 @@
         <p class="small">Logged in as: <b id="payUserEmail"></b></p>
 
         <div style="margin-top:12px; display:grid; gap:10px;">
-          <button class="btn btn-primary" id="payNowBtn" type="button">Pay Now (Demo)</button>
+          <!-- ONLY ONE MAIN PAY BUTTON -->
+          <button class="btn btn-primary" id="payDemoBtn" type="button">Pay Now (Demo)</button>
           <a class="btn btn-ghost" href="dashboard.html">Go to Dashboard</a>
         </div>
-<p>Selected Plan: <b id="selectedPlanText"></b></p>
+
         <p class="small" id="payMsg" style="margin-top:10px;"></p>
       </div>
     </div>
@@ -55,13 +58,69 @@
 
   <script type="module">
     import { auth } from "./js/firebase.js";
-    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+    // Optional: If you still want to use storage helper, try it safely
+    let getStoredSafe = null;
+    try {
+      const mod = await import("./js/storage.js");
+      getStoredSafe = mod.getStored;
+    } catch (e) {
+      getStoredSafe = null;
+    }
 
     const emailEl = document.getElementById("payUserEmail");
     const planBox = document.getElementById("selectedPlanBox");
-    const payBtn = document.getElementById("payNowBtn");
+    const payBtn = document.getElementById("payDemoBtn");
     const payMsg = document.getElementById("payMsg");
-    const logoutBtn = document.getElementById("logoutBtn");
+    const payTopBtn = document.getElementById("payTopBtn");
+
+    function getPlanFlexible() {
+      // 1) Prefer localStorage JSON (new system)
+      const raw = localStorage.getItem("selectedPlan");
+      if (raw) {
+        try {
+          const obj = JSON.parse(raw);
+          if (obj && typeof obj === "object") return obj;
+        } catch (e) {
+          // raw might be a plain string in old system
+        }
+        // If raw is plain string, return as legacy
+        return { name: raw, amount: "", percent: "", withdraw: "" };
+      }
+
+      // 2) Fallback: storage.js (if you used it before)
+      if (getStoredSafe) {
+        const val = getStoredSafe("selectedPlan");
+        if (val) return { name: val, amount: "", percent: "", withdraw: "" };
+      }
+
+      return null;
+    }
+
+    function renderPlan(plan) {
+      if (!plan) {
+        planBox.innerHTML = '<p class="small">No plan selected. Please go back and choose a plan.</p>';
+        if (payBtn) payBtn.disabled = true;
+        if (payTopBtn) payTopBtn.disabled = true;
+        return;
+      }
+
+      planBox.innerHTML = `
+        <h3>${plan.name || ""}</h3>
+        ${plan.amount ? `<p class="small"><b>Investment:</b> $${plan.amount}</p>` : ""}
+        ${plan.percent ? `<p class="small"><b>Weekly Return:</b> ${plan.percent}%</p>` : ""}
+        ${plan.withdraw ? `<p class="small"><b>Withdrawal:</b> ${plan.withdraw}</p>` : ""}
+      `;
+    }
+
+    function demoPay() {
+      payMsg.textContent = "✅ Demo payment successful.";
+    }
+
+    // Bind buttons once
+    if (payBtn) payBtn.addEventListener("click", demoPay);
+    if (payTopBtn) payTopBtn.addEventListener("click", demoPay);
 
     onAuthStateChanged(auth, (user) => {
       if (!user) {
@@ -70,53 +129,10 @@
       }
 
       emailEl.textContent = user.email || "(no email)";
-
-      const raw = localStorage.getItem("selectedPlan");
-      if (!raw) {
-        planBox.innerHTML = '<p class="small">No plan selected. Please go back and choose a plan.</p>';
-        return;
-      }
-
-      try {
-        const plan = JSON.parse(raw);
-        planBox.innerHTML = `
-          <h3>${plan.name || ""}</h3>
-          <p class="small"><b>Investment:</b> $${plan.amount ?? ""}</p>
-          <p class="small"><b>Weekly Return:</b> ${plan.percent ?? ""}%</p>
-          <p class="small"><b>Withdrawal:</b> ${plan.withdraw ?? ""}</p>
-        `;
-      } catch (e) {
-        planBox.innerHTML = '<p class="small">Plan data error. Please select your plan again.</p>';
-      }
-    });
-
-    payBtn.addEventListener("click", () => {
-      payMsg.textContent = "✅ Demo payment successful.";
-    });
-
-    logoutBtn.addEventListener("click", async () => {
-      await signOut(auth);
-      window.location.replace("login.html");
+      const plan = getPlanFlexible();
+      renderPlan(plan);
     });
   </script>
-<script type="module">
-  import { getStored } from "./js/storage.js";
 
-  const plan = getStored("selectedPlan");
-
-  if (!plan) {
-    document.body.innerHTML = `
-      <div style="max-width:520px;margin:60px auto;font-family:Arial;padding:20px;">
-        <h2>Plan not selected</h2>
-        <p>Please select a plan first.</p>
-        <a href="plans.html">Go to Plans</a>
-      </div>
-    `;
-  } else {
-    console.log("✅ Payment page got plan:", plan);
-    const el = document.getElementById("selectedPlanText");
-    if (el) el.textContent = plan;
-  }
-</script>
 </body>
 </html>
