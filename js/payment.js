@@ -32,10 +32,6 @@ function makeQrUrl(text) {
   const encoded = encodeURIComponent(text);
   return `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encoded}`;
 }
-// Ask notification permission (once)
-if ("Notification" in window && Notification.permission === "default") {
-  Notification.requestPermission();
-}
 document.addEventListener("DOMContentLoaded", () => {
   const selectedPlanText = document.getElementById("selectedPlanText");
   const payAmount = document.getElementById("payAmount");
@@ -48,7 +44,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const noteInput = document.getElementById("noteInput");
   const submitProofBtn = document.getElementById("submitProofBtn");
   const payMsg = document.getElementById("payMsg");
-
   const raw = loadPlanSafely();
   if (!raw) {
     alert("No plan selected. Please choose a plan first.");
@@ -138,10 +133,9 @@ copyAddrBtn.addEventListener("click", async () => {
 });
 
   submitProofBtn.addEventListener("click", () => {
-    alert(
-  "Safari Notification permission = " +
-  (("Notification" in window) ? Notification.permission : "not supported")
-);
+if ("Notification" in window && Notification.permission === "default") {
+  Notification.requestPermission();
+}
     const method = cryptoSelect.value;
     const cfg = WALLETS[method];
     const txid = (txidInput.value || "").trim();
