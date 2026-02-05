@@ -148,7 +148,7 @@
           statusEl.textContent = "⏳ Payment Pending — Waiting for verification";
           // lock buttons (as you wanted)
           if (payBtn) payBtn.disabled = true;
-          if (calcBtn) calcBtn.disabled = true;
+          if (calcBtn) calcBtn.disabled = false;
         } else {
           statusEl.textContent = "❌ No payment submitted";
           if (payBtn) payBtn.disabled = false;
