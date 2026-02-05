@@ -163,6 +163,44 @@ function $(id) {
       const logoutBtn = document.getElementById("logoutBtn");
       logoutBtn?.addEventListener("click", () => {
   alert("Logout button clicked ✅");
+        // ---------- FIREBASE AUTH PROTECT (SAFE: won't break buttons) ----------
+const userEmailEl = document.getElementById("userEmail");
+
+if (logoutBtn) {
+  // Always keep logout clickable even if Firebase fails
+  logoutBtn.addEventListener("click", () => {
+    window.location.replace("login.html");
+  });
+}
+
+(async () => {
+  try {
+    const { auth } = await import("./js/firebase.js");
+    const { onAuthStateChanged, signOut } =
+      await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js");
+
+    // Protect dashboard
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.replace("login.html");
+        return;
+      }
+      if (userEmailEl) userEmailEl.textContent = user.email || "";
+    });
+
+    // Replace logout behavior with real Firebase signOut
+    if (logoutBtn) {
+      logoutBtn.onclick = async () => {
+        try { await signOut(auth); } catch (e) {}
+        window.location.replace("login.html");
+      };
+    }
+
+  } catch (e) {
+    console.log("Firebase import failed:", e);
+    // fallback already set above (redirect)
+  }
+})();
 });
 
       // Render immediately (works even before auth finishes)
