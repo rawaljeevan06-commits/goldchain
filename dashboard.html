@@ -163,9 +163,8 @@
     payNowBtn.addEventListener("click", () => {
       console.log("✅ Pay Now clicked");
 
-      const plan = getStored("selectedPlan");
-      console.log("selectedPlan =", plan);
-
+     const plan = getSelectedPlan();
+console.log("selectedPlan =", plan);
       if (!plan) {
         alert("No plan selected. Please choose a plan first.");
         window.location.href = "plans.html";
