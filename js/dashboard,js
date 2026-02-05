@@ -1,0 +1,68 @@
+import { auth } from "./firebase.js";
+import {
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+console.log("✅ dashboard.js loaded");
+
+const PLAN_KEY = "selectedPlan";
+
+function getSelectedPlan() {
+  const raw =
+    sessionStorage.getItem(PLAN_KEY) ||
+    localStorage.getItem(PLAN_KEY);
+
+  if (!raw) return null;
+
+  try { return JSON.parse(raw); } catch (e) { return raw; }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const emailEl = document.getElementById("dashEmail");
+  const planBox = document.getElementById("currentPlanBox");
+  const payNowBtn = document.getElementById("payNowBtn");
+  const logoutBtn = document.getElementById("logoutBtn");
+
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      window.location.replace("login.html");
+      return;
+    }
+
+    emailEl.textContent = user.email || "(no email)";
+
+    const plan = getSelectedPlan();
+    if (!plan) {
+      planBox.innerHTML = `No plan selected. <a href="plans.html">Choose a plan</a>`;
+    } else if (typeof plan === "string") {
+      planBox.textContent = plan;
+    } else {
+      planBox.innerHTML = `
+        <b>${plan.name}</b><br>
+        Investment: $${plan.amount}<br>
+        Weekly Return: ${plan.percent}%<br>
+        Withdrawal: ${plan.withdraw}
+      `;
+    }
+  });
+
+  if (payNowBtn) {
+    payNowBtn.addEventListener("click", () => {
+      const plan = getSelectedPlan();
+      if (!plan) {
+        alert("No plan selected. Please choose a plan first.");
+        window.location.href = "plans.html";
+        return;
+      }
+      window.location.href = "payment.html";
+    });
+  }
+
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", async () => {
+      await signOut(auth);
+      window.location.replace("login.html");
+    });
+  }
+});
