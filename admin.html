@@ -1,4 +1,99 @@
-async function loadPendingPayments() {
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin | Payments</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <div class="topbar">Admin Panel — Payment Verification</div>
+
+  <header class="header">
+    <div class="container header-in">
+      <a class="brand" href="index.html">
+        <img src="images/logo.png" alt="GoldChain Logo">
+        <span>GoldChain</span>
+      </a>
+
+      <nav class="nav">
+        <a href="dashboard.html">Dashboard</a>
+      </nav>
+
+      <div class="actions">
+        <button id="refreshBtn" class="btn btn-outline" type="button">Refresh</button>
+        <button id="logoutBtn" class="btn btn-logout" type="button">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <section class="section">
+    <div class="container">
+      <div class="card">
+        <h2>Pending Payments</h2>
+        <p class="small" id="adminInfo">Checking admin access…</p>
+
+        <div style="overflow:auto; margin-top:12px;">
+          <table style="width:100%; border-collapse:collapse; min-width:900px;">
+            <thead>
+              <tr style="text-align:left; border-bottom:1px solid rgba(255,255,255,.15);">
+                <th style="padding:10px;">Time</th>
+                <th style="padding:10px;">User</th>
+                <th style="padding:10px;">Plan</th>
+                <th style="padding:10px;">Amount</th>
+                <th style="padding:10px;">Method</th>
+                <th style="padding:10px;">TXID</th>
+                <th style="padding:10px;">Status</th>
+                <th style="padding:10px;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="paymentsBody"></tbody>
+          </table>
+        </div>
+
+        <p class="small" id="msg" style="margin-top:10px;"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ✅ ONLY ONE SCRIPT -->
+  <script type="module">
+    import { auth, db } from "./js/firebase.js";
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import {
+      collection, query, where, orderBy, limit, getDocs,
+      doc, updateDoc, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    // ✅ Put your ADMIN UID(s) here
+    const ADMIN_UIDS = [
+      "40B1eYKROIXFAZLpelBhjjFTDm72"
+    ];
+
+    const adminInfo  = document.getElementById("adminInfo");
+    const paymentsBody = document.getElementById("paymentsBody");
+    const msg        = document.getElementById("msg");
+    const refreshBtn = document.getElementById("refreshBtn");
+    const logoutBtn  = document.getElementById("logoutBtn");
+
+    function esc(s) {
+      return String(s ?? "").replace(/[&<>"']/g, (c) => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+      }[c]));
+    }
+
+    function formatTime(ts) {
+      try {
+        if (!ts) return "";
+        if (typeof ts.toDate === "function") return ts.toDate().toLocaleString();
+        return new Date(ts).toLocaleString();
+      } catch {
+        return "";
+      }
+    }
+
+    async function loadPendingPayments() {
   // 🔎 Check element exists
   if (!paymentsBody) {
     msg.textContent = "❌ ERROR: paymentsBody not found. Check <tbody id='paymentsBody'> in HTML.";
@@ -45,3 +140,90 @@ async function loadPendingPayments() {
     msg.textContent = "❌ Firestore error: " + (err?.message || err);
   }
 }
+
+      msg.textContent = `Found ${snap.size} pending payment(s).`;
+
+      snap.forEach((docSnap) => {
+        const p = docSnap.data();
+        const id = docSnap.id;
+
+        const tr = document.createElement("tr");
+        tr.style.borderBottom = "1px solid rgba(255,255,255,.08)";
+
+        tr.innerHTML = `
+          <td style="padding:10px;">${esc(formatTime(p.createdAt))}</td>
+          <td style="padding:10px;">${esc(p.email || p.uid || "-")}</td>
+          <td style="padding:10px;">${esc(p.planName || "-")}</td>
+          <td style="padding:10px;">$${esc(p.amount ?? "-")}</td>
+          <td style="padding:10px;">${esc(p.method || "-")}</td>
+          <td style="padding:10px; max-width:260px; word-break:break-all;">${esc(p.txid || "-")}</td>
+          <td style="padding:10px;">${esc(p.status || "-")}</td>
+          <td style="padding:10px; display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn btn-primary" data-act="approve" data-id="${esc(id)}" type="button">Approve</button>
+            <button class="btn btn-outline" data-act="reject" data-id="${esc(id)}" type="button">Reject</button>
+          </td>
+        `;
+        paymentsBody.appendChild(tr);
+      });
+    }
+
+    async function setStatus(paymentId, status) {
+      await updateDoc(doc(db, "payments", paymentId), {
+        status,
+        verifiedAt: serverTimestamp()
+      });
+    }
+
+    paymentsBody.addEventListener("click", async (e) => {
+      const btn = e.target.closest("button[data-act]");
+      if (!btn) return;
+
+      const act = btn.getAttribute("data-act");
+      const id  = btn.getAttribute("data-id");
+      if (!id) return;
+
+      btn.disabled = true;
+      msg.textContent = "Updating…";
+
+      try {
+        if (act === "approve") await setStatus(id, "verified");
+        if (act === "reject")  await setStatus(id, "rejected");
+
+        msg.textContent = "✅ Updated.";
+        await loadPendingPayments();
+      } catch (err) {
+        console.error(err);
+        msg.textContent = "❌ Update failed. Check Firestore rules (admin read/write).";
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    refreshBtn.addEventListener("click", async () => {
+      try { await loadPendingPayments(); } catch(e) {}
+    });
+
+    logoutBtn.addEventListener("click", async () => {
+      try { await signOut(auth); } catch(e) {}
+      window.location.replace("login.html");
+    });
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.replace("login.html");
+        return;
+      }
+
+      if (!ADMIN_UIDS.includes(user.uid)) {
+        adminInfo.textContent = "❌ Access denied (not admin).";
+        window.location.replace("dashboard.html");
+        return;
+      }
+
+      adminInfo.textContent = `✅ Admin: ${user.email || user.uid}`;
+      await loadPendingPayments();
+    });
+  </script>
+
+</body>
+</html>
