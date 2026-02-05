@@ -196,8 +196,10 @@
   </script>
   <script type="module">
   import { auth, db } from "./js/firebase.js";
-  import { onAuthStateChanged } from
-    "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+  import {
+    onAuthStateChanged
+  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
   import {
     collection,
     query,
@@ -206,63 +208,70 @@
     getDocs
   } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-  // ✅ YOUR ADMIN UID (correct one)
-  const ADMIN_UIDS = ["40B1eYKROIXFAZLpelBhjjFTDm72"];
+  const ADMIN_UIDS = [
+    "40B1eYKROIXFAZLpelBhjjFTDm72" // ✅ YOUR ADMIN UID
+  ];
 
-  const statusMsg = document.getElementById("adminInfo");
-  const tableBody = document.getElementById("rows");
+  const statusMsg = document.getElementById("statusMsg");
+  const tableBody = document.getElementById("paymentsBody");
+
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      window.location.replace("login.html");
+      return;
+    }
+
+    if (!ADMIN_UIDS.includes(user.uid)) {
+      document.body.innerHTML = "<h2>❌ Access denied (not admin)</h2>";
+      return;
+    }
+
+    loadPendingPayments();
+  });
 
   async function loadPendingPayments() {
     statusMsg.textContent = "Loading pending payments…";
     tableBody.innerHTML = "";
 
-    const q = query(
-      collection(db, "payments"),
-      where("status", "==", "pending"),
-      orderBy("createdAt", "desc")
-    );
+    try {
+      const q = query(
+        collection(db, "payments"),
+        where("status", "==", "pending"),
+        orderBy("createdAt", "desc")
+      );
 
-    const snap = await getDocs(q);
+      const snap = await getDocs(q);
 
-    if (snap.empty) {
-      statusMsg.textContent = "No pending payments.";
-      return;
+      if (snap.empty) {
+        statusMsg.textContent = "No pending payments.";
+        return;
+      }
+
+      statusMsg.textContent = "";
+
+      snap.forEach(doc => {
+        const p = doc.data();
+
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${p.email || "-"}</td>
+          <td>${p.planName}</td>
+          <td>$${p.amount}</td>
+          <td>${p.method}</td>
+          <td>${p.txid}</td>
+          <td>${p.status}</td>
+          <td>
+            <button class="btn-approve" data-id="${doc.id}">Approve</button>
+          </td>
+        `;
+        tableBody.appendChild(row);
+      });
+
+    } catch (e) {
+      console.error(e);
+      statusMsg.textContent = "❌ Failed to load payments";
     }
-
-    statusMsg.textContent = "";
-
-    snap.forEach(doc => {
-      const p = doc.data();
-      const tr = document.createElement("tr");
-
-      tr.innerHTML = `
-        <td>${p.email || "-"}</td>
-        <td>${p.planName || "-"}</td>
-        <td>$${p.amount || "-"}</td>
-        <td>${p.method || "-"}</td>
-        <td>${p.txid || "-"}</td>
-        <td>${p.status}</td>
-        <td>Pending</td>
-      `;
-
-      tableBody.appendChild(tr);
-    });
   }
-
-  onAuthStateChanged(auth, (user) => {
-    if (!user) {
-      window.location.href = "login.html";
-      return;
-    }
-
-    if (!ADMIN_UIDS.includes(user.uid)) {
-      statusMsg.textContent = "❌ Access denied (not admin)";
-      return;
-    }
-
-    statusMsg.textContent = "✅ Admin verified";
-    loadPendingPayments();
-  });
 </script>
 </body>
 </html>
