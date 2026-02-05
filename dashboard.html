@@ -21,7 +21,6 @@
         <button id="logoutBtn" class="btn btn-logout" type="button">Logout</button>
         <button id="clearPlanBtn" class="btn btn-outline" type="button">Clear Plan</button>
         <button id="payNowBtn" class="btn btn-primary" type="button">Pay Now</button>
-        <button class="btn btn-ghost" id="logoutBtn" type="button">Logout</button>
       </div>
     </header>
 
@@ -151,64 +150,30 @@
       await signOut(auth);
       location.href = "login.html";
     });
- <script type="module">
-  import { auth } from "./js/firebase.js";
-  import {
-    onAuthStateChanged,
-    signOut
-  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+  </script>
+<script type="module">
+  import { getStored } from "./js/storage.js";
 
   console.log("✅ dashboard module loaded");
 
-  function getSelectedPlan() {
-    const raw =
-      sessionStorage.getItem("selectedPlan") ||
-      localStorage.getItem("selectedPlan");
+  const payNowBtn = document.getElementById("payNowBtn");
+  console.log("payNowBtn found?", !!payNowBtn);
 
-    if (!raw) return null;
+  if (payNowBtn) {
+    payNowBtn.addEventListener("click", () => {
+      console.log("✅ Pay Now clicked");
 
-    try { return JSON.parse(raw); } catch (e) { return raw; }
-  }
-
-  document.addEventListener("DOMContentLoaded", () => {
-    const payNowBtn = document.getElementById("payNowBtn");
-    const logoutBtn = document.getElementById("logoutBtn");
-
-    console.log("payNowBtn found?", !!payNowBtn);
-    console.log("logoutBtn found?", !!logoutBtn);
-
-    // ✅ Protect dashboard (if user not logged in)
-    onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        window.location.replace("login.html");
+     const plan = getSelectedPlan();
+console.log("selectedPlan =", plan);
+      if (!plan) {
+        alert("No plan selected. Please choose a plan first.");
+        window.location.href = "plans.html";
         return;
       }
+
+      window.location.href = "payment.html";
     });
-
-    // ✅ Pay Now click
-    if (payNowBtn) {
-      payNowBtn.addEventListener("click", () => {
-        const plan = getSelectedPlan();
-        console.log("selectedPlan =", plan);
-
-        if (!plan) {
-          alert("No plan selected. Please choose a plan first.");
-          window.location.href = "plans.html";
-          return;
-        }
-        window.location.href = "payment.html";
-      });
-    }
-
-    // ✅ Logout click
-    if (logoutBtn) {
-      logoutBtn.addEventListener("click", async (e) => {
-        e.preventDefault();
-        await signOut(auth);
-        window.location.replace("login.html");
-      });
-    }
-  });
+  }
 </script>
 </body>
 </html>
