@@ -194,7 +194,7 @@
             window.location.replace("login.html");
             return;
           }
-
+         alert("UID = " + user.uid);
           if (!ADMIN_UIDS.includes(user.uid)) {
             adminInfo.textContent = "❌ Not an admin account.";
             msg.textContent = "Access denied.";
