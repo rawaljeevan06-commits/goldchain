@@ -58,13 +58,16 @@
     </div>
   </div>
 
-  <!-- ✅ IMPORTANT: JS MUST BE INSIDE SCRIPT TAG -->
+  <!-- ✅ ONE SCRIPT ONLY (no storage.js here) -->
   <script type="module">
     console.log("✅ Dashboard loaded");
 
-    // ---------- PLAN HELPERS ----------
+    // ---------- PLAN HELPERS (Safari-safe) ----------
     function getPlan() {
-      const raw = localStorage.getItem("selectedPlan");
+      const raw =
+        sessionStorage.getItem("selectedPlan") ||
+        localStorage.getItem("selectedPlan");
+
       if (!raw) return null;
 
       try {
@@ -91,26 +94,32 @@
       infoEl.textContent = `$${plan.amount} • ${plan.percent}% weekly • ${plan.withdraw}`;
     }
 
+    // ---------- BUTTONS ----------
+    const payNowBtn = document.getElementById("payNowBtn");
+    const clearBtn = document.getElementById("clearPlanBtn");
+    const calcBtn = document.getElementById("dashCalcBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+
     renderPlan();
 
-    // ---------- BUTTONS ----------
-    document.getElementById("payNowBtn").addEventListener("click", () => {
-      if (!getPlan()) {
+    payNowBtn.addEventListener("click", () => {
+      const plan = getPlan();
+      if (!plan) {
         alert("No plan selected. Please choose a plan first.");
-        location.href = "plans.html";
+        window.location.href = "plans.html";
         return;
       }
-      location.href = "payment.html";
+      window.location.href = "payment.html";
     });
 
-    document.getElementById("clearPlanBtn").addEventListener("click", () => {
+    clearBtn.addEventListener("click", () => {
       localStorage.removeItem("selectedPlan");
       sessionStorage.removeItem("selectedPlan");
       renderPlan();
       alert("Plan cleared");
     });
 
-    document.getElementById("dashCalcBtn").addEventListener("click", () => {
+    calcBtn.addEventListener("click", () => {
       const plan = getPlan();
       const result = document.getElementById("dashCalcResult");
 
@@ -140,41 +149,17 @@
 
     onAuthStateChanged(auth, (user) => {
       if (!user) {
-        location.href = "login.html";
+        window.location.replace("login.html");
         return;
       }
       document.getElementById("userEmail").textContent = user.email || "";
     });
 
-    document.getElementById("logoutBtn").addEventListener("click", async () => {
+    logoutBtn.addEventListener("click", async () => {
       await signOut(auth);
-      location.href = "login.html";
+      window.location.replace("login.html");
     });
   </script>
-<script type="module">
-  import { getStored } from "./js/storage.js";
 
-  console.log("✅ dashboard module loaded");
-
-  const payNowBtn = document.getElementById("payNowBtn");
-  console.log("payNowBtn found?", !!payNowBtn);
-
-  if (payNowBtn) {
-    payNowBtn.addEventListener("click", () => {
-      console.log("✅ Pay Now clicked");
-
-      const plan = getStored("selectedPlan");
-      console.log("selectedPlan =", plan);
-
-      if (!plan) {
-        alert("No plan selected. Please choose a plan first.");
-        window.location.href = "plans.html";
-        return;
-      }
-
-      window.location.href = "payment.html";
-    });
-  }
-</script>
 </body>
 </html>
