@@ -150,8 +150,14 @@
       await signOut(auth);
       location.href = "login.html";
     });
- <script>
-  console.log("✅ Dashboard script loaded");
+ <script type="module">
+  import { auth } from "./js/firebase.js";
+  import {
+    onAuthStateChanged,
+    signOut
+  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+  console.log("✅ dashboard module loaded");
 
   function getSelectedPlan() {
     const raw =
@@ -160,33 +166,45 @@
 
     if (!raw) return null;
 
-    try {
-      return JSON.parse(raw);
-    } catch (e) {
-      return raw;
-    }
+    try { return JSON.parse(raw); } catch (e) { return raw; }
   }
 
   document.addEventListener("DOMContentLoaded", () => {
     const payNowBtn = document.getElementById("payNowBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
 
-    const plan = getSelectedPlan();
-    console.log("📦 Dashboard plan =", plan);
+    console.log("payNowBtn found?", !!payNowBtn);
+    console.log("logoutBtn found?", !!logoutBtn);
 
-    // ❌ DO NOT show popup on page load
-    // Only check when user clicks
+    // ✅ Protect dashboard (if user not logged in)
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.replace("login.html");
+        return;
+      }
+    });
 
+    // ✅ Pay Now click
     if (payNowBtn) {
       payNowBtn.addEventListener("click", () => {
-        const p = getSelectedPlan();
+        const plan = getSelectedPlan();
+        console.log("selectedPlan =", plan);
 
-        if (!p) {
+        if (!plan) {
           alert("No plan selected. Please choose a plan first.");
           window.location.href = "plans.html";
           return;
         }
-
         window.location.href = "payment.html";
+      });
+    }
+
+    // ✅ Logout click
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", async (e) => {
+        e.preventDefault();
+        await signOut(auth);
+        window.location.replace("login.html");
       });
     }
   });
