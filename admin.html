@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin | Payments</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <div class="topbar">Admin Panel — Payment Verification</div>
+
+  <header class="header">
+    <div class="container header-in">
+      <a class="brand" href="index.html">
+        <img src="images/logo.png" alt="GoldChain Logo">
+        <span>GoldChain</span>
+      </a>
+
+      <nav class="nav">
+        <a href="dashboard.html">Dashboard</a>
+      </nav>
+
+      <div class="actions">
+        <button id="refreshBtn" class="btn btn-outline" type="button">Refresh</button>
+        <button id="logoutBtn" class="btn btn-logout" type="button">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <section class="section">
+    <div class="container">
+      <div class="card">
+        <h2>Pending Payments</h2>
+        <p class="small" id="adminInfo">Checking admin access…</p>
+
+        <div style="overflow:auto; margin-top:12px;">
+          <table style="width:100%; border-collapse:collapse; min-width:900px;">
+            <thead>
+              <tr style="text-align:left; border-bottom:1px solid rgba(255,255,255,.15);">
+                <th style="padding:10px;">Time</th>
+                <th style="padding:10px;">User</th>
+                <th style="padding:10px;">Plan</th>
+                <th style="padding:10px;">Amount</th>
+                <th style="padding:10px;">Method</th>
+                <th style="padding:10px;">TXID</th>
+                <th style="padding:10px;">Status</th>
+                <th style="padding:10px;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="rows"></tbody>
+          </table>
+        </div>
+
+        <p class="small" id="msg" style="margin-top:10px;"></p>
+      </div>
+    </div>
+  </section>
+
+  <script type="module">
+    // ✅ Put your admin UID(s) here too (front-end guard)
+    const ADMIN_UIDS = ["X4zpGHVpq6TJfYfi1qyNtqbyUSp2"];
+
+    const adminInfo = document.getElementById("adminInfo");
+    const rows = document.getElementById("rows");
+    const msg = document.getElementById("msg");
+    const refreshBtn = document.getElementById("refreshBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    function esc(s) {
+      return String(s ?? "").replace(/[&<>"']/g, (c) => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+      }[c]));
+    }
+
+    function formatTime(ts) {
+      try {
+        if (!ts) return "";
+        // Firestore Timestamp has toDate()
+        if (typeof ts.toDate === "function") return ts.toDate().toLocaleString();
+        // ISO string fallback
+        return new Date(ts).toLocaleString();
+      } catch {
+        return "";
+      }
+    }
+
+    async function loadPendingPayments(db) {
+      rows.innerHTML = "";
+      msg.textContent = "Loading pending payments…";
+
+      const { collection, query, where, orderBy, limit, getDocs } =
+        await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js");
+
+      const q = query(
+        collection(db, "payments"),
+        where("status", "==", "pending"),
+        orderBy("createdAt", "desc"),
+        limit(50)
+      );
+
+      const snap = await getDocs(q);
+
+      if (snap.empty) {
+        msg.textContent = "✅ No pending payments.";
+        return;
+      }
+
+      msg.textContent = `Found ${snap.size} pending payment(s).`;
+
+      snap.forEach((docSnap) => {
+        const d = docSnap.data();
+        const id = docSnap.id;
+
+        const tr = document.createElement("tr");
+        tr.style.borderBottom = "1px solid rgba(255,255,255,.08)";
+
+        tr.innerHTML = `
+          <td style="padding:10px;">${esc(formatTime(d.createdAt))}</td>
+          <td style="padding:10px;">${esc(d.email || d.uid)}</td>
+          <td style="padding:10px;">${esc(d.planName || (d.plan?.name) || "")}</td>
+          <td style="padding:10px;">$${esc(d.amount ?? d.plan?.amount ?? "")}</td>
+          <td style="padding:10px;">${esc(d.method || "")}</td>
+          <td style="padding:10px; max-width:260px; word-break:break-all;">${esc(d.txid || "")}</td>
+          <td style="padding:10px;">${esc(d.status || "")}</td>
+          <td style="padding:10px; display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn btn-primary" data-act="approve" data-id="${esc(id)}" type="button">Approve</button>
+            <button class="btn btn-outline" data-act="reject" data-id="${esc(id)}" type="button">Reject</button>
+          </td>
+        `;
+
+        rows.appendChild(tr);
+      });
+    }
+
+    async function updateStatus(db, paymentId, status) {
+      const { doc, updateDoc, serverTimestamp } =
+        await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js");
+
+      await updateDoc(doc(db, "payments", paymentId), {
+        status,
+        verifiedAt: serverTimestamp()
+      });
+    }
+
+    // Event delegation for table buttons
+    rows.addEventListener("click", async (e) => {
+      const btn = e.target.closest("button[data-act]");
+      if (!btn) return;
+
+      const act = btn.getAttribute("data-act");
+      const id = btn.getAttribute("data-id");
+      if (!id) return;
+
+      try {
+        const { db } = await import("./js/firebase.js");
+        btn.disabled = true;
+
+        if (act === "approve") {
+          await updateStatus(db, id, "verified");
+          msg.textContent = "✅ Approved.";
+        } else if (act === "reject") {
+          await updateStatus(db, id, "rejected");
+          msg.textContent = "❌ Rejected.";
+        }
+
+        await loadPendingPayments(db);
+      } catch (err) {
+        console.error(err);
+        msg.textContent = "❌ Failed to update status. Check rules/admin UID.";
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    refreshBtn.addEventListener("click", async () => {
+      try {
+        const { db } = await import("./js/firebase.js");
+        await loadPendingPayments(db);
+      } catch (e) {
+        msg.textContent = "❌ Refresh failed.";
+      }
+    });
+
+    // Auth protect admin page
+    (async () => {
+      try {
+        const { auth, db } = await import("./js/firebase.js");
+        const { onAuthStateChanged, signOut } =
+          await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js");
+
+        onAuthStateChanged(auth, async (user) => {
+          if (!user) {
+            window.location.replace("login.html");
+            return;
+          }
+
+          if (!ADMIN_UIDS.includes(user.uid)) {
+            adminInfo.textContent = "❌ Not an admin account.";
+            msg.textContent = "Access denied.";
+            rows.innerHTML = "";
+            return;
+          }
+
+          adminInfo.textContent = `✅ Admin: ${user.email || user.uid}`;
+          await loadPendingPayments(db);
+        });
+
+        logoutBtn.onclick = async () => {
+          try { await signOut(auth); } catch(e) {}
+          window.location.replace("login.html");
+        };
+      } catch (e) {
+        console.log(e);
+        adminInfo.textContent = "❌ Firebase failed to load.";
+      }
+    })();
+  </script>
+
+</body>
+</html>
