@@ -138,6 +138,10 @@ copyAddrBtn.addEventListener("click", async () => {
 });
 
   submitProofBtn.addEventListener("click", () => {
+    alert(
+  "Safari Notification permission = " +
+  (("Notification" in window) ? Notification.permission : "not supported")
+);
     const method = cryptoSelect.value;
     const cfg = WALLETS[method];
     const txid = (txidInput.value || "").trim();
