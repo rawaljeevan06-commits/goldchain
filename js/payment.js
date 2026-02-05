@@ -1,4 +1,15 @@
-// js/payment.js
+// js/payment.js (MODULE)
+
+import { auth, db } from "./firebase.js";
+import {
+  addDoc,
+  collection,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+import {
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
 function loadPlanSafely() {
   let raw = null;
@@ -9,7 +20,7 @@ function loadPlanSafely() {
   return raw;
 }
 
-// ✅ PUT YOUR REAL WALLET ADDRESSES HERE (kept exactly as you sent)
+// ✅ PUT YOUR REAL WALLET ADDRESSES HERE
 const WALLETS = {
   USDT_TRC20: {
     label: "USDT (TRC20)",
@@ -33,7 +44,6 @@ function makeQrUrl(text) {
   return `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encoded}`;
 }
 
-// Copy fallback (Safari-safe)
 function fallbackCopy(text) {
   const ta = document.createElement("textarea");
   ta.value = text;
@@ -65,6 +75,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const submitProofBtn = document.getElementById("submitProofBtn");
   const payMsg = document.getElementById("payMsg");
 
+  // ✅ Auth protect payment page
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      window.location.replace("login.html");
+      return;
+    }
+  });
+
   const raw = loadPlanSafely();
   if (!raw) {
     alert("No plan selected. Please choose a plan first.");
@@ -86,9 +104,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function renderCrypto(key) {
     const cfg = WALLETS[key];
-
-    // Keeping your placeholder check (doesn't remove anything)
-    if (!cfg || !cfg.address || String(cfg.address).includes("PASTE_")) {
+    if (!cfg || !cfg.address || cfg.address.includes("PASTE_")) {
       payNetwork.textContent = "Wallet not set yet. Add your address in js/payment.js";
       walletAddress.textContent = "—";
       qrImg.src = "";
@@ -102,7 +118,6 @@ document.addEventListener("DOMContentLoaded", () => {
     qrImg.src = makeQrUrl(qrText);
   }
 
-  // Default method
   renderCrypto(cryptoSelect.value);
 
   cryptoSelect.addEventListener("change", () => {
@@ -110,7 +125,6 @@ document.addEventListener("DOMContentLoaded", () => {
     payMsg.textContent = "";
   });
 
-  // Copy button (kept + stable)
   copyAddrBtn.addEventListener("click", async () => {
     const addr = walletAddress.textContent.trim();
     if (!addr || addr === "—") {
@@ -118,28 +132,29 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Try modern clipboard first
     try {
       if (navigator.clipboard && window.isSecureContext) {
         await navigator.clipboard.writeText(addr);
         payMsg.textContent = "✅ Address copied.";
         return;
       }
-    } catch (e) {
-      // fall through to fallback
-    }
+    } catch (e) {}
 
-    // Fallback for Safari / blocked clipboard
     const ok = fallbackCopy(addr);
     payMsg.textContent = ok ? "✅ Address copied." : "❌ Copy blocked. Please copy manually.";
   });
 
-  // Submit payment proof + lock dashboard (ADDED paymentStatus)
-  submitProofBtn.addEventListener("click", () => {
-
-    // Safari: permission request must be inside user click (kept)
+  submitProofBtn.addEventListener("click", async () => {
+    // Safari: permission request must happen inside user click
     if ("Notification" in window && Notification.permission === "default") {
-      Notification.requestPermission();
+      try { await Notification.requestPermission(); } catch (e) {}
+    }
+
+    const user = auth.currentUser;
+    if (!user) {
+      alert("Please login again.");
+      window.location.replace("login.html");
+      return;
     }
 
     const method = cryptoSelect.value;
@@ -147,7 +162,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const txid = (txidInput.value || "").trim();
     const note = (noteInput.value || "").trim();
 
-    if (!cfg || !cfg.address || String(cfg.address).includes("PASTE_")) {
+    if (!cfg || !cfg.address || cfg.address.includes("PASTE_")) {
       payMsg.textContent = "❌ Wallet address not set yet. Add it in js/payment.js first.";
       return;
     }
@@ -158,29 +173,37 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const proof = {
-      plan,
+      uid: user.uid,
+      email: user.email || "",
+      planName: plan.name,
+      amount: Number(plan.amount),
       method,
       address: cfg.address,
       txid,
       note,
-      submittedAt: new Date().toISOString()
+      status: "pending",
+      createdAt: serverTimestamp()
     };
 
+    // keep localStorage too (ok)
+    try { localStorage.setItem("paymentProof", JSON.stringify({ ...proof, createdAt: new Date().toISOString() })); } catch (e) {}
+
+    payMsg.textContent = "⏳ Saving payment proof...";
+
     try {
-      localStorage.setItem("paymentProof", JSON.stringify(proof));
+      await addDoc(collection(db, "payments"), proof);
 
-      // ✅ ADDED: this is what locks the dashboard
-      localStorage.setItem("paymentStatus", "pending");
-    } catch (e) {}
+      payMsg.textContent = "✅ Proof saved. Status: Pending verification.";
 
-    payMsg.textContent = "✅ Proof saved. Status: Pending verification.";
-
-    // Notification (bonus — works in Chrome/desktop/Android)
-    if ("Notification" in window && Notification.permission === "granted") {
-      new Notification("Payment Submitted ✅", {
-        body: "Your payment proof has been received. We will verify it shortly.",
-        icon: "images/logo.png"
-      });
+      if ("Notification" in window && Notification.permission === "granted") {
+        new Notification("Payment Submitted ✅", {
+          body: "We received your TXID. Status is Pending verification.",
+          icon: "images/logo.png"
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      payMsg.textContent = "❌ Failed to save to database. Check Firestore rules or internet.";
     }
   });
 });
