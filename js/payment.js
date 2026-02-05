@@ -89,17 +89,50 @@ document.addEventListener("DOMContentLoaded", () => {
     payMsg.textContent = "";
   });
 
-  copyAddrBtn.addEventListener("click", async () => {
-    const addr = walletAddress.textContent.trim();
-    if (!addr || addr === "—") return;
+  function fallbackCopy(text) {
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  ta.setAttribute("readonly", "");
+  ta.style.position = "fixed";
+  ta.style.top = "-1000px";
+  ta.style.left = "-1000px";
+  document.body.appendChild(ta);
+  ta.select();
+  ta.setSelectionRange(0, ta.value.length);
 
-    try {
+  let ok = false;
+  try {
+    ok = document.execCommand("copy");
+  } catch (e) {
+    ok = false;
+  }
+
+  document.body.removeChild(ta);
+  return ok;
+}
+
+copyAddrBtn.addEventListener("click", async () => {
+  const addr = walletAddress.textContent.trim();
+  if (!addr || addr === "—") {
+    payMsg.textContent = "❌ No address to copy.";
+    return;
+  }
+
+  // Try modern clipboard first
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
       await navigator.clipboard.writeText(addr);
       payMsg.textContent = "✅ Address copied.";
-    } catch (e) {
-      payMsg.textContent = "Copy failed. Please copy manually.";
+      return;
     }
-  });
+  } catch (e) {
+    // fall through to fallback
+  }
+
+  // Fallback for Safari / blocked clipboard
+  const ok = fallbackCopy(addr);
+  payMsg.textContent = ok ? "✅ Address copied." : "❌ Copy blocked. Please copy manually.";
+});
 
   submitProofBtn.addEventListener("click", () => {
     const method = cryptoSelect.value;
