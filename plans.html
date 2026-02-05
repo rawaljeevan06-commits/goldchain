@@ -21,7 +21,7 @@
         <p><b>$350</b> — <b>1.5%</b> weekly</p>
         <p class="muted">Withdraw after 45 days</p>
 
-        <!-- ONE BUTTON ONLY -->
+        <!-- ONLY ONE BUTTON -->
         <button class="btn btn-primary pay-btn"
           data-name="Starter Plan"
           data-amount="350"
@@ -36,7 +36,7 @@
         <p><b>$700</b> — <b>2%</b> weekly</p>
         <p class="muted">Withdraw after 1 month</p>
 
-        <!-- ONE BUTTON ONLY -->
+        <!-- ONLY ONE BUTTON -->
         <button class="btn btn-primary pay-btn"
           data-name="Growth Plan"
           data-amount="700"
@@ -51,7 +51,7 @@
         <p><b>$1000</b> — <b>3%</b> weekly</p>
         <p class="muted">Withdraw after 15 days</p>
 
-        <!-- ONE BUTTON ONLY -->
+        <!-- ONLY ONE BUTTON -->
         <button class="btn btn-primary pay-btn"
           data-name="Gold Plan"
           data-amount="1000"
@@ -66,7 +66,7 @@
         <p><b>$5000+</b> — <b>4%</b> weekly</p>
         <p class="muted">Withdraw weekly</p>
 
-        <!-- ONE BUTTON ONLY -->
+        <!-- ONLY ONE BUTTON -->
         <button class="btn btn-primary pay-btn"
           data-name="VIP Plan"
           data-amount="5000"
@@ -79,12 +79,81 @@
     </div>
 
     <div style="margin-top:16px;">
-      <button id="resetPlanBtn" class="btn btn-outline" type="button">Clear Selected Plan</button>
+      <button id="resetPlanBtn" class="btn btn-outline" type="button">
+        Clear Selected Plan
+      </button>
     </div>
   </main>
 
-  <!-- Only ONE script -->
-  <script src="js/plans.js?v=101"></script>
+  <!-- ONE SINGLE SCRIPT (no other plan scripts on this page) -->
+  <script type="module">
+    // Try to use your storage helper if it exists, otherwise fallback to localStorage
+    let setStoredSafe = null;
+
+    try {
+      const mod = await import("./js/storage.js");
+      setStoredSafe = mod.setStored;
+    } catch (e) {
+      setStoredSafe = null;
+    }
+
+    function setKey(key, value) {
+      // value must be string in storage
+      if (setStoredSafe) {
+        return setStoredSafe(key, value);
+      }
+      try {
+        localStorage.setItem(key, value);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function removeKey(key) {
+      try { localStorage.removeItem(key); } catch (e) {}
+    }
+
+    const PLAN_KEY = "selectedPlan";
+
+    function savePlan(planObj) {
+      const ok = setKey(PLAN_KEY, JSON.stringify(planObj));
+      if (!ok) {
+        alert("Storage blocked in this browser. Turn off Private Mode or allow site data.");
+        return;
+      }
+
+      // Optional: store a simple name too (helps if old dashboard code expects string)
+      setKey("selectedPlanName", planObj.name);
+
+      alert("✅ Plan selected: " + planObj.name);
+      window.location.href = "dashboard.html";
+    }
+
+    // Click handler for all plan buttons
+    document.querySelectorAll(".pay-btn").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        const planObj = {
+          name: btn.dataset.name,
+          amount: Number(btn.dataset.amount || 0),
+          percent: Number(btn.dataset.percent || 0),
+          withdraw: btn.dataset.withdraw || ""
+        };
+        savePlan(planObj);
+      });
+    });
+
+    // Clear plan
+    const resetBtn = document.getElementById("resetPlanBtn");
+    if (resetBtn) {
+      resetBtn.addEventListener("click", () => {
+        removeKey(PLAN_KEY);
+        removeKey("selectedPlanName");
+        alert("Selected plan cleared.");
+      });
+    }
+  </script>
 
 </body>
 </html>
