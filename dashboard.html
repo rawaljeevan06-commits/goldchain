@@ -136,6 +136,26 @@ function renderPaymentStatus() {
 
     renderPlan();
     renderPaymentStatus();
+    function renderPaymentStatus() {
+  const el = document.getElementById("paymentStatusText");
+  if (!el) return;
+
+  let status = "none";
+  try {
+    status =
+      localStorage.getItem("paymentStatus") ||
+      sessionStorage.getItem("paymentStatus") ||
+      "none";
+  } catch (e) {}
+
+  if (status === "pending") {
+    el.textContent = "⏳ Payment Pending — Waiting for verification";
+  } else if (status === "verified") {
+    el.textContent = "✅ Payment Verified — Full access unlocked";
+  } else {
+    el.textContent = "❌ No payment submitted";
+  }
+}
 
     // ---------- BUTTONS ----------
     document.getElementById("payNowBtn").addEventListener("click", () => {
