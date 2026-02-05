@@ -48,6 +48,8 @@
                 <th style="padding:10px;">Actions</th>
               </tr>
             </thead>
+
+            <!-- ✅ IMPORTANT: THIS ID MUST MATCH JS -->
             <tbody id="paymentsBody"></tbody>
           </table>
         </div>
@@ -57,87 +59,158 @@
     </div>
   </section>
 
-  <!-- ✅ ONLY ONE SCRIPT -->
-<script type="module">
-  import { auth, db } from "./js/firebase.js";
-  import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-  import { collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+  <script type="module">
+    import { auth, db } from "./js/firebase.js";
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import {
+      collection, query, where, orderBy, limit, getDocs,
+      doc, updateDoc, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-  // ✅ Your admin UID
-  const ADMIN_UIDS = ["40B1eYKROIXFAZLpelBhjjFTDm72"];
+    // ✅ PUT YOUR ADMIN UID(S) HERE
+    const ADMIN_UIDS = ["40B1eYKROIXFAZLpelBhjjFTDm72"];
 
-  // ✅ IDs that exist in your HTML
-  const adminInfo = document.getElementById("adminInfo");
-  const msg = document.getElementById("msg");
-  const paymentsBody = document.getElementById("paymentsBody");
-  const refreshBtn = document.getElementById("refreshBtn");
-  const logoutBtn = document.getElementById("logoutBtn");
+    const adminInfo   = document.getElementById("adminInfo");
+    const paymentsBody = document.getElementById("paymentsBody");
+    const msg         = document.getElementById("msg");
+    const refreshBtn  = document.getElementById("refreshBtn");
+    const logoutBtn   = document.getElementById("logoutBtn");
 
-  async function loadPendingPayments() {
-    paymentsBody.innerHTML = "";
-    msg.textContent = "Loading pending payments…";
+    // Safety check (your earlier error)
+    if (!paymentsBody) {
+      console.error("❌ paymentsBody not found. Make sure <tbody id='paymentsBody'> exists.");
+    }
 
-    try {
-      const q = query(
-        collection(db, "payments"),
-        where("status", "==", "pending")
-      );
+    function esc(s) {
+      return String(s ?? "").replace(/[&<>"']/g, (c) => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+      }[c]));
+    }
 
-      const snap = await getDocs(q);
+    function formatTime(ts) {
+      try {
+        if (!ts) return "-";
+        if (typeof ts.toDate === "function") return ts.toDate().toLocaleString();
+        return new Date(ts).toLocaleString();
+      } catch {
+        return "-";
+      }
+    }
 
-      if (snap.empty) {
-        msg.textContent = "✅ No pending payments.";
+    async function loadPendingPayments() {
+      if (!paymentsBody) return;
+
+      paymentsBody.innerHTML = "";
+      msg.textContent = "Loading pending payments…";
+
+      try {
+        const q = query(
+          collection(db, "payments"),
+          where("status", "==", "pending"),
+          orderBy("createdAt", "desc"),
+          limit(50)
+        );
+
+        const snap = await getDocs(q);
+
+        if (snap.empty) {
+          msg.textContent = "✅ No pending payments.";
+          return;
+        }
+
+        msg.textContent = `Found ${snap.size} pending payment(s).`;
+
+        snap.forEach((docSnap) => {
+          const p = docSnap.data();
+          const id = docSnap.id;
+
+          const tr = document.createElement("tr");
+          tr.style.borderBottom = "1px solid rgba(255,255,255,.08)";
+
+          tr.innerHTML = `
+            <td style="padding:10px;">${esc(formatTime(p.createdAt))}</td>
+            <td style="padding:10px;">${esc(p.email || p.uid || "-")}</td>
+            <td style="padding:10px;">${esc(p.planName || "-")}</td>
+            <td style="padding:10px;">$${esc(p.amount ?? "-")}</td>
+            <td style="padding:10px;">${esc(p.method || "-")}</td>
+            <td style="padding:10px; max-width:260px; word-break:break-all;">${esc(p.txid || "-")}</td>
+            <td style="padding:10px;">${esc(p.status || "-")}</td>
+            <td style="padding:10px; display:flex; gap:8px; flex-wrap:wrap;">
+              <button class="btn btn-primary" type="button" data-act="approve" data-id="${esc(id)}">Approve</button>
+              <button class="btn btn-outline" type="button" data-act="reject" data-id="${esc(id)}">Reject</button>
+            </td>
+          `;
+
+          paymentsBody.appendChild(tr);
+        });
+
+      } catch (e) {
+        console.error(e);
+        msg.textContent = "❌ Failed to load payments (check Firestore rules / index).";
+      }
+    }
+
+    async function setStatus(paymentId, status) {
+      await updateDoc(doc(db, "payments", paymentId), {
+        status,
+        verifiedAt: serverTimestamp()
+      });
+    }
+
+    // Click handler for Approve/Reject
+    document.addEventListener("click", async (e) => {
+      const btn = e.target.closest("button[data-act][data-id]");
+      if (!btn) return;
+
+      const act = btn.getAttribute("data-act");
+      const id  = btn.getAttribute("data-id");
+      if (!id) return;
+
+      btn.disabled = true;
+      msg.textContent = "Updating…";
+
+      try {
+        if (act === "approve") await setStatus(id, "verified");
+        if (act === "reject")  await setStatus(id, "rejected");
+
+        msg.textContent = "✅ Updated.";
+        await loadPendingPayments();
+      } catch (err) {
+        console.error(err);
+        msg.textContent = "❌ Update failed (check rules / admin UID).";
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    refreshBtn.addEventListener("click", async () => {
+      await loadPendingPayments();
+    });
+
+    logoutBtn.addEventListener("click", async () => {
+      try { await signOut(auth); } catch (e) {}
+      window.location.replace("login.html");
+    });
+
+    // Admin access check
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.replace("login.html");
         return;
       }
 
-      msg.textContent = `Found ${snap.size} pending payment(s).`;
+      if (!ADMIN_UIDS.includes(user.uid)) {
+        adminInfo.textContent = "❌ Access denied (not admin).";
+        msg.textContent = "";
+        if (paymentsBody) paymentsBody.innerHTML = "";
+        window.location.replace("dashboard.html");
+        return;
+      }
 
-      snap.forEach((docSnap) => {
-        const p = docSnap.data();
-        const tr = document.createElement("tr");
+      adminInfo.textContent = `✅ Admin: ${user.email || user.uid}`;
+      await loadPendingPayments();
+    });
+  </script>
 
-        tr.innerHTML = `
-          <td style="padding:10px;">${p.email || "-"}</td>
-          <td style="padding:10px;">${p.planName || "-"}</td>
-          <td style="padding:10px;">$${p.amount ?? "-"}</td>
-          <td style="padding:10px;">${p.method || "-"}</td>
-          <td style="padding:10px; word-break:break-all;">${p.txid || "-"}</td>
-          <td style="padding:10px;">${p.status || "-"}</td>
-          <td style="padding:10px;">Pending</td>
-        `;
-
-        paymentsBody.appendChild(tr);
-      });
-
-    } catch (err) {
-      console.error(err);
-      msg.textContent = "❌ Firestore error: " + (err?.message || err);
-    }
-  }
-
-  onAuthStateChanged(auth, (user) => {
-    if (!user) {
-      window.location.replace("login.html");
-      return;
-    }
-
-    // ✅ Admin check ONCE
-    if (!ADMIN_UIDS.includes(user.uid)) {
-      adminInfo.textContent = "❌ Access denied (not admin).";
-      window.location.replace("dashboard.html");
-      return;
-    }
-
-    adminInfo.textContent = "✅ Admin verified";
-    loadPendingPayments();
-  });
-
-  refreshBtn?.addEventListener("click", loadPendingPayments);
-
-  logoutBtn?.addEventListener("click", async () => {
-    try { await signOut(auth); } catch (e) {}
-    window.location.replace("login.html");
-  });
-</script>
 </body>
 </html>
