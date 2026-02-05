@@ -1,61 +1,39 @@
-document.addEventListener("DOMContentLoaded", async () => {
+import { auth } from "./firebase.js";
+import { createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+console.log("✅ signup.js loaded");
+
+document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("signupForm");
   const msg = document.getElementById("signupMsg");
-
-  if (!form) return;
+  if (!form || !msg) return;
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    // ✅ These IDs MUST exist in signup.html
-    const nameEl = document.getElementById("suName");
-    const emailEl = document.getElementById("suEmail");
-    const phoneEl = document.getElementById("suPhone");
-    const planEl = document.getElementById("suPlan");
-    const passEl = document.getElementById("suPass");
-
-    // ✅ If any is missing, show clear error
-    if (!emailEl || !passEl) {
-      msg.textContent = "HTML IDs mismatch: suEmail / suPass not found.";
-      msg.style.color = "#ff3b3b";
-      return;
-    }
-
-    const name = nameEl ? nameEl.value.trim() : "";
-    const email = emailEl.value.trim();
-    const phone = phoneEl ? phoneEl.value.trim() : "";
-    const plan = planEl ? planEl.value : "";
-    const password = passEl.value;
+    const name = document.getElementById("suName")?.value.trim() || "";
+    const email = document.getElementById("suEmail")?.value.trim();
+    const phone = document.getElementById("suPhone")?.value.trim() || "";
+    const password = document.getElementById("suPass")?.value;
 
     if (!email || !password) {
       msg.textContent = "Email and password are required.";
-      msg.style.color = "#ff3b3b";
       return;
     }
 
+    msg.textContent = "Creating account...";
+
     try {
-      msg.textContent = "Creating account...";
-      msg.style.color = "#ffd36b";
+      const userCred = await createUserWithEmailAndPassword(auth, email, password);
+      if (name) await updateProfile(userCred.user, { displayName: name });
 
-      const { createUserWithEmailAndPassword, updateProfile } =
-        await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js");
-
-      const userCred = await createUserWithEmailAndPassword(window.auth, email, password);
-
-      if (name) {
-        await updateProfile(userCred.user, { displayName: name });
-      }
+      // demo: store extras locally
+      try { localStorage.setItem("signupProfile", JSON.stringify({ name, email, phone })); } catch (e) {}
 
       msg.textContent = "Account created ✅ Redirecting...";
-      msg.style.color = "#7CFFB3";
-
-      setTimeout(() => {
-        window.location.href = "login.html";
-      }, 800);
-
+      setTimeout(() => window.location.replace("login.html"), 700);
     } catch (err) {
-      msg.textContent = err.message;
-      msg.style.color = "#ff3b3b";
+      msg.textContent = err?.message || "Signup failed.";
       console.error(err);
     }
   });
