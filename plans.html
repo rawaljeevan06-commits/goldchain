@@ -94,5 +94,37 @@
     window.location.href = "dashboard.html";
   };
 </script>
+  <script>
+  // Always store the same key
+  const PLAN_KEY = "selectedPlan";
+
+  // Save selected plan + go dashboard
+  function savePlan(planObj) {
+    localStorage.setItem(PLAN_KEY, JSON.stringify(planObj));
+    // Also put in URL as backup for Safari edge cases
+    const encoded = encodeURIComponent(JSON.stringify(planObj));
+    window.location.href = "dashboard.html?plan=" + encoded;
+  }
+
+  // Attach clicks to all buttons
+  document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".choosePlanBtn").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        const planObj = JSON.parse(btn.dataset.plan);
+        savePlan(planObj);
+      });
+    });
+
+    // Optional: clear selected plan button (if you have it)
+    const clearBtn = document.getElementById("clearPlanBtn");
+    if (clearBtn) {
+      clearBtn.addEventListener("click", () => {
+        localStorage.removeItem(PLAN_KEY);
+        alert("Selected plan cleared.");
+      });
+    }
+  });
+</script>
 </body>
 </html>
