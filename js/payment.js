@@ -32,7 +32,10 @@ function makeQrUrl(text) {
   const encoded = encodeURIComponent(text);
   return `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encoded}`;
 }
-
+// Ask notification permission (once)
+if ("Notification" in window && Notification.permission === "default") {
+  Notification.requestPermission();
+}
 document.addEventListener("DOMContentLoaded", () => {
   const selectedPlanText = document.getElementById("selectedPlanText");
   const payAmount = document.getElementById("payAmount");
@@ -164,5 +167,11 @@ copyAddrBtn.addEventListener("click", async () => {
     } catch (e) {}
 
     payMsg.textContent = "✅ Proof saved. We’ll verify your payment manually.";
+    if ("Notification" in window && Notification.permission === "granted") {
+  new Notification("Payment Submitted ✅", {
+    body: "Your payment proof has been received. We will verify it shortly.",
+    icon: "images/logo.png"
+  });
+}
   });
 });
