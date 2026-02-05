@@ -1,70 +1,87 @@
 // js/login.js (MODULE)
-
 import { auth } from "./firebase.js";
 import {
   signInWithEmailAndPassword,
   onAuthStateChanged,
-  sendPasswordResetEmail,
+  sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
 console.log("✅ login.js loaded");
 
-const form = document.getElementById("loginForm");
-const msg = document.getElementById("loginMsg");
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("✅ DOM ready");
 
-const forgotLink = document.getElementById("forgotPasswordLink");
-const resetMsg = document.getElementById("resetMsg");
+  const form = document.getElementById("loginForm");
+  const emailEl = document.getElementById("loginEmail");
+  const passEl = document.getElementById("loginPassword");
+  const msg = document.getElementById("loginMsg");
 
-// If already logged in, go dashboard
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    console.log("✅ already logged in:", user.email);
-    window.location.replace("dashboard.html");
+  const forgotLink = document.getElementById("forgotPasswordLink");
+  const resetMsg = document.getElementById("resetMsg");
+
+  // If already logged in, go dashboard
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      console.log("✅ already logged in:", user.email);
+      window.location.href = "dashboard.html";
+    }
+  });
+
+  // Hard checks (so you see what is missing)
+  if (!form || !emailEl || !passEl || !msg) {
+    console.error("❌ Missing IDs in login.html", { form, emailEl, passEl, msg });
+    if (msg) msg.textContent = "❌ Error: login form IDs missing (check loginForm/loginEmail/loginPassword/loginMsg).";
+    return;
   }
-});
 
-// LOGIN submit
-if (form) {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const email = document.getElementById("loginEmail")?.value.trim();
-    const pass = document.getElementById("loginPassword")?.value;
+    const email = emailEl.value.trim();
+    const password = passEl.value;
 
-    if (!email || !pass) {
-      if (msg) msg.textContent = "❌ Enter email and password.";
+    console.log("➡️ submit clicked", { email });
+
+    if (!email || !password) {
+      msg.textContent = "❌ Please enter email and password.";
       return;
     }
 
+    msg.textContent = "⏳ Logging in...";
+
     try {
-      if (msg) msg.textContent = "⏳ Logging in...";
-      await signInWithEmailAndPassword(auth, email, pass);
+      await signInWithEmailAndPassword(auth, email, password);
       console.log("✅ login success -> redirect");
-      window.location.replace("dashboard.html");
+      msg.textContent = "✅ Logged in. Redirecting...";
+      window.location.href = "dashboard.html";
     } catch (err) {
       console.error("❌ login error:", err);
-      if (msg) msg.textContent = err?.message || "Login failed";
+      msg.textContent = err?.message || "❌ Login failed.";
     }
   });
-}
 
-// FORGOT PASSWORD
-if (forgotLink) {
-  forgotLink.addEventListener("click", async (e) => {
-    e.preventDefault();
-    const email = document.getElementById("loginEmail")?.value.trim();
+  // Forgot password
+  if (forgotLink && resetMsg) {
+    forgotLink.addEventListener("click", async (e) => {
+      e.preventDefault();
 
-    if (!email) {
-      if (resetMsg) resetMsg.textContent = "❌ Enter your email first.";
-      return;
-    }
+      const email = emailEl.value.trim();
+      if (!email) {
+        resetMsg.textContent = "❌ Enter your email first.";
+        return;
+      }
 
-    try {
-      await sendPasswordResetEmail(auth, email);
-      if (resetMsg) resetMsg.textContent = "✅ Reset link sent. Check your email.";
-    } catch (err) {
-      console.error("❌ reset error:", err);
-      if (resetMsg) resetMsg.textContent = err?.message || "Reset failed";
-    }
-  });
-}
+      resetMsg.textContent = "⏳ Sending reset email...";
+
+      try {
+        await sendPasswordResetEmail(auth, email);
+        resetMsg.textContent = "✅ Reset email sent. Check inbox/spam.";
+      } catch (err) {
+        console.error("❌ reset error:", err);
+        resetMsg.textContent = err?.message || "❌ Reset failed.";
+      }
+    });
+  } else {
+    console.log("ℹ️ Forgot password elements not found (ok if you didn’t add them).");
+  }
+});
