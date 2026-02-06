@@ -205,21 +205,41 @@
       if (a >= 350) return 1.5;
       return 0;
     }
-
-    function parseAmountFromPlan(planText) {
+ function parseAmountFromPlan(planText) {
       // tries to find $number in plan string e.g. "Growth Plan - $700"
       const m = String(planText || "").match(/\$?\s*([0-9]+(\.[0-9]+)?)/);
       if (!m) return 0;
       return Number(m[1]) || 0;
     }
+function parsePlan(raw) {
+  if (!raw) return null;
 
+  // If it is JSON string, parse it
+  const s = String(raw).trim();
+  if (s.startsWith("{") && s.endsWith("}")) {
+    try {
+      const obj = JSON.parse(s);
+      return obj && typeof obj === "object" ? obj : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // Otherwise treat as plain text plan
+  return { name: s };
+}
     async function renderAccountAccess(user) {
       // Plan text
-      const plan = loadSelectedPlan();
-      const planAmount = parseAmountFromPlan(plan);
-      const pct = percentByAmount(planAmount);
+     const rawPlan = loadSelectedPlan();
+const planObj = parsePlan(rawPlan);
 
-      planEl.textContent = plan ? plan : "Not selected";
+const planName = planObj?.name || "Not selected";
+const planAmount = Number(planObj?.amount || parseAmountFromPlan(rawPlan) || 0);
+const pct = Number(planObj?.percent || percentByAmount(planAmount) || 0);
+const withdrawText = planObj?.withdraw || planObj?.withdrawDays || planObj?.withdrawal || "";
+
+planEl.textContent = planName;
+planPctEl.textContent = pct ? `${pct}% weekly${withdrawText ? " • " + withdrawText : ""}` : "";
       planPctEl.textContent = pct ? `${pct}% weekly` : "";
 
       // weekly profit estimate from plan amount
