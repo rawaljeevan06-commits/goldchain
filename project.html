@@ -1,78 +1,119 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Our Project | GoldChain</title>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
 
-<div class="topbar">GoldChain Investment Project</div>
+  <header class="gc-nav">
+    <div class="gc-nav-inner">
+      <div class="gc-logo">GoldChain</div>
 
-<header class="header">
-  <div class="container header-in">
-    <a class="brand" href="index.html">
-      <img src="images/logo.png" alt="Logo">
-      <span>GoldChain</span>
-    </a>
+      <nav class="gc-links">
+        <a href="index.html#home">Home</a>
+        <a href="index.html#history">Gold History</a>
+        <a href="index.html#plans">Plans</a>
+        <a href="project.html" style="opacity:1; font-weight:800;">Our Project</a>
+        <a href="index.html#contact">Contact</a>
+      </nav>
 
-    <nav class="nav">
-      <a href="index.html">Home</a>
-      <a href="plans.html">Plans</a>
-      <a href="project.html">Our Project</a>
-      <a href="contact.html">Contact</a>
-    </nav>
-  </div>
-</header>
-
-<section class="section">
-  <div class="container" style="max-width:900px;">
-
-    <div class="card">
-      <h2>Our Vision</h2>
-      <p>
-        GoldChain Investment is built to provide a secure and structured
-        digital investment platform where users can grow capital through
-        verified deposits and transparent administration.
-      </p>
+      <div class="gc-actions">
+        <a class="btn btn-outline" href="login.html">Login</a>
+        <a class="btn btn-primary" href="signup.html">Sign Up</a>
+      </div>
     </div>
+  </header>
 
-    <div class="card" style="margin-top:20px;">
-      <h2>How It Works</h2>
-      <ul>
-        <li>Create an account</li>
-        <li>Select an investment plan</li>
-        <li>Make a deposit</li>
-        <li>Admin verifies payment</li>
-        <li>Balance updates automatically</li>
-      </ul>
+  <section class="gc-hero" style="min-height:auto; padding:60px 0;">
+    <div class="gc-hero-inner">
+      <h1>GoldChain Investment Project</h1>
+      <p>Structured participation, transparent tracking, and verified transactions — built for clarity and confidence.</p>
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:14px;">
+        <a class="btn btn-primary" href="docs/GoldChain_Investor_Proposal.pdf" target="_blank" rel="noopener">
+          Open Investor Proposal (PDF)
+        </a>
+        <a class="btn btn-outline" href="docs/GoldChain_Terms_and_Disclosures_Draft.pdf" target="_blank" rel="noopener">
+          Open Terms & Disclosures (PDF)
+        </a>
+      </div>
     </div>
+  </section>
 
-    <div class="card" style="margin-top:20px;">
-      <h2>Referral System</h2>
-      <p>
-        Earn commission by inviting others.
-        Level 1: 1% commission on deposit.
-        Level 2: 0.5% commission on deposit.
-      </p>
+  <section class="section">
+    <div class="container" style="max-width:900px;">
+
+      <div class="card">
+        <h2>Our Vision</h2>
+        <p class="small">
+          GoldChain Investment is designed to provide a structured digital participation experience with secure access,
+          transparent user tracking, and controlled verification processes. We focus on discipline, clarity, and trust.
+        </p>
+      </div>
+
+      <div class="card" style="margin-top:14px;">
+        <h2>How It Works</h2>
+        <ul class="small">
+          <li>Create an account (Sign Up).</li>
+          <li>Select a plan that matches your goal.</li>
+          <li>Submit your deposit request.</li>
+          <li>Admin verifies the payment.</li>
+          <li>Your dashboard updates balance & status.</li>
+          <li>Withdrawals are processed through a controlled approval flow.</li>
+        </ul>
+      </div>
+
+      <div class="card" style="margin-top:14px;">
+        <h2>Two-Level Referral System</h2>
+        <p class="small">
+          Each user has a personal referral code. When someone signs up using your code and completes a verified deposit,
+          you earn referral commission. The system also supports 2-level structure (direct + indirect).
+        </p>
+        <ul class="small">
+          <li><b>Level 1:</b> Commission from your direct referral after verified deposit.</li>
+          <li><b>Level 2:</b> Commission from your referral’s referral after verified deposit.</li>
+        </ul>
+        <p class="small" style="opacity:.85;">
+          *Rates and thresholds can be configured by admin policy.
+        </p>
+      </div>
+
+      <div class="card" style="margin-top:14px;">
+        <h2>Security & Transparency</h2>
+        <ul class="small">
+          <li>Secure login system (Firebase Authentication).</li>
+          <li>Verified deposits before balance update.</li>
+          <li>Controlled withdrawal approvals.</li>
+          <li>Recorded histories (payments, withdrawals, referral records).</li>
+          <li>Admin access control and audit logs.</li>
+        </ul>
+      </div>
+
+      <div class="card" style="margin-top:14px;">
+        <h2>Important Notice</h2>
+        <p class="small">
+          GoldChain Investment operates under structured participation rules. Users should participate responsibly and
+          only allocate funds they are comfortable committing. This website content is informational and should not be
+          treated as financial advice.
+        </p>
+      </div>
+
+      <div style="text-align:center; margin-top:18px;">
+        <a class="btn btn-primary" href="signup.html">Join Now</a>
+        <a class="btn btn-outline" href="index.html#plans">View Plans</a>
+      </div>
+
     </div>
+  </section>
 
-    <div class="card" style="margin-top:20px;">
-      <h2>Security & Transparency</h2>
-      <p>
-        All deposits are manually verified by admin.
-        User balances update through secure Firestore transactions.
-      </p>
+  <footer class="footer">
+    <div class="container footer-in">
+      <p class="small">©️ 2026 GoldChain Investment. All rights reserved.</p>
     </div>
-
-  </div>
-</section>
-
-<footer class="footer">
-  <div class="container footer-in">
-    <p>©️ 2026 GoldChain Investment</p>
-  </div>
-</footer>
+  </footer>
 
 </body>
 </html>
