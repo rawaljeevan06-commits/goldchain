@@ -60,6 +60,18 @@
           <p class="muted">Current plan</p>
           <p class="big" id="planEl">Not selected</p>
           <p class="small" id="planPctEl" style="opacity:.8;"></p>
+          <div class="card" style="margin-top:14px;">
+  <h2>Your Referral</h2>
+  <p class="small">Your Referral Code:</p>
+  <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+    <input id="myRefCode" readonly style="padding:10px; border-radius:10px; width:220px;">
+    <button class="btn btn-primary" id="copyRefBtn" type="button">Copy</button>
+  </div>
+
+  <p class="small" style="margin-top:10px;">
+    Earnings: <b>$<span id="refEarn">0.00</span></b>
+  </p>
+</div>
         </div>
 
         <div class="card">
