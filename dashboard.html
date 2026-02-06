@@ -16,7 +16,7 @@
         <p id="userEmail" class="dash-email"></p>
       </div>
 
-      <!-- ✅ BUTTON BAR -->
+      <!-- ✅ BUTTON BAR (same structure) -->
       <div style="display:flex; gap:10px; flex-wrap:wrap;">
         <button id="logoutBtn" class="btn btn-logout" type="button">Logout</button>
         <button id="clearPlanBtn" class="btn btn-outline" type="button">Clear Plan</button>
@@ -54,12 +54,25 @@
         <p class="big" id="weeklyProfitValue">$0.00</p>
       </div>
 
-      <!-- ✅ NEW: Available balance -->
+      <!-- ✅ Available balance (kept) -->
       <div class="card">
         <h3>Available Balance</h3>
         <p class="muted">Earned - Approved Withdrawals</p>
         <p class="big" id="availableBalanceValue">$0.00</p>
         <p class="muted" id="withdrawLockInfo"></p>
+      </div>
+
+      <!-- ✅ NEW (B): Total earned / total withdrawn -->
+      <div class="card">
+        <h3>Total Earned</h3>
+        <p class="muted">Since verification</p>
+        <p class="big" id="totalEarnedValue">$0.00</p>
+      </div>
+
+      <div class="card">
+        <h3>Total Withdrawn</h3>
+        <p class="muted">Approved withdrawals</p>
+        <p class="big" id="totalWithdrawnValue">$0.00</p>
       </div>
     </section>
 
@@ -74,14 +87,34 @@
 
       <div id="dashCalcResult" class="calc-result" style="display:none;"></div>
     </div>
+
+    <!-- ✅ NEW (A): Withdrawal History table (same style as admin tables) -->
+    <div class="dash-box" style="margin-top:18px;">
+      <h2>Withdrawal History</h2>
+      <p class="muted">Your recent withdrawal requests.</p>
+      <p class="small" id="whMsg" style="margin-top:8px;"></p>
+
+      <div style="overflow:auto; margin-top:12px;">
+        <table style="width:100%; border-collapse:collapse; min-width:900px;">
+          <thead>
+            <tr style="text-align:left; border-bottom:1px solid rgba(255,255,255,.15);">
+              <th style="padding:10px;">Time</th>
+              <th style="padding:10px;">Amount</th>
+              <th style="padding:10px;">Wallet</th>
+              <th style="padding:10px;">Status</th>
+            </tr>
+          </thead>
+          <tbody id="withdrawHistoryBody"></tbody>
+        </table>
+      </div>
+    </div>
+
   </div>
 
   <script type="module">
     import { auth, db } from "./js/firebase.js";
     import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-    import {
-      collection, query, where, limit, getDocs
-    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    import { collection, query, where, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
     // ✅ Admin UID
     const ADMIN_UIDS = ["40B1eYKROIXFAZLpelBhjjFTDm72"];
@@ -102,10 +135,29 @@
     const availEl     = document.getElementById("availableBalanceValue");
     const lockInfoEl  = document.getElementById("withdrawLockInfo");
 
+    const totalEarnedEl    = document.getElementById("totalEarnedValue");
+    const totalWithdrawnEl = document.getElementById("totalWithdrawnValue");
+
+    const whMsgEl = document.getElementById("whMsg");
+    const withdrawHistoryBody = document.getElementById("withdrawHistoryBody");
+
     const resultEl    = document.getElementById("dashCalcResult");
 
     function money(n){ return `$${Number(n||0).toFixed(2)}`; }
     function setStatus(t){ if(statusEl) statusEl.textContent = t; }
+
+    function esc(s) {
+      return String(s ?? "").replace(/[&<>"']/g, (c) => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+      }[c]));
+    }
+    function formatTime(ts) {
+      try {
+        if (!ts) return "-";
+        if (typeof ts.toDate === "function") return ts.toDate().toLocaleString();
+        return new Date(ts).toLocaleString();
+      } catch { return "-"; }
+    }
 
     function percentByAmount(amount){
       const a = Number(amount)||0;
@@ -138,58 +190,35 @@
       return Math.floor(ms / (1000*60*60*24));
     }
 
-    // ✅ Get verified payment doc (index-free)
+    // ✅ INDEX-FREE (no extra Firestore indexes needed)
     async function getVerifiedPayment(user){
-      const qv = query(
-        collection(db, "payments"),
-        where("uid", "==", user.uid),
-        limit(20)
-      );
+      const qv = query(collection(db, "payments"), where("uid", "==", user.uid), limit(50));
       const snap = await getDocs(qv);
       if (snap.empty) return null;
 
       for (const d of snap.docs) {
-        const data = d.data();
-        if (String(data.status || "").toLowerCase() === "verified") {
-          return { id: d.id, ...data };
-        }
+        const p = d.data();
+        if (String(p.status||"").toLowerCase() === "verified") return { id: d.id, ...p };
       }
       return null;
     }
 
-    // ✅ Sum of approved withdrawals (index-free)
-    async function getApprovedWithdrawalSum(user){
-      const qx = query(
-        collection(db, "withdrawals"),
-        where("uid", "==", user.uid),
-        limit(200)
-      );
+    async function getWithdrawals(user){
+      const qx = query(collection(db, "withdrawals"), where("uid", "==", user.uid), limit(200));
       const snap = await getDocs(qx);
-
-      let sum = 0;
-      snap.forEach((d) => {
-        const w = d.data();
-        if (String(w.status || "").toLowerCase() === "approved") {
-          sum += Number(w.amount || 0);
-        }
-      });
-      return sum;
+      return snap.docs.map(d => ({ id: d.id, ...d.data() }));
     }
 
-    // ✅ Check if pending withdrawal exists (index-free)
-    async function hasPendingWithdrawal(user){
-      const qx = query(
-        collection(db, "withdrawals"),
-        where("uid", "==", user.uid),
-        limit(200)
-      );
-      const snap = await getDocs(qx);
+    async function getApprovedWithdrawalSum(user){
+      const ws = await getWithdrawals(user);
+      return ws
+        .filter(w => String(w.status||"").toLowerCase() === "approved")
+        .reduce((a,w) => a + Number(w.amount||0), 0);
+    }
 
-      for (const d of snap.docs) {
-        const w = d.data();
-        if (String(w.status || "").toLowerCase() === "pending") return true;
-      }
-      return false;
+    async function hasPendingWithdrawal(user){
+      const ws = await getWithdrawals(user);
+      return ws.some(w => String(w.status||"").toLowerCase() === "pending");
     }
 
     function unlockUI(){ if(withdrawBtn) withdrawBtn.style.display="inline-flex"; }
@@ -204,16 +233,67 @@
       profitEl.textContent = money((principal * pct)/100);
     }
 
+    async function loadWithdrawalHistory(user){
+      if (!withdrawHistoryBody) return;
+
+      withdrawHistoryBody.innerHTML = "";
+      if (whMsgEl) whMsgEl.textContent = "Loading…";
+
+      try {
+        const ws = await getWithdrawals(user);
+
+        if (!ws.length) {
+          if (whMsgEl) whMsgEl.textContent = "No withdrawals yet.";
+          return;
+        }
+
+        // Sort locally by createdAt if possible
+        ws.sort((a,b) => {
+          const ad = tsToDate(a.createdAt || a.processedAt) || new Date(0);
+          const bd = tsToDate(b.createdAt || b.processedAt) || new Date(0);
+          return bd - ad;
+        });
+
+        const top = ws.slice(0, 50);
+        if (whMsgEl) whMsgEl told = ""; // (ignored by browser if typo, but safe)
+        if (whMsgEl) whMsgEl.textContent = `Showing ${top.length} item(s).`;
+
+        top.forEach((w) => {
+          const tr = document.createElement("tr");
+          tr.style.borderBottom = "1px solid rgba(255,255,255,.08)";
+          tr.innerHTML = `
+            <td style="padding:10px;">${esc(formatTime(w.createdAt || w.processedAt))}</td>
+            <td style="padding:10px;">$${esc(w.amount ?? "-")}</td>
+            <td style="padding:10px; max-width:360px; word-break:break-all;">${esc(w.wallet || w.walletAddress || "-")}</td>
+            <td style="padding:10px;">${esc(w.status || "-")}</td>
+          `;
+          withdrawHistoryBody.appendChild(tr);
+        });
+
+      } catch (e) {
+        console.error(e);
+        if (whMsgEl) whMsgEl.textContent = "Failed to load history (rules).";
+      }
+    }
+
     async function renderAccountAccess(user){
       setStatus("Checking…");
       lockUI();
+
       availEl.textContent = "$0.00";
       lockInfoEl.textContent = "";
+      if (totalEarnedEl) totalEarnedEl.textContent = "$0.00";
+      if (totalWithdrawnEl) totalWithdrawnEl.textContent = "$0.00";
 
       const verified = await getVerifiedPayment(user);
 
       if(!verified){
         setStatus("⏳ Payment Pending — Waiting for verification");
+        nameEl.textContent = "Not selected";
+        infoEl.textContent = "";
+        profitEl.textContent = "$0.00";
+        if (whMsgEl) whMsgEl.textContent = "";
+        if (withdrawHistoryBody) withdrawHistoryBody.innerHTML = "";
         return;
       }
 
@@ -236,7 +316,10 @@
       const pending = await hasPendingWithdrawal(user);
 
       const available = Math.max(0, earned - approvedSum);
+
       availEl.textContent = money(available);
+      if (totalEarnedEl) totalEarnedEl.textContent = money(earned);
+      if (totalWithdrawnEl) totalWithdrawnEl.textContent = money(approvedSum);
 
       if(vAt){
         if(days < lockDays){
@@ -247,6 +330,8 @@
             : "Withdrawal available.";
         }
       }
+
+      await loadWithdrawalHistory(user);
     }
 
     // Buttons
