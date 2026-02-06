@@ -1,3 +1,4 @@
+// js/referral.js
 import { auth, db } from "./firebase.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import {
@@ -6,83 +7,100 @@ import {
   collection,
   query,
   where,
-  getDocs
+  orderBy,
+  limit,
+  onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-const myRefCodeEl = document.getElementById("myRefCode");
+const refCodeEl = document.getElementById("refCodeEl");
 const refLinkEl = document.getElementById("refLinkEl");
-const refEarnEl = document.getElementById("refEarn");
-const joinedListEl = document.getElementById("joinedList");
+const refEarnEl = document.getElementById("refEarnEl");
+
+const copyCodeBtn = document.getElementById("copyCodeBtn");
+const copyLinkBtn = document.getElementById("copyLinkBtn");
+
 const commissionListEl = document.getElementById("commissionList");
 
-const copyLinkBtn = document.getElementById("copyLinkBtn");
-const waShareBtn = document.getElementById("waShareBtn");
-const tgShareBtn = document.getElementById("tgShareBtn");
+function safeCopy(text) {
+  return navigator.clipboard.writeText(text);
+}
+
+copyCodeBtn?.addEventListener("click", async () => {
+  const v = refCodeEl?.value || "";
+  if (!v) return;
+  try {
+    await safeCopy(v);
+    alert("✅ Referral code copied!");
+  } catch {
+    alert("Copy failed, please copy manually.");
+  }
+});
+
+copyLinkBtn?.addEventListener("click", async () => {
+  const v = refLinkEl?.value || "";
+  if (!v) return;
+  try {
+    await safeCopy(v);
+    alert("✅ Referral link copied!");
+  } catch {
+    alert("Copy failed, please copy manually.");
+  }
+});
 
 onAuthStateChanged(auth, async (user) => {
-
   if (!user) {
     window.location.replace("login.html");
     return;
   }
 
-  try {
-    const snap = await getDoc(doc(db, "users", user.uid));
-    if (!snap.exists()) return;
-
-    const data = snap.data();
-    const referralCode = data.referralCode || "";
-    const earnings = Number(data.referralEarnings || 0);
-
-    // Show referral code + earnings
-    if (myRefCodeEl) myRefCodeEl.value = referralCode;
-    if (refEarnEl) refEarnEl.textContent = earnings.toFixed(2);
-
-    // Generate referral link
-    const baseURL = window.location.origin;
-    const referralLink = `${baseURL}/signup.html?ref=${referralCode}`;
-    if (refLinkEl) refLinkEl.value = referralLink;
-
-    // Copy link
-    copyLinkBtn?.addEventListener("click", async () => {
-      await navigator.clipboard.writeText(referralLink);
-      alert("✅ Referral link copied!");
-    });
-
-    // WhatsApp
-    if (waShareBtn) {
-      waShareBtn.href =
-        `https://wa.me/?text=Join GoldChain Investment using my link: ${encodeURIComponent(referralLink)}`;
-    }
-
-    // Telegram
-    if (tgShareBtn) {
-      tgShareBtn.href =
-        `https://t.me/share/url?url=${encodeURIComponent(referralLink)}`;
-    }
-
-    // ✅ Load joined users
-    const q = query(collection(db, "users"), where("referredBy", "==", referralCode));
-    const querySnap = await getDocs(q);
-
-    if (joinedListEl) {
-      if (querySnap.empty) {
-        joinedListEl.innerHTML = "No joined users yet.";
-      } else {
-        joinedListEl.innerHTML = "";
-        querySnap.forEach(docSnap => {
-          const u = docSnap.data();
-          joinedListEl.innerHTML += `
-            <div style="margin-bottom:8px;">
-              ${u.email || "User"} — Plan: $${u.plan || 0}
-            </div>
-          `;
-        });
-      }
-    }
-
-  } catch (e) {
-    console.log("Referral error:", e);
+  // ✅ Load your user profile
+  const uSnap = await getDoc(doc(db, "users", user.uid));
+  if (!uSnap.exists()) {
+    if (commissionListEl) commissionListEl.innerHTML = "No profile found.";
+    return;
   }
 
+  const u = uSnap.data();
+  const myCode = u.referralCode || "";
+
+  if (refCodeEl) refCodeEl.value = myCode;
+  if (refEarnEl) refEarnEl.textContent = Number(u.referralEarnings || 0).toFixed(2);
+
+  // ✅ Build referral link: signup.html?ref=CODE
+  const base = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, "/");
+  const link = base + "signup.html?ref=" + encodeURIComponent(myCode);
+  if (refLinkEl) refLinkEl.value = link;
+
+  // ✅ Load commission history (last 50)
+  if (commissionListEl) {
+    const qCom = query(
+      collection(db, "referral_commissions"),
+      where("toUid", "==", user.uid),
+      orderBy("at", "desc"),
+      limit(50)
+    );
+
+    onSnapshot(qCom, (snap) => {
+      if (snap.empty) {
+        commissionListEl.innerHTML = "No commissions yet.";
+        return;
+      }
+
+      commissionListEl.innerHTML = "";
+      snap.forEach((d) => {
+        const c = d.data();
+        const amt = Number(c.commissionAmount || 0).toFixed(2);
+        const dep = Number(c.depositAmount || 0).toFixed(2);
+        const lvl = c.level || 1;
+
+        commissionListEl.innerHTML += `
+          <div style="padding:10px; border:1px solid rgba(255,255,255,.12); border-radius:12px; margin-bottom:10px;">
+            <div style="font-weight:800; color:#facc15;">+$${amt} (Level ${lvl})</div>
+            <div class="small" style="opacity:.85;">From deposit: $${dep}</div>
+            <div class="small" style="opacity:.7;">Payment ID: ${c.paymentId || "-"}</div>
+          </div>
+        `;
+      });
+    });
+  }
 });
