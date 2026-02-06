@@ -1895,3 +1895,69 @@ footer,
   margin: 20px 0 10px;
   color: #ffd700;   /* gold color */
 }
+/* =============================
+   PREMIUM BACKGROUND SLIDESHOW
+   (bg1.jpg, bg2.jpg, bg3.jpg)
+   ============================= */
+
+body{
+  background:#000; /* fallback */
+  overflow-x:hidden;
+}
+
+/* Image layer */
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+  animation: bgSlide 30s infinite;
+  z-index:-3;
+}
+
+/* Dark overlay so text stays readable */
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.70);
+  z-index:-2;
+}
+
+/* Gold glow layer (uses <div class="glow-layer"></div>) */
+.glow-layer{
+  position:fixed;
+  inset:-20%;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(250,204,21,0.15), transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(250,204,21,0.12), transparent 45%);
+  animation: glowMove 12s ease-in-out infinite alternate;
+  z-index:-1;
+  pointer-events:none;
+}
+
+@keyframes glowMove {
+  0% { transform: translate(0,0) scale(1); }
+  100% { transform: translate(40px,30px) scale(1.1); }
+}
+
+@keyframes bgSlide {
+  0%   { background-image: url("../images/bg1.jpg"); }
+  33%  { background-image: url("../images/bg2.jpg"); }
+  66%  { background-image: url("../images/bg3.jpg"); }
+  100% { background-image: url("../images/bg1.jpg"); }
+}
+
+/* Glass effect */
+.glass{
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+  backdrop-filter: blur(10px);
+}
+
+/* Live ticker spacing so it doesn't cover content */
+.page-bottom-space{
+  padding-bottom: 55px;
+}
