@@ -3,91 +3,64 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sign Up | GoldChain Investment</title>
-
+  <title>Referral Center | GoldChain</title>
   <link rel="stylesheet" href="css/style.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 
 <body>
-  <div class="topbar">Sign Up — Secure. Smart. Simple.</div>
+
+  <div class="topbar">Referral Center — GoldChain Investment</div>
 
   <header class="header">
     <div class="container header-in">
-      <a class="brand" href="index.html">
+      <a class="brand" href="dashboard.html">
         <img src="images/logo.png" alt="GoldChain Logo">
         <span>GoldChain</span>
       </a>
 
-      <button class="nav-toggle" type="button" aria-label="Menu">☰</button>
-
       <nav class="nav">
-        <a href="index.html">Home</a>
-        <a href="plans.html">Plans</a>
-        <a href="about.html">Our Impact</a>
-        <a href="faq.html">FAQ</a>
-        <a href="contact.html">Contact</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="payment.html">Deposit</a>
+        <a href="withdrawal.html">Withdraw</a>
       </nav>
-
-      <div class="actions">
-        <a class="btn btn-ghost" href="login.html">Login</a>
-        <a class="btn btn-primary" href="signup.html">Sign Up</a>
-      </div>
     </div>
   </header>
 
   <section class="section">
-    <div class="container" style="max-width:560px;">
+    <div class="container">
+
+      <!-- REFERRAL INFO -->
       <div class="card">
-        <h2>Create Account</h2>
-        <p class="small">Create your account using email and password.</p>
+        <h2>Your Referral</h2>
 
-        <form id="signupForm" class="form-grid">
-          <input class="input" id="suName" type="text" placeholder="Full Name" required>
-          <input class="input" id="suEmail" type="email" placeholder="Email" required>
-          <input class="input" id="suPhone" type="tel" placeholder="Phone (optional)">
+        <p class="small">Referral Code</p>
+        <input id="myRefCode" class="input" readonly>
 
-          <label class="small" for="refCode">Referral Code (optional)</label>
-          <input class="input" id="refCode" type="text" placeholder="Enter referral code (optional)"/>
+        <p class="small" style="margin-top:10px;">Referral Link</p>
+        <input id="myRefLink" class="input" readonly>
 
-          <select class="input" id="suPlan" required>
-            <option value="" disabled selected>Select Plan</option>
-            <option value="350">Starter — $350 (16% Monthly)</option>
-            <option value="700">Growth — $700 (16% Monthly)</option>
-            <option value="1000">Pro — $1000 (16% Monthly)</option>
-            <option value="5000">VIP — $5000+ (18% Monthly)</option>
-          </select>
-
-          <input class="input" id="suPass" type="password" placeholder="Password" required>
-
-          <button class="btn btn-primary full" type="submit">Create Account</button>
-
-          <p id="signupMsg" class="small" style="margin-top:10px;"></p>
-
-          <p class="small">Already have an account?
-            <a href="login.html" style="color:var(--gold2);font-weight:700;">Login</a>
-          </p>
-        </form>
+        <p style="margin-top:10px;">
+          Total Earnings:
+          <b>$<span id="refEarn">0.00</span></b>
+        </p>
       </div>
+
+      <!-- JOINED USERS -->
+      <div class="card" style="margin-top:14px;">
+        <h3>Joined Users</h3>
+        <div id="joinedList" class="small">Loading...</div>
+      </div>
+
+      <!-- COMMISSION HISTORY -->
+      <div class="card" style="margin-top:14px;">
+        <h3>Commission History</h3>
+        <div id="commissionList" class="small">Loading...</div>
+      </div>
+
     </div>
   </section>
 
-  <footer class="footer">
-    <div class="container footer-in">
-      <p class="small">©️ 2026 GoldChain Investment. All rights reserved.</p>
-      <div class="social">
-        <a href="#"><i class="fab fa-facebook"></i></a>
-        <a href="#"><i class="fab fa-youtube"></i></a>
-        <a href="#"><i class="fab fa-instagram"></i></a>
-        <a href="#"><i class="fab fa-linkedin"></i></a>
-      </div>
-    </div>
-  </footer>
+  <script type="module" src="js/referral.js"></script>
 
-  <a class="whatsapp-float" href="https://wa.me/9779851406537" target="_blank" aria-label="WhatsApp Chat">
-    <i class="fab fa-whatsapp"></i>
-  </a>
-
-  <script type="module" src="js/signup.js"></script>
 </body>
 </html>
