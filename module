@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin | Payments</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <div class="topbar">Admin Panel — Payment Verification</div>
+
+  <header class="header">
+    <div class="container header-in">
+      <a class="brand" href="index.html">
+        <img src="images/logo.png" alt="GoldChain Logo">
+        <span>GoldChain</span>
+      </a>
+
+      <nav class="nav">
+        <a href="dashboard.html">Dashboard</a>
+      </nav>
+
+      <div class="actions">
+        <button id="refreshBtn" class="btn btn-outline" type="button">Refresh</button>
+        <button id="logoutBtn" class="btn btn-logout" type="button">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <section class="section">
+    <div class="container">
+      <div class="card">
+        <h2>Pending Payments</h2>
+        <p class="small" id="adminInfo">Checking admin access…</p>
+
+        <div style="overflow:auto; margin-top:12px;">
+          <table style="width:100%; border-collapse:collapse; min-width:900px;">
+            <thead>
+              <tr style="text-align:left; border-bottom:1px solid rgba(255,255,255,.15);">
+                <th style="padding:10px;">Time</th>
+                <th style="padding:10px;">User</th>
+                <th style="padding:10px;">Plan</th>
+                <th style="padding:10px;">Amount</th>
+                <th style="padding:10px;">Method</th>
+                <th style="padding:10px;">TXID</th>
+                <th style="padding:10px;">Status</th>
+                <th style="padding:10px;">Actions</th>
+              </tr>
+            </thead>
+
+            <!-- ✅ IMPORTANT: THIS ID MUST MATCH JS -->
+            <tbody id="paymentsBody"></tbody>
+          </table>
+        </div>
+
+        <p class="small" id="msg" style="margin-top:10px;"></p>
+
+        <!-- ==================== WITHDRAWALS SECTION ==================== -->
+        <hr style="margin:30px 0; opacity:.25;">
+        <h2>Pending Withdrawals</h2>
+        <p class="small" id="wMsg" style="margin-top:8px;"></p>
+
+        <div style="overflow:auto; margin-top:12px;">
+          <table style="width:100%; border-collapse:collapse; min-width:900px;">
+            <thead>
+              <tr style="text-align:left; border-bottom:1px solid rgba(255,255,255,.15);">
+                <th style="padding:10px;">Time</th>
+                <th style="padding:10px;">User</th>
+                <th style="padding:10px;">Amount</th>
+                <th style="padding:10px;">Wallet</th>
+                <th style="padding:10px;">Status</th>
+                <th style="padding:10px;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="withdrawalsBody"></tbody>
+          </table>
+        </div>
+        <!-- ============================================================ -->
+
+      </div>
+    </div>
+  </section>
+
+  <script type="module">
+    import { auth, db } from "./js/firebase.js";
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import {
+      collection, query, where, orderBy, limit, getDocs,
+      doc, updateDoc, serverTimestamp,
+      getDoc, setDoc, addDoc, increment
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    // ✅ PUT YOUR ADMIN UID(S) HERE
+    const ADMIN_UIDS = ["40B1eYKROIXFAZLpelBhjjFTDm72"];
+
+    const adminInfo      = document.getElementById("adminInfo");
+    const paymentsBody   = document.getElementById("paymentsBody");
+    const withdrawalsBody= document.getElementById("withdrawalsBody");
+
+    const msg            = document.getElementById("msg");
+    const wMsg           = document.getElementById("wMsg");
+
+    const refreshBtn     = document.getElementById("refreshBtn");
+    const logoutBtn      = document.getElementById("logoutBtn");
+
+    function esc(s) {
+      return String(s ?? "").replace(/[&<>"']/g, (c) => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+      }[c]));
+    }
+
+    function formatTime(ts) {
+      try {
+        if (!ts) return "-";
+        if (typeof ts.toDate === "function") return ts.toDate().toLocaleString();
+        return new Date(ts).toLocaleString();
+      } catch {
+        return "-";
+      }
+    }
+
+    // ---------------- PAYMENTS ----------------
+    async function loadPendingPayments() {
+      if (!paymentsBody) return;
+      paymentsBody.innerHTML = "";
+      msg.textContent = "Loading pending payments…";
+
+      try {
+        // Try with orderBy (needs index sometimes)
+        let q1 = query(
+          collection(db, "payments"),
+          where("status", "==", "pending"),
+          orderBy("createdAt", "desc"),
+          limit(50)
+        );
+
+        let snap;
+        try {
+          snap = await getDocs(q1);
+        } catch (e) {
+          // fallback without orderBy if index complains
+          console.warn("Payments query fallback (no orderBy):", e?.code || e);
+          const qFallback = query(
+            collection(db, "payments"),
+            where("status", "==", "pending"),
+            limit(50)
+          );
+          snap = await getDocs(qFallback);
+        }
+
+        if (snap.empty) {
+          msg.textContent = "✅ No pending payments.";
+          return;
+        }
+
+        msg.textContent = `Found ${snap.size} pending payment(s).`;
+
+        snap.forEach((docSnap) => {
+          const p  = docSnap.data();
+          const id = docSnap.id;
+
+          const tr = document.createElement("tr");
+          tr.style.borderBottom = "1px solid rgba(255,255,255,.08)";
+
+          tr.innerHTML = `
+            <td style="padding:10px;">${esc(formatTime(p.createdAt))}</td>
+            <td style="padding:10px;">${esc(p.email || p.uid || "-")}</td>
+            <td style="padding:10px;">${esc(p.planName || "-")}</td>
+            <td style="padding:10px;">$${esc(p.amount ?? "-")}</td>
+            <td style="padding:10px;">${esc(p.method || "-")}</td>
+            <td style="padding:10px; max-width:260px; word-break:break-all;">${esc(p.txid || "-")}</td>
+            <td style="padding:10px;">${esc(p.status || "-")}</td>
+            <td style="padding:10px; display:flex; gap:8px; flex-wrap:wrap;">
+              <button class="btn btn-primary" type="button" data-type="pay" data-act="approve" data-id="${esc(id)}">Approve</button>
+              <button class="btn btn-outline" type="button" data-type="pay" data-act="reject" data-id="${esc(id)}">Reject</button>
+            </td>
+          `;
+
+          paymentsBody.appendChild(tr);
+        });
+
+      } catch (e) {
+        console.error(e);
+        msg.textContent = "❌ Failed to load payments (check Firestore rules / index).";
+      }
+    }
+
+    /**
+     * ✅ Payment Approve/Reject
+     * - Approve: marks verified, increments users/{uid}.balance, queues email (optional)
+     */
+    async function setPaymentStatus(paymentId, status) {
+      await updateDoc(doc(db, "payments", paymentId), {
+        status,
+        verifiedAt: serverTimestamp()
+      });
+
+      if (status !== "verified") return;
+
+      const payRef  = doc(db, "payments", paymentId);
+      const paySnap = await getDoc(payRef);
+      if (!paySnap.exists()) return;
+
+      const p = paySnap.data();
+      const uid = p.uid;
+      const email = p.email;
+      const amount = Number(p.amount || 0);
+
+      if (!uid || !Number.isFinite(amount) || amount <= 0) return;
+
+      const userRef  = doc(db, "users", uid);
+      const userSnap = await getDoc(userRef);
+
+      if (!userSnap.exists()) {
+        await setDoc(userRef, {
+          email: email || "",
+          balance: 0,
+          createdAt: serverTimestamp()
+        });
+      }
+
+      await updateDoc(userRef, { balance: increment(amount) });
+
+      // Optional email queue (only if you use Trigger Email extension)
+      if (email) {
+        try {
+          await addDoc(collection(db, "mail"), {
+            to: email,
+            message: {
+              subject: "Payment Approved ✅",
+              text: `Your payment of $${amount} has been approved. Your dashboard balance has been updated.`
+            }
+          });
+        } catch (e) {
+          console.warn("Mail queue skipped:", e);
+        }
+      }
+    }
+
+    // ---------------- WITHDRAWALS ----------------
+    async function loadPendingWithdrawals() {
+      if (!withdrawalsBody) return;
+      withdrawalsBody.innerHTML = "";
+      if (wMsg) wMsg.textContent = "Loading pending withdrawals…";
+
+      try {
+        // Try with orderBy (may need index)
+        let q1 = query(
+          collection(db, "withdrawals"),
+          where("status", "==", "pending"),
+          orderBy("createdAt", "desc"),
+          limit(50)
+        );
+
+        let snap;
+        try {
+          snap = await getDocs(q1);
+        } catch (e) {
+          console.warn("Withdrawals query fallback (no orderBy):", e?.code || e);
+          const qFallback = query(
+            collection(db, "withdrawals"),
+            where("status", "==", "pending"),
+            limit(50)
+          );
+          snap = await getDocs(qFallback);
+        }
+
+        if (snap.empty) {
+          if (wMsg) wMsg.textContent = "✅ No pending withdrawals.";
+          return;
+        }
+
+        if (wMsg) wMsg.textContent = `Found ${snap.size} pending withdrawal(s).`;
+
+        snap.forEach((docSnap) => {
+          const w  = docSnap.data();
+          const id = docSnap.id;
+
+          const tr = document.createElement("tr");
+          tr.style.borderBottom = "1px solid rgba(255,255,255,.08)";
+
+          tr.innerHTML = `
+            <td style="padding:10px;">${esc(formatTime(w.createdAt))}</td>
+            <td style="padding:10px;">${esc(w.email || w.uid || "-")}</td>
+            <td style="padding:10px;">$${esc(w.amount ?? "-")}</td>
+            <td style="padding:10px; max-width:320px; word-break:break-all;">${esc(w.wallet || w.walletAddress || "-")}</td>
+            <td style="padding:10px;">${esc(w.status || "-")}</td>
+            <td style="padding:10px; display:flex; gap:8px; flex-wrap:wrap;">
+              <button class="btn btn-primary" type="button" data-type="wd" data-act="approve" data-id="${esc(id)}">Approve</button>
+              <button class="btn btn-outline" type="button" data-type="wd" data-act="reject" data-id="${esc(id)}">Reject</button>
+            </td>
+          `;
+
+          withdrawalsBody.appendChild(tr);
+        });
+
+      } catch (e) {
+        console.error(e);
+        if (wMsg) wMsg.textContent = "❌ Failed to load withdrawals (check Firestore rules / index).";
+      }
+    }
+
+    /**
+     * ✅ Withdrawal Approve/Reject
+     * - Approve: marks approved + decreases users/{uid}.balance by amount
+     * - Reject: marks rejected only
+     */
+    async function setWithdrawalStatus(withdrawalId, status) {
+      const wRef = doc(db, "withdrawals", withdrawalId);
+
+      await updateDoc(wRef, {
+        status,
+        processedAt: serverTimestamp()
+      });
+
+      if (status !== "approved") return;
+
+      // On approve, reduce user balance
+      const wSnap = await getDoc(wRef);
+      if (!wSnap.exists()) return;
+
+      const w = wSnap.data();
+      const uid = w.uid;
+      const amount = Number(w.amount || 0);
+
+      if (!uid || !Number.isFinite(amount) || amount <= 0) return;
+
+      const userRef = doc(db, "users", uid);
+      try {
+        await updateDoc(userRef, { balance: increment(-amount) });
+      } catch (e) {
+        console.warn("Could not decrement balance:", e);
+      }
+    }
+
+    // ---------------- CLICK HANDLER (PAY + WD) ----------------
+    document.addEventListener("click", async (e) => {
+      const btn = e.target.closest("button[data-type][data-act][data-id]");
+      if (!btn) return;
+
+      const type = btn.getAttribute("data-type"); // pay | wd
+      const act  = btn.getAttribute("data-act");  // approve | reject
+      const id   = btn.getAttribute("data-id");
+      if (!id) return;
+
+      btn.disabled = true;
+
+      try {
+        if (type === "pay") {
+          msg.textContent = "Updating payment…";
+          if (act === "approve") await setPaymentStatus(id, "verified");
+          if (act === "reject")  await setPaymentStatus(id, "rejected");
+          msg.textContent = "✅ Payment updated.";
+          await loadPendingPayments();
+        }
+
+        if (type === "wd") {
+          if (wMsg) wMsg.textContent = "Updating withdrawal…";
+          if (act === "approve") await setWithdrawalStatus(id, "approved");
+          if (act === "reject")  await setWithdrawalStatus(id, "rejected");
+          if (wMsg) wMsg.textContent = "✅ Withdrawal updated.";
+          await loadPendingWithdrawals();
+        }
+
+      } catch (err) {
+        console.error(err);
+        if (type === "pay") msg.textContent = "❌ Payment update failed (check rules/admin UID).";
+        if (type === "wd" && wMsg) wMsg.textContent = "❌ Withdrawal update failed (check rules/admin UID).";
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    // ---------------- BUTTONS ----------------
+    refreshBtn?.addEventListener("click", async () => {
+      await loadPendingPayments();
+      await loadPendingWithdrawals();
+    });
+
+    logoutBtn?.addEventListener("click", async () => {
+      try { await signOut(auth); } catch (e) {}
+      window.location.replace("login.html");
+    });
+
+    // ---------------- ADMIN ACCESS ----------------
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.replace("login.html");
+        return;
+      }
+
+      if (!ADMIN_UIDS.includes(user.uid)) {
+        adminInfo.textContent = "❌ Access denied (not admin).";
+        if (paymentsBody) paymentsBody.innerHTML = "";
+        if (withdrawalsBody) withdrawalsBody.innerHTML = "";
+        window.location.replace("dashboard.html");
+        return;
+      }
+
+      adminInfo.textContent = `✅ Admin: ${user.email || user.uid}`;
+      await loadPendingPayments();
+      await loadPendingWithdrawals(); // ✅ load withdrawals too
+    });
+  </script>
+
+</body>
+</html>
