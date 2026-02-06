@@ -226,5 +226,25 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="authSupabase.js"></script>
 <script src="plan.js"></script>
+  <script>
+  // Make "Choose Plan" buttons work on index.html (and plans.html too)
+  document.addEventListener("click", (e) => {
+    const btn = e.target.closest(".choose-plan");
+    if (!btn) return;
+
+    const planObj = {
+      name: btn.dataset.plan || "Plan",
+      amount: Number(btn.dataset.amount || 0),
+      percent: Number(btn.dataset.percent || 0),
+      withdraw: btn.dataset.withdraw || ""
+    };
+
+    try { localStorage.setItem("selectedPlan", JSON.stringify(planObj)); } catch (e) {}
+    try { sessionStorage.setItem("selectedPlan", JSON.stringify(planObj)); } catch (e) {}
+
+    // Go dashboard after choosing
+    window.location.href = "dashboard.html";
+  });
+</script>
 </body>
 </html>
