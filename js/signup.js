@@ -1,93 +1,118 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sign Up | GoldChain Investment</title>
+// js/signup.js
+import { auth, db } from "./firebase.js";
+import {
+  createUserWithEmailAndPassword,
+  updateProfile,
+  signOut,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
-  <link rel="stylesheet" href="css/style.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-</head>
+import {
+  doc,
+  setDoc,
+  serverTimestamp,
+  collection,
+  query,
+  where,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-<body>
-  <div class="topbar">Sign Up — Secure. Smart. Simple.</div>
+// Make a short referral code for the user
+function makeReferralCode(uid) {
+  return ("GC" + String(uid).slice(0, 8)).toUpperCase();
+}
 
-  <header class="header">
-    <div class="container header-in">
-      <a class="brand" href="index.html">
-        <img src="images/logo.png" alt="GoldChain Logo">
-        <span>GoldChain</span>
-      </a>
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("signupForm");
+  const msgEl = document.getElementById("signupMsg");
 
-      <button class="nav-toggle" type="button" aria-label="Menu">☰</button>
+  if (!form) return;
 
-      <nav class="nav">
-        <a href="index.html">Home</a>
-        <a href="plans.html">Plans</a>
-        <a href="about.html">Our Impact</a>
-        <a href="faq.html">FAQ</a>
-        <a href="contact.html">Contact</a>
-      </nav>
+  // ✅ If already logged in, logout so signup always creates new account
+  onAuthStateChanged(auth, async (u) => {
+    try {
+      if (u) await signOut(auth);
+    } catch (e) {}
+  });
 
-      <div class="actions">
-        <a class="btn btn-ghost" href="login.html">Login</a>
-        <a class="btn btn-primary" href="signup.html">Sign Up</a>
-      </div>
-    </div>
-  </header>
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (msgEl) msgEl.textContent = "Creating account...";
 
-  <section class="section">
-    <div class="container" style="max-width:560px;">
-      <div class="card">
-        <h2>Create Account</h2>
-        <p class="small">Create your account using email and password.</p>
+    const name = (document.getElementById("suName")?.value || "").trim();
+    const email = (document.getElementById("suEmail")?.value || "").trim();
+    const phone = (document.getElementById("suPhone")?.value || "").trim();
+    const plan = (document.getElementById("suPlan")?.value || "").trim();
+    const pass = document.getElementById("suPass")?.value || "";
 
-        <form id="signupForm" class="form-grid">
-          <input class="input" id="suName" type="text" placeholder="Full Name" required>
-          <input class="input" id="suEmail" type="email" placeholder="Email" required>
-          <input class="input" id="suPhone" type="tel" placeholder="Phone (optional)">
+    const refCodeInput = (document.getElementById("refCode")?.value || "")
+      .trim()
+      .toUpperCase();
 
-          <label class="small" for="refCode">Referral Code (optional)</label>
-          <input class="input" id="refCode" type="text" placeholder="Enter referral code (optional)"/>
+    if (!name || !email || !plan || !pass) {
+      if (msgEl) msgEl.textContent = "Please fill all required fields.";
+      return;
+    }
 
-          <select class="input" id="suPlan" required>
-            <option value="" disabled selected>Select Plan</option>
-            <option value="350">Starter — $350 (16% Monthly)</option>
-            <option value="700">Growth — $700 (16% Monthly)</option>
-            <option value="1000">Pro — $1000 (16% Monthly)</option>
-            <option value="5000">VIP — $5000+ (18% Monthly)</option>
-          </select>
+    try {
+      // ✅ Create user in Firebase Auth
+      const userCred = await createUserWithEmailAndPassword(auth, email, pass);
 
-          <input class="input" id="suPass" type="password" placeholder="Password" required>
+      // ✅ Update display name
+      await updateProfile(userCred.user, { displayName: name });
 
-          <button class="btn btn-primary full" type="submit">Create Account</button>
+      const uid = userCred.user.uid;
+      const myReferralCode = makeReferralCode(uid);
 
-          <p id="signupMsg" class="small" style="margin-top:10px;"></p>
+      // ✅ Referral lookup (2 levels)
+      let referredByUid = null;   // Level 1 referrer UID
+      let referredByUid2 = null;  // Level 2 referrer UID
 
-          <p class="small">Already have an account?
-            <a href="login.html" style="color:var(--gold2);font-weight:700;">Login</a>
-          </p>
-        </form>
-      </div>
-    </div>
-  </section>
+      if (refCodeInput) {
+        const qRef = query(
+          collection(db, "users"),
+          where("referralCode", "==", refCodeInput)
+        );
+        const refSnap = await getDocs(qRef);
 
-  <footer class="footer">
-    <div class="container footer-in">
-      <p class="small">©️ 2026 GoldChain Investment. All rights reserved.</p>
-      <div class="social">
-        <a href="#"><i class="fab fa-facebook"></i></a>
-        <a href="#"><i class="fab fa-youtube"></i></a>
-        <a href="#"><i class="fab fa-instagram"></i></a>
-        <a href="#"><i class="fab fa-linkedin"></i></a>
-      </div>
-    </div>
-  </footer>
+        if (!refSnap.empty) {
+          const refDoc = refSnap.docs[0];
+          referredByUid = refDoc.id;
 
-  <a class="whatsapp-float" href="https://wa.me/9779851406537" target="_blank" aria-label="WhatsApp Chat">
-    <i class="fab fa-whatsapp"></i>
-  </a>
+          const refData = refDoc.data();
+          // If referrer himself was referred by someone, that's level 2
+          if (refData?.referredByUid) {
+            referredByUid2 = refData.referredByUid;
+          }
+        }
+      }
 
-  <script type="module" src="js/signup.js"></script>
-</body>
-</html>
+      // ✅ Create user profile in Firestore
+      await setDoc(doc(db, "users", uid), {
+        name,
+        email,
+        phone: phone || "",
+        plan, // store plan amount string like "350", "700"
+        balance: 0,
+        paymentVerified: false,
+
+        referralCode: myReferralCode,
+        referralEarnings: 0,
+
+        // ✅ referral links
+        referredByUid: referredByUid || null,
+        referredByUid2: referredByUid2 || null,
+
+        createdAt: serverTimestamp()
+      });
+
+      if (msgEl) msgEl.textContent = "✅ Account created! Redirecting...";
+
+      // Go dashboard
+      window.location.href = "dashboard.html";
+    } catch (err) {
+      console.error(err);
+      if (msgEl) msgEl.textContent = "❌ " + (err?.message || "Signup failed");
+    }
+  });
+});
