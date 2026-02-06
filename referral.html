@@ -38,8 +38,19 @@
 
         <p class="small" style="margin-top:10px;">Referral Link</p>
         <input id="myRefLink" class="input" readonly>
+         <p style="margin-top:10px;">
+<div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
+  <button id="copyLinkBtn" class="btn btn-primary" type="button">Copy Link</button>
 
-        <p style="margin-top:10px;">
+  <a id="waShareBtn" class="btn btn-outline" target="_blank">
+    WhatsApp
+  </a>
+
+  <a id="tgShareBtn" class="btn btn-outline" target="_blank">
+    Telegram
+  </a>
+</div>
+           
           Total Earnings:
           <b>$<span id="refEarn">0.00</span></b>
         </p>
