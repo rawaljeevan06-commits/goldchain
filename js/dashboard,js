@@ -1,8 +1,7 @@
-import { auth } from "./firebase.js";
-import {
-  onAuthStateChanged,
-  signOut
-} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { auth, db } from "./firebase.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
 console.log("✅ dashboard.js loaded");
 
@@ -63,6 +62,30 @@ document.addEventListener("DOMContentLoaded", () => {
     logoutBtn.addEventListener("click", async () => {
       await signOut(auth);
       window.location.replace("login.html");
+    });
+  }
+});
+document.addEventListener("DOMContentLoaded", () => {
+  const myRefCode = document.getElementById("myRefCode");
+  const refEarn = document.getElementById("refEarn");
+  const copyRefBtn = document.getElementById("copyRefBtn");
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) return;
+
+    const snap = await getDoc(doc(db, "users", user.uid));
+    if (!snap.exists()) return;
+
+    const data = snap.data();
+    if (myRefCode) myRefCode.value = data.referralCode || "";
+    if (refEarn) refEarn.textContent = (data.referralEarnings || 0).toFixed(2);
+  });
+
+  if (copyRefBtn) {
+    copyRefBtn.addEventListener("click", async () => {
+      if (!myRefCode || !myRefCode.value) return;
+      await navigator.clipboard.writeText(myRefCode.value);
+      alert("✅ Copied referral code!");
     });
   }
 });
