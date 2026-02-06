@@ -16,16 +16,11 @@
         <p id="userEmail" class="dash-email"></p>
       </div>
 
-      <!-- ✅ BUTTON BAR -->
       <div style="display:flex; gap:10px; flex-wrap:wrap;">
         <button id="logoutBtn" class="btn btn-logout" type="button">Logout</button>
         <button id="clearPlanBtn" class="btn btn-outline" type="button">Clear Plan</button>
         <button id="payNowBtn" class="btn btn-primary" type="button">Pay Now</button>
-
-        <!-- ✅ Withdraw button (hidden until verified) -->
-        <button id="withdrawBtn" class="btn btn-primary" type="button" style="display:none;">
-          Withdrawal
-        </button>
+        <button id="withdrawBtn" class="btn btn-primary" type="button" style="display:none;">Withdrawal</button>
       </div>
     </header>
 
@@ -54,12 +49,24 @@
         <p class="big" id="weeklyProfitValue">$0.00</p>
       </div>
 
-      <!-- ✅ Available balance -->
       <div class="card">
         <h3>Available Balance</h3>
         <p class="muted">Earned - Approved Withdrawals</p>
         <p class="big" id="availableBalanceValue">$0.00</p>
         <p class="muted" id="withdrawLockInfo"></p>
+      </div>
+
+      <!-- ✅ B: Added cards -->
+      <div class="card">
+        <h3>Total Earned</h3>
+        <p class="muted">Since verification</p>
+        <p class="big" id="totalEarnedValue">$0.00</p>
+      </div>
+
+      <div class="card">
+        <h3>Total Withdrawn</h3>
+        <p class="muted">Approved withdrawals</p>
+        <p class="big" id="totalWithdrawnValue">$0.00</p>
       </div>
     </section>
 
@@ -74,67 +81,80 @@
 
       <div id="dashCalcResult" class="calc-result" style="display:none;"></div>
     </div>
+
+    <!-- ✅ C: Withdrawal history -->
+    <div class="dash-box" style="margin-top:18px;">
+      <h2>Withdrawal History</h2>
+      <p class="muted small" id="historyMsg" style="margin-top:6px;">Loading…</p>
+
+      <div style="overflow:auto; margin-top:12px;">
+        <table style="width:100%; border-collapse:collapse; min-width:800px;">
+          <thead>
+            <tr style="text-align:left; border-bottom:1px solid rgba(255,255,255,.15);">
+              <th style="padding:10px;">Time</th>
+              <th style="padding:10px;">Amount</th>
+              <th style="padding:10px;">Wallet</th>
+              <th style="padding:10px;">Status</th>
+            </tr>
+          </thead>
+          <tbody id="withdrawHistoryBody"></tbody>
+        </table>
+      </div>
+    </div>
   </div>
 
   <script type="module">
     import { auth, db } from "./js/firebase.js";
     import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-    import {
-      collection, query, where, limit, getDocs
-    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    import { collection, query, where, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-    // ✅ Admin UID
     const ADMIN_UIDS = ["40B1eYKROIXFAZLpelBhjjFTDm72"];
 
-    // Elements
+    // Buttons
     const payNowBtn   = document.getElementById("payNowBtn");
     const clearBtn    = document.getElementById("clearPlanBtn");
     const calcBtn     = document.getElementById("dashCalcBtn");
     const logoutBtn   = document.getElementById("logoutBtn");
     const withdrawBtn = document.getElementById("withdrawBtn");
 
-    const statusEl    = document.getElementById("paymentStatusText");
-    const emailEl     = document.getElementById("userEmail");
+    // UI
+    const statusEl   = document.getElementById("paymentStatusText");
+    const emailEl    = document.getElementById("userEmail");
+    const nameEl     = document.getElementById("dashPlanName");
+    const infoEl     = document.getElementById("dashPlanInfo");
+    const profitEl   = document.getElementById("weeklyProfitValue");
+    const availEl    = document.getElementById("availableBalanceValue");
+    const lockInfoEl = document.getElementById("withdrawLockInfo");
 
-    const nameEl      = document.getElementById("dashPlanName");
-    const infoEl      = document.getElementById("dashPlanInfo");
-    const profitEl    = document.getElementById("weeklyProfitValue");
-    const availEl     = document.getElementById("availableBalanceValue");
-    const lockInfoEl  = document.getElementById("withdrawLockInfo");
+    // B cards
+    const totalEarnedEl   = document.getElementById("totalEarnedValue");
+    const totalWithdrawnEl= document.getElementById("totalWithdrawnValue");
 
-    const resultEl    = document.getElementById("dashCalcResult");
+    // C history
+    const historyMsg = document.getElementById("historyMsg");
+    const historyBody = document.getElementById("withdrawHistoryBody");
+
+    const resultEl = document.getElementById("dashCalcResult");
 
     function money(n){ return `$${Number(n||0).toFixed(2)}`; }
     function setStatus(t){ if(statusEl) statusEl.textContent = t; }
 
-    // A/B/C/D rules
     function percentByAmount(amount){
       const a = Number(amount)||0;
-      if (a >= 5000) return 4;     // D
-      if (a >= 1000) return 3;     // C
-      if (a >= 700)  return 2;     // B
-      if (a >= 350)  return 1.5;   // A
+      if (a >= 5000) return 4;
+      if (a >= 1000) return 3;
+      if (a >= 700)  return 2;
+      if (a >= 350)  return 1.5;
       return 0;
     }
-
     function lockDaysByAmount(amount){
       const a = Number(amount)||0;
-      if (a >= 5000) return 7;     // D weekly
-      if (a >= 1000) return 15;    // C
-      if (a >= 700)  return 30;    // B
-      if (a >= 350)  return 45;    // A
+      if (a >= 5000) return 7;
+      if (a >= 1000) return 15;
+      if (a >= 700)  return 30;
+      if (a >= 350)  return 45;
       return 999999;
     }
-
-    function planLetterByAmount(amount){
-      const a = Number(amount)||0;
-      if (a >= 5000) return "D";
-      if (a >= 1000) return "C";
-      if (a >= 700)  return "B";
-      if (a >= 350)  return "A";
-      return "";
-    }
-
     function tsToDate(x){
       try{
         if(!x) return null;
@@ -142,13 +162,24 @@
         return new Date(x);
       }catch{ return null; }
     }
-
     function daysBetween(d1, d2){
       const ms = (d2 - d1);
       return Math.floor(ms / (1000*60*60*24));
     }
+    function esc(s){
+      return String(s ?? "").replace(/[&<>"']/g, (c) => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+      }[c]));
+    }
+    function formatTime(ts){
+      try{
+        if(!ts) return "-";
+        if(typeof ts.toDate==="function") return ts.toDate().toLocaleString();
+        return new Date(ts).toLocaleString();
+      }catch{ return "-"; }
+    }
 
-    // ✅ Get verified payment doc (index-free)
+    // ✅ A: index-free verified payment (works Safari/Chrome)
     async function getVerifiedPayment(user){
       const qv = query(
         collection(db, "payments"),
@@ -167,39 +198,15 @@
       return null;
     }
 
-    // ✅ Sum of approved withdrawals (index-free)
-    async function getApprovedWithdrawalSum(user){
+    // ✅ A: index-free withdrawals list
+    async function getWithdrawals(user){
       const qx = query(
         collection(db, "withdrawals"),
         where("uid", "==", user.uid),
         limit(200)
       );
       const snap = await getDocs(qx);
-
-      let sum = 0;
-      snap.forEach((d) => {
-        const w = d.data();
-        if (String(w.status || "").toLowerCase() === "approved") {
-          sum += Number(w.amount || 0);
-        }
-      });
-      return sum;
-    }
-
-    // ✅ Check if pending withdrawal exists (index-free)
-    async function hasPendingWithdrawal(user){
-      const qx = query(
-        collection(db, "withdrawals"),
-        where("uid", "==", user.uid),
-        limit(200)
-      );
-      const snap = await getDocs(qx);
-
-      for (const d of snap.docs) {
-        const w = d.data();
-        if (String(w.status || "").toLowerCase() === "pending") return true;
-      }
-      return false;
+      return snap.docs.map(d => ({ id: d.id, ...d.data() }));
     }
 
     function unlockUI(){ if(withdrawBtn) withdrawBtn.style.display="inline-flex"; }
@@ -208,11 +215,51 @@
     function renderPlanFromVerified(verifiedDoc){
       const principal = Number(verifiedDoc?.amount || 0);
       const pct = percentByAmount(principal);
-      const letter = planLetterByAmount(principal);
-
-      nameEl.textContent = verifiedDoc?.planName || (letter ? `${letter} Plan` : "Verified Plan");
+      nameEl.textContent = verifiedDoc?.planName || "Verified Plan";
       infoEl.textContent = `$${principal} • ${pct}% weekly`;
       profitEl.textContent = money((principal * pct)/100);
+    }
+
+    async function renderHistory(user){
+      if(!historyBody) return;
+      historyBody.innerHTML = "";
+      if(historyMsg) historyMsg.textContent = "Loading…";
+
+      try{
+        const ws = await getWithdrawals(user);
+
+        // Sort newest first (client-side, no index)
+        ws.sort((a,b)=>{
+          const ad = tsToDate(a.createdAt) || new Date(0);
+          const bd = tsToDate(b.createdAt) || new Date(0);
+          return bd - ad;
+        });
+
+        const top = ws.slice(0, 20);
+
+        if(top.length === 0){
+          if(historyMsg) historyMsg.textContent = "No withdrawals yet.";
+          return;
+        }
+
+        if(historyMsg) historyMsg.textContent = `Showing last ${top.length} withdrawal(s).`;
+
+        top.forEach(w=>{
+          const tr = document.createElement("tr");
+          tr.style.borderBottom = "1px solid rgba(255,255,255,.08)";
+          tr.innerHTML = `
+            <td style="padding:10px;">${esc(formatTime(w.createdAt))}</td>
+            <td style="padding:10px;">$${esc(w.amount ?? "-")}</td>
+            <td style="padding:10px; max-width:360px; word-break:break-all;">${esc(w.wallet || w.walletAddress || "-")}</td>
+            <td style="padding:10px;">${esc(w.status || "-")}</td>
+          `;
+          historyBody.appendChild(tr);
+        });
+
+      }catch(e){
+        console.error(e);
+        if(historyMsg) historyMsg.textContent = "Failed to load history (rules/index).";
+      }
     }
 
     async function renderAccountAccess(user){
@@ -220,14 +267,14 @@
       lockUI();
       availEl.textContent = "$0.00";
       lockInfoEl.textContent = "";
+      totalEarnedEl.textContent = "$0.00";
+      totalWithdrawnEl.textContent = "$0.00";
 
       const verified = await getVerifiedPayment(user);
 
       if(!verified){
         setStatus("⏳ Payment Pending — Waiting for verification");
-        nameEl.textContent = "Not selected";
-        infoEl.textContent = "";
-        profitEl.textContent = "$0.00";
+        await renderHistory(user);
         return;
       }
 
@@ -246,21 +293,33 @@
       // Earned profit since verified (daily based)
       const earned = (principal * (pct/100)) * (days/7);
 
-      const approvedSum = await getApprovedWithdrawalSum(user);
-      const pending = await hasPendingWithdrawal(user);
+      const ws = await getWithdrawals(user);
+      const approvedSum = ws
+        .filter(w => String(w.status||"").toLowerCase() === "approved")
+        .reduce((a,w) => a + Number(w.amount||0), 0);
+
+      const pendingExists = ws.some(w => String(w.status||"").toLowerCase() === "pending");
 
       const available = Math.max(0, earned - approvedSum);
+
+      // ✅ B values
+      totalEarnedEl.textContent = money(earned);
+      totalWithdrawnEl.textContent = money(approvedSum);
+
+      // ✅ Main available
       availEl.textContent = money(available);
 
       if(vAt){
         if(days < lockDays){
           lockInfoEl.textContent = `Withdrawal locked for ${lockDays - days} more day(s) (plan rule).`;
         } else {
-          lockInfoEl.textContent = pending
+          lockInfoEl.textContent = pendingExists
             ? "Withdrawal already submitted (pending approval)."
             : "Withdrawal available.";
         }
       }
+
+      await renderHistory(user);
     }
 
     // Buttons
@@ -293,7 +352,6 @@
       window.location.replace("login.html");
     });
 
-    // ✅ Only ONE auth listener
     onAuthStateChanged(auth, async (user) => {
       if(!user){ window.location.replace("login.html"); return; }
       if(ADMIN_UIDS.includes(user.uid)){ window.location.replace("admin.html"); return; }
