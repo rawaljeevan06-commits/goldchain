@@ -211,14 +211,25 @@ onAuthStateChanged(auth, (user) => {
           const doc = snap.docs[0].data();
           const st = (doc.status || "").toLowerCase();
 
-          if (st === "verified") {
-            setStatus("✅ Payment Verified — Full access unlocked");
-            return;
-          }
-          if (st === "pending") {
-            setStatus("⏳ Payment Pending — Waiting for verification");
-            return;
-          }
+        if (st === "verified") {
+  setStatus("✅ Payment Verified — Full access unlocked");
+
+  window.__lastPaymentDoc = doc;
+  unlockUI();
+  renderProfit(doc);
+  return;
+}
+
+if (st === "pending") {
+  setStatus("⏳ Payment Pending — Waiting for verification");
+  lockUI();
+  return;
+}
+
+// fallback
+setStatus(`ℹ️ Payment Status: ${doc.status || "Unknown"}`);
+lockUI();
+return;
 
           // Unknown status fallback
           setStatus(`ℹ️ Payment Status: ${doc.status || "Unknown"}`);
