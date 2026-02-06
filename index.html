@@ -159,20 +159,19 @@
         </div>
       </div>
 
-      <!-- PROFIT CALCULATOR -->
-      <div class="calc-box">
-        <h3>Profit Calculator</h3>
-        <p class="gc-text">Enter your amount to see your weekly profit and withdrawal time.</p>
+     <!-- Profit Calculator -->
+<div class="card" style="margin-top:14px;">
+  <h2>Profit Calculator</h2>
+  <p class="small">Enter your amount to see monthly profit (16% monthly) and weekly estimate.</p>
 
-        <div class="calc-row">
-          <input type="number" id="investAmount" placeholder="Enter amount in USD (e.g. 700)" min="0" />
-          <button class="btn btn-primary" id="calcBtn">Calculate</button>
-        </div>
+  <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:10px;">
+    <input id="amountInput" type="number" min="0" step="1" placeholder="Enter amount in USD (e.g. 700)"
+      style="padding:12px; border-radius:10px; border:1px solid rgba(255,255,255,.15); background:#0e0f12; color:#fff; width:240px;">
+    <button id="calcBtn" class="btn btn-primary" type="button">Calculate</button>
+  </div>
 
-        <div id="calcResult" class="calc-result" style="display:none;"></div>
-      </div>
-    </div>
-  </section>
+  <p class="small" id="resultEl" style="margin-top:10px; display:none;"></p>
+</div>
 
   <!-- LIVE GOLD PRICE -->
   <section class="gc-section">
