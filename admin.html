@@ -100,11 +100,12 @@
   <script type="module">
     import { auth, db } from "./js/firebase.js";
     import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-    import {
-      collection, query, where, orderBy, limit, getDocs,
-      doc, updateDoc, serverTimestamp,
-      getDoc, setDoc, addDoc, increment
-    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+   import {
+  collection, query, where, orderBy, limit, getDocs,
+  doc, updateDoc, serverTimestamp,
+  getDoc, setDoc, addDoc, increment,
+  runTransaction
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
     const ADMIN_UIDS = ["40B1eYKROIXFAZLpelBhjjFTDm72"];
 
@@ -229,11 +230,57 @@
     }
 
     async function setPaymentStatus(paymentId, status) {
-      await updateDoc(doc(db, "payments", paymentId), {
-        status,
-        verifiedAt: serverTimestamp()
-      });
+    async function setPaymentStatus(paymentId, status) {
+  const payRef = doc(db, "payments", paymentId);
 
+  await runTransaction(db, async (tx) => {
+    const paySnap = await tx.get(payRef);
+    if (!paySnap.exists()) return;
+
+    const p = paySnap.data();
+
+    // 🔒 Prevent double approval
+    if (String(p.status || "").toLowerCase() === "verified" && status === "verified") {
+      return;
+    }
+
+    tx.update(payRef, {
+      status,
+      verifiedAt: serverTimestamp()
+    });
+
+    if (status !== "verified") return;
+
+    const uid = p.uid;
+    const email = p.email || "";
+    const amount = Number(p.amount || 0);
+    if (!uid || !Number.isFinite(amount) || amount <= 0) return;
+
+    const userRef = doc(db, "users", uid);
+    const userSnap = await tx.get(userRef);
+
+    if (!userSnap.exists()) {
+      tx.set(userRef, {
+        email,
+        balance: 0,
+        createdAt: serverTimestamp()
+      });
+    }
+
+    tx.update(userRef, { balance: increment(amount) });
+
+    // 📘 Audit log
+    tx.set(doc(collection(db, "audit")), {
+      type: "payment_approved",
+      paymentId,
+      uid,
+      email,
+      amount,
+      byAdmin: auth.currentUser?.uid || "",
+      at: serverTimestamp()
+    });
+  });
+}
       if (status !== "verified") return;
 
       const payRef  = doc(db, "payments", paymentId);
