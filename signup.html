@@ -10,7 +10,6 @@
 </head>
 
 <body>
-
   <div class="topbar">Sign Up — Secure. Smart. Simple.</div>
 
   <header class="header">
@@ -20,7 +19,7 @@
         <span>GoldChain</span>
       </a>
 
-      <button class="nav-toggle" type="button">☰</button>
+      <button class="nav-toggle" type="button" aria-label="Menu">☰</button>
 
       <nav class="nav">
         <a href="index.html">Home</a>
@@ -40,21 +39,16 @@
   <section class="section">
     <div class="container" style="max-width:560px;">
       <div class="card">
-
         <h2>Create Account</h2>
         <p class="small">Create your account using email and password.</p>
 
         <form id="signupForm" class="form-grid">
-
           <input class="input" id="suName" type="text" placeholder="Full Name" required>
-
           <input class="input" id="suEmail" type="email" placeholder="Email" required>
-
           <input class="input" id="suPhone" type="tel" placeholder="Phone (optional)">
 
-          <!-- Referral Code -->
           <label class="small" for="refCode">Referral Code (optional)</label>
-          <input class="input" id="refCode" type="text" placeholder="Enter referral code (optional)" />
+          <input class="input" id="refCode" type="text" placeholder="Enter referral code (optional)"/>
 
           <select class="input" id="suPlan" required>
             <option value="" disabled selected>Select Plan</option>
@@ -66,19 +60,14 @@
 
           <input class="input" id="suPass" type="password" placeholder="Password" required>
 
-          <button class="btn btn-primary full" type="submit">
-            Create Account
-          </button>
+          <button class="btn btn-primary full" type="submit">Create Account</button>
 
           <p id="signupMsg" class="small" style="margin-top:10px;"></p>
 
-          <p class="small">
-            Already have an account?
+          <p class="small">Already have an account?
             <a href="login.html" style="color:var(--gold2);font-weight:700;">Login</a>
           </p>
-
         </form>
-
       </div>
     </div>
   </section>
@@ -95,14 +84,10 @@
     </div>
   </footer>
 
-  <a class="whatsapp-float"
-     href="https://wa.me/9779851406537"
-     target="_blank">
+  <a class="whatsapp-float" href="https://wa.me/9779851406537" target="_blank" aria-label="WhatsApp Chat">
     <i class="fab fa-whatsapp"></i>
   </a>
 
-  <!-- Only load signup.js (firebase is imported inside it) -->
   <script type="module" src="js/signup.js"></script>
-
 </body>
 </html>
