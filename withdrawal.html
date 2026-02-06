@@ -74,9 +74,7 @@
   <script type="module">
     import { auth, db } from "./js/firebase.js";
     import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-    import {
-      collection, query, where, limit, getDocs, addDoc, serverTimestamp
-    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    import { collection, query, where, limit, getDocs, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
     const emailEl = document.getElementById("userEmail");
     const statusText = document.getElementById("statusText");
@@ -113,7 +111,7 @@
 
     function lockDaysByAmount(amount){
       const a = Number(amount)||0;
-      if (a >= 5000) return 7;    // weekly
+      if (a >= 5000) return 7;
       if (a >= 1000) return 15;
       if (a >= 700)  return 30;
       if (a >= 350)  return 45;
@@ -133,9 +131,11 @@
       return Math.floor(ms / (1000*60*60*24));
     }
 
-    // index-free verified payment
+    function setMsg(t){ msg.textContent = t; }
+
+    // ✅ index-free verified payment
     async function getVerifiedPayment(user){
-      const qv = query(collection(db, "payments"), where("uid", "==", user.uid), limit(20));
+      const qv = query(collection(db, "payments"), where("uid", "==", user.uid), limit(50));
       const snap = await getDocs(qv);
       if (snap.empty) return null;
 
@@ -146,14 +146,12 @@
       return null;
     }
 
-    // index-free withdrawals list
+    // ✅ index-free withdrawals list
     async function getWithdrawals(user){
       const qx = query(collection(db, "withdrawals"), where("uid", "==", user.uid), limit(200));
       const snap = await getDocs(qx);
       return snap.docs.map(d => ({ id: d.id, ...d.data() }));
     }
-
-    function setMsg(t){ msg.textContent = t; }
 
     let state = {
       user: null,
@@ -184,7 +182,7 @@
       const available = Math.max(0, earned - approvedSum);
       const locked = (days < lockDays);
 
-      return { principal, pct, lockDays, days, earned, approvedSum, available, locked, pendingExists };
+      return { principal, pct, lockDays, days, available, locked, pendingExists };
     }
 
     async function render(){
@@ -214,7 +212,7 @@
       state.locked = locked;
       state.pendingExists = pendingExists;
 
-      statusText.textContent = "✅ Verified — You can request withdrawal";
+      statusText.textContent = "✅ Verified — Withdrawal access available";
       planText.textContent = `${verified.planName || "Plan"} ($${principal} • ${pct}% weekly)`;
       weeklyProfitEl.textContent = money((principal*pct)/100);
       availableEl.textContent = money(available);
