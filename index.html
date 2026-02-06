@@ -160,46 +160,19 @@
       </div>
 
       <!-- PROFIT CALCULATOR -->
-     <script>
-  function monthlyPercent(amount){
-    const a = Number(amount || 0);
-    if (!Number.isFinite(a) || a < 350) return 0;
-    return 16;
-  }
+      <div class="calc-box">
+        <h3>Profit Calculator</h3>
+        <p class="gc-text">Enter your amount to see your weekly profit and withdrawal time.</p>
 
-  function money(n){
-    const x = Number(n || 0);
-    return "$" + (Number.isFinite(x) ? x.toFixed(2) : "0.00");
-  }
+        <div class="calc-row">
+          <input type="number" id="investAmount" placeholder="Enter amount in USD (e.g. 700)" min="0" />
+          <button class="btn btn-primary" id="calcBtn">Calculate</button>
+        </div>
 
-  document.addEventListener("click", (e) => {
-    if (e.target?.id !== "calcBtn") return;
-
-    const amountInput = document.getElementById("amountInput");
-    const resultEl = document.getElementById("resultEl");
-
-    const amount = Number(amountInput?.value || 0);
-    if (!amount || amount <= 0) {
-      resultEl.style.display = "block";
-      resultEl.textContent = "Enter a valid amount.";
-      return;
-    }
-
-    const pct = monthlyPercent(amount);
-    if (!pct) {
-      resultEl.style.display = "block";
-      resultEl.textContent = "Amount is below minimum plan ($350).";
-      return;
-    }
-
-    const monthlyProfit = (amount * pct) / 100;
-    const weeklyEstimate = monthlyProfit / 4; // simple estimate
-
-    resultEl.style.display = "block";
-    resultEl.textContent =
-      `Monthly profit: ${money(monthlyProfit)} (${pct}% monthly) — Weekly estimate: ${money(weeklyEstimate)}`;
-  });
-</script>
+        <div id="calcResult" class="calc-result" style="display:none;"></div>
+      </div>
+    </div>
+  </section>
 
   <!-- LIVE GOLD PRICE -->
   <section class="gc-section">
