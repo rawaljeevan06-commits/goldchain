@@ -89,6 +89,7 @@
         <p class="small" id="resultEl" style="margin-top:10px; display:none;"></p>
       </div>
 
+      <!-- ✅ KEEP ONLY ONE HISTORY (no duplicate IDs) -->
       <div class="card" style="margin-top:14px;">
         <h2>History</h2>
         <p class="small" id="historyMsg">Loading history…</p>
@@ -128,63 +129,23 @@
             <tbody id="wdHistoryBody"></tbody>
           </table>
         </div>
-
       </div>
 
     </div>
-    <!-- ================= HISTORY ================= -->
-<div class="dash-box" style="margin-top:16px;">
-  <h2>History</h2>
-  <p class="muted">Your latest payments and withdrawals.</p>
-
-  <h3 style="margin-top:14px;">Payments</h3>
-  <p class="small" id="payHistMsg" style="margin-top:6px;"></p>
-  <div style="overflow:auto; margin-top:10px;">
-    <table style="width:100%; border-collapse:collapse; min-width:900px;">
-      <thead>
-        <tr style="text-align:left; border-bottom:1px solid rgba(255,255,255,.15);">
-          <th style="padding:10px;">Time</th>
-          <th style="padding:10px;">Plan</th>
-          <th style="padding:10px;">Amount</th>
-          <th style="padding:10px;">Method</th>
-          <th style="padding:10px;">TXID</th>
-          <th style="padding:10px;">Status</th>
-        </tr>
-      </thead>
-      <tbody id="payHistoryBody"></tbody>
-    </table>
-  </div>
-
-  <h3 style="margin-top:18px;">Withdrawals</h3>
-  <p class="small" id="wdHistMsg" style="margin-top:6px;"></p>
-  <div style="overflow:auto; margin-top:10px;">
-    <table style="width:100%; border-collapse:collapse; min-width:900px;">
-      <thead>
-        <tr style="text-align:left; border-bottom:1px solid rgba(255,255,255,.15);">
-          <th style="padding:10px;">Time</th>
-          <th style="padding:10px;">Amount</th>
-          <th style="padding:10px;">Wallet</th>
-          <th style="padding:10px;">Status</th>
-        </tr>
-      </thead>
-      <tbody id="wdHistoryBody"></tbody>
-    </table>
-  </div>
-</div>
-<!-- ================= END HISTORY ================= -->
   </section>
 
   <script type="module">
     import { auth, db } from "./js/firebase.js";
     import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
     import {
-      collection, query, where, orderBy, limit, getDocs,
+      collection, query, where, limit, getDocs,
       doc, getDoc
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
     // ✅ Admin UIDs (same list as admin.html)
     const ADMIN_UIDS = ["40B1eYKROIXFAZLpelBhjjFTDm72"];
 
+    // Elements
     const emailEl = document.getElementById("emailEl");
     const accountStatus = document.getElementById("accountStatus");
     const payStatus = document.getElementById("payStatus");
@@ -207,10 +168,22 @@
     const payNowBtn = document.getElementById("payNowBtn");
     const withdrawBtn = document.getElementById("withdrawBtn");
 
+    // Helpers
     function esc(s) {
       return String(s ?? "").replace(/[&<>"']/g, (c) => ({
         "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
       }[c]));
+    }
+
+    function tsToMillis(ts){
+      try{
+        if(!ts) return 0;
+        if(typeof ts.toDate === "function") return ts.toDate().getTime(); // Firestore Timestamp
+        const d = new Date(ts);
+        return isNaN(d.getTime()) ? 0 : d.getTime();
+      }catch{
+        return 0;
+      }
     }
 
     function formatTime(ts) {
@@ -227,6 +200,7 @@
       return "$" + x.toFixed(2);
     }
 
+    // Plan storage
     function loadSelectedPlan() {
       let plan = "";
       try { plan = localStorage.getItem("selectedPlan") || ""; } catch(e){}
@@ -245,48 +219,51 @@
       if (a >= 350) return 1.5;
       return 0;
     }
- function parseAmountFromPlan(planText) {
-      // tries to find $number in plan string e.g. "Growth Plan - $700"
-      const m = String(planText || "").match(/\$?\s*([0-9]+(\.[0-9]+)?)/);
+
+    function parseAmountFromPlan(planText) {
+      // finds first number (supports $700, 700)
+      const m = String(planText || "").match(/([0-9]+(\.[0-9]+)?)/);
       if (!m) return 0;
       return Number(m[1]) || 0;
     }
-function parsePlan(raw) {
-  if (!raw) return null;
 
-  // If it is JSON string, parse it
-  const s = String(raw).trim();
-  if (s.startsWith("{") && s.endsWith("}")) {
-    try {
-      const obj = JSON.parse(s);
-      return obj && typeof obj === "object" ? obj : null;
-    } catch (e) {
-      return null;
+    function parsePlan(raw) {
+      if (!raw) return null;
+      const s = String(raw).trim();
+
+      // JSON string?
+      if (s.startsWith("{") && s.endsWith("}")) {
+        try {
+          const obj = JSON.parse(s);
+          return obj && typeof obj === "object" ? obj : null;
+        } catch (e) {
+          return null;
+        }
+      }
+
+      // plain text
+      return { name: s };
     }
-  }
 
-  // Otherwise treat as plain text plan
-  return { name: s };
-}
     async function renderAccountAccess(user) {
-      // Plan text
-     const rawPlan = loadSelectedPlan();
-const planObj = parsePlan(rawPlan);
+      // Plan
+      const rawPlan = loadSelectedPlan();
+      const planObj = parsePlan(rawPlan);
 
-const planName = planObj?.name || "Not selected";
-const planAmount = Number(planObj?.amount || parseAmountFromPlan(rawPlan) || 0);
-const pct = Number(planObj?.percent || percentByAmount(planAmount) || 0);
-const withdrawText = planObj?.withdraw || planObj?.withdrawDays || planObj?.withdrawal || "";
+      const planName = planObj?.name || "Not selected";
+      const planAmount = Number(planObj?.amount || parseAmountFromPlan(rawPlan) || 0);
+      const pct = Number(planObj?.percent || percentByAmount(planAmount) || 0);
+      const withdrawText =
+        planObj?.withdraw || planObj?.withdrawDays || planObj?.withdrawal || "";
 
-planEl.textContent = planName;
-planPctEl.textContent = pct ? `${pct}% weekly${withdrawText ? " • " + withdrawText : ""}` : "";
-      planPctEl.textContent = pct ? `${pct}% weekly` : "";
+      planEl.textContent = planName;
+      planPctEl.textContent = pct ? `${pct}% weekly${withdrawText ? " • " + withdrawText : ""}` : "";
 
-      // weekly profit estimate from plan amount
+      // Weekly estimate
       const weekly = pct ? (planAmount * pct) / 100 : 0;
       weeklyProfitEl.textContent = money(weekly);
 
-      // user balance
+      // Balance from users/{uid}.balance
       try {
         const uRef = doc(db, "users", user.uid);
         const uSnap = await getDoc(uRef);
@@ -299,75 +276,48 @@ planPctEl.textContent = pct ? `${pct}% weekly${withdrawText ? " • " + withdraw
         balanceNote.textContent = "Could not load balance.";
       }
 
-      // payment verified?
-      accountStatus.textContent = "Active ✅";
+      // Payment verified (index-free: read, then check in JS)
       payStatus.textContent = "Checking…";
-
       try {
-        // prefer verified payment
-        const qVerified = query(
+        const snap = await getDocs(query(
           collection(db, "payments"),
           where("uid", "==", user.uid),
-          where("status", "==", "verified"),
-          orderBy("createdAt", "desc"),
-          limit(1)
-        );
-
-        let snap;
-        try { snap = await getDocs(qVerified); }
-        catch (e) {
-          // fallback without orderBy (in case index missing)
-          snap = await getDocs(query(
-            collection(db, "payments"),
-            where("uid", "==", user.uid),
-            where("status", "==", "verified"),
-            limit(1)
-          ));
-        }
-
-        if (!snap.empty) {
-          payStatus.textContent = "✅ Payment Verified — Full access unlocked";
-        } else {
-          payStatus.textContent = "⏳ Not verified — Please complete payment";
-        }
+          limit(50)
+        ));
+        const verified = snap.docs.some(d => String(d.data()?.status || "").toLowerCase() === "verified");
+        payStatus.textContent = verified
+          ? "✅ Payment Verified — Full access unlocked"
+          : "⏳ Not verified — Please complete payment";
       } catch (e) {
         console.warn("Payment check failed:", e);
         payStatus.textContent = "⚠️ Could not check payment";
       }
+
+      accountStatus.textContent = "Active ✅";
     }
 
     async function loadHistoryForUser(user) {
       if (historyMsg) historyMsg.textContent = "Loading history…";
 
-      // Payments history
+      // Payments history (index-free, sort locally)
       try {
         if (payHistoryBody) payHistoryBody.innerHTML = "";
 
-        const qPay = query(
+        const pSnap = await getDocs(query(
           collection(db, "payments"),
           where("uid", "==", user.uid),
-          orderBy("createdAt", "desc"),
-          limit(20)
-        );
+          limit(50)
+        ));
 
-        let snap;
-        try { snap = await getDocs(qPay); }
-        catch (e) {
-          // fallback without orderBy
-          snap = await getDocs(query(
-            collection(db, "payments"),
-            where("uid", "==", user.uid),
-            limit(20)
-          ));
-        }
+        const arr = pSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+        arr.sort((a,b) => tsToMillis(b.createdAt) - tsToMillis(a.createdAt));
 
-        if (snap.empty) {
+        if (!arr.length) {
           const tr = document.createElement("tr");
           tr.innerHTML = `<td style="padding:10px;" colspan="6">No payments yet.</td>`;
-          payHistoryBody.appendChild(tr);
+          payHistoryBody?.appendChild(tr);
         } else {
-          snap.forEach(d => {
-            const p = d.data();
+          arr.slice(0, 20).forEach(p => {
             const tr = document.createElement("tr");
             tr.style.borderBottom = "1px solid rgba(255,255,255,.08)";
             tr.innerHTML = `
@@ -378,46 +328,35 @@ planPctEl.textContent = pct ? `${pct}% weekly${withdrawText ? " • " + withdraw
               <td style="padding:10px; max-width:260px; word-break:break-all;">${esc(p.txid || "-")}</td>
               <td style="padding:10px;">${esc(p.status || "-")}</td>
             `;
-            payHistoryBody.appendChild(tr);
+            payHistoryBody?.appendChild(tr);
           });
         }
       } catch (e) {
         console.error("Payments history error:", e);
-        if (payHistoryBody) {
-          const tr = document.createElement("tr");
-          tr.innerHTML = `<td style="padding:10px;" colspan="6">Failed to load payments history.</td>`;
-          payHistoryBody.appendChild(tr);
-        }
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td style="padding:10px;" colspan="6">Failed to load payments history.</td>`;
+        payHistoryBody?.appendChild(tr);
       }
 
-      // Withdrawals history
+      // Withdrawals history (index-free, sort locally)
       try {
         if (wdHistoryBody) wdHistoryBody.innerHTML = "";
 
-        const qWd = query(
+        const wSnap = await getDocs(query(
           collection(db, "withdrawals"),
           where("uid", "==", user.uid),
-          orderBy("createdAt", "desc"),
-          limit(20)
-        );
+          limit(50)
+        ));
 
-        let snap;
-        try { snap = await getDocs(qWd); }
-        catch (e) {
-          snap = await getDocs(query(
-            collection(db, "withdrawals"),
-            where("uid", "==", user.uid),
-            limit(20)
-          ));
-        }
+        const arr = wSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+        arr.sort((a,b) => tsToMillis(b.createdAt) - tsToMillis(a.createdAt));
 
-        if (snap.empty) {
+        if (!arr.length) {
           const tr = document.createElement("tr");
           tr.innerHTML = `<td style="padding:10px;" colspan="4">No withdrawals yet.</td>`;
-          wdHistoryBody.appendChild(tr);
+          wdHistoryBody?.appendChild(tr);
         } else {
-          snap.forEach(d => {
-            const w = d.data();
+          arr.slice(0, 20).forEach(w => {
             const tr = document.createElement("tr");
             tr.style.borderBottom = "1px solid rgba(255,255,255,.08)";
             tr.innerHTML = `
@@ -426,22 +365,20 @@ planPctEl.textContent = pct ? `${pct}% weekly${withdrawText ? " • " + withdraw
               <td style="padding:10px; max-width:320px; word-break:break-all;">${esc(w.wallet || w.walletAddress || "-")}</td>
               <td style="padding:10px;">${esc(w.status || "-")}</td>
             `;
-            wdHistoryBody.appendChild(tr);
+            wdHistoryBody?.appendChild(tr);
           });
         }
       } catch (e) {
         console.error("Withdrawals history error:", e);
-        if (wdHistoryBody) {
-          const tr = document.createElement("tr");
-          tr.innerHTML = `<td style="padding:10px;" colspan="4">Failed to load withdrawals history.</td>`;
-          wdHistoryBody.appendChild(tr);
-        }
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td style="padding:10px;" colspan="4">Failed to load withdrawals history.</td>`;
+        wdHistoryBody?.appendChild(tr);
       }
 
       if (historyMsg) historyMsg.textContent = "✅ History loaded.";
     }
 
-    // Profit calculator (manual)
+    // Profit calculator
     calcBtn?.addEventListener("click", () => {
       const amount = Number(amountInput?.value || 0);
       if (!amount || amount <= 0) {
@@ -463,6 +400,7 @@ planPctEl.textContent = pct ? `${pct}% weekly${withdrawText ? " • " + withdraw
     // Buttons
     logoutBtn?.addEventListener("click", async () => {
       try { await signOut(auth); } catch(e){}
+      // After logout, Firebase may still cache for a moment; this forces login page
       window.location.replace("login.html");
     });
 
@@ -489,7 +427,7 @@ planPctEl.textContent = pct ? `${pct}% weekly${withdrawText ? " • " + withdraw
       window.location.href = "withdrawal.html";
     });
 
-    // ✅ ONLY ONE auth listener (very important)
+    // ✅ ONLY ONE auth listener
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
         window.location.replace("login.html");
