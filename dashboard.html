@@ -99,7 +99,11 @@
     const resultEl    = document.getElementById("dashCalcResult");
 
     const withdrawBtn = document.getElementById("withdrawBtn");
+    const withdrawBtn = document.getElementById("withdrawBtn");
 
+withdrawBtn?.addEventListener("click", () => {
+  window.location.href = "withdrawal.html";
+});
     // ----------------- HELPERS -----------------
     function setStatus(text) {
       if (statusEl) statusEl.textContent = text;
