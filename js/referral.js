@@ -1,100 +1,500 @@
-// js/referral.js
-import { db } from "./firebase.js";
-import {
-  doc, setDoc, getDoc, collection, query, where, getDocs,
-  addDoc, serverTimestamp, updateDoc, increment
-} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin | Payments</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
 
-// Simple referral code generator (unique enough for small projects)
-export function makeReferralCode(uid) {
-  return ("GC" + uid.replace(/[^a-zA-Z0-9]/g, "").slice(0, 8)).toUpperCase();
-}
+  <div class="topbar">Admin Panel — Payment Verification</div>
 
-export async function createUserProfile(uid, email, referredCode = "") {
-  // If already exists, do nothing
-  const userRef = doc(db, "users", uid);
-  const snap = await getDoc(userRef);
-  if (snap.exists()) return;
+  <header class="header">
+    <div class="container header-in">
+      <a class="brand" href="index.html">
+        <img src="images/logo.png" alt="GoldChain Logo">
+        <span>GoldChain</span>
+      </a>
 
-  const myCode = makeReferralCode(uid);
+      <nav class="nav">
+        <a href="dashboard.html">Dashboard</a>
+      </nav>
 
-  let referredByUid = null;
+      <div class="actions">
+        <button id="refreshBtn" class="btn btn-outline" type="button">Refresh</button>
+        <button id="logoutBtn" class="btn btn-logout" type="button">Logout</button>
+      </div>
+    </div>
+  </header>
 
-  // If user entered a referral code, find who owns it
-  if (referredCode && referredCode.trim()) {
-    const code = referredCode.trim().toUpperCase();
-    const q = query(collection(db, "users"), where("referralCode", "==", code));
-    const qs = await getDocs(q);
-    if (!qs.empty) {
-      referredByUid = qs.docs[0].id; // referrer UID is the doc ID
+  <section class="section">
+    <div class="container">
+      <div class="card">
+        <h2>Pending Payments</h2>
+        <p class="small" id="adminInfo">Checking admin access…</p>
+
+        <!-- ✅ Totals cards -->
+        <div class="dash-cards" style="margin-top:14px;">
+          <div class="card">
+            <h3>Total Verified Payments</h3>
+            <p class="big" id="tVerified">0</p>
+          </div>
+
+          <div class="card">
+            <h3>Total Approved Withdrawals</h3>
+            <p class="big" id="tApprovedWd">0</p>
+          </div>
+
+          <div class="card">
+            <h3>Totals</h3>
+            <p class="muted">Deposits / Withdrawals</p>
+            <p class="big" id="tMoney">$0.00 / $0.00</p>
+          </div>
+        </div>
+
+        <div style="overflow:auto; margin-top:12px;">
+          <table style="width:100%; border-collapse:collapse; min-width:900px;">
+            <thead>
+              <tr style="text-align:left; border-bottom:1px solid rgba(255,255,255,.15);">
+                <th style="padding:10px;">Time</th>
+                <th style="padding:10px;">User</th>
+                <th style="padding:10px;">Plan</th>
+                <th style="padding:10px;">Amount</th>
+                <th style="padding:10px;">Method</th>
+                <th style="padding:10px;">TXID</th>
+                <th style="padding:10px;">Status</th>
+                <th style="padding:10px;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="paymentsBody"></tbody>
+          </table>
+        </div>
+
+        <p class="small" id="msg" style="margin-top:10px;"></p>
+
+        <hr style="margin:30px 0; opacity:.25;">
+        <h2>Pending Withdrawals</h2>
+        <p class="small" id="wMsg" style="margin-top:8px;"></p>
+
+        <div style="overflow:auto; margin-top:12px;">
+          <table style="width:100%; border-collapse:collapse; min-width:900px;">
+            <thead>
+              <tr style="text-align:left; border-bottom:1px solid rgba(255,255,255,.15);">
+                <th style="padding:10px;">Time</th>
+                <th style="padding:10px;">User</th>
+                <th style="padding:10px;">Amount</th>
+                <th style="padding:10px;">Wallet</th>
+                <th style="padding:10px;">Status</th>
+                <th style="padding:10px;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="withdrawalsBody"></tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <script type="module">
+    import { auth, db } from "./js/firebase.js";
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import {
+      collection, query, where, orderBy, limit, getDocs,
+      doc, serverTimestamp,
+      runTransaction, increment,
+      addDoc
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    // ✅ PUT YOUR ADMIN UID(S) HERE
+    const ADMIN_UIDS = ["40B1eYKROIXFAZLpelBhjjFTDm72"];
+
+    const adminInfo = document.getElementById("adminInfo");
+    const paymentsBody = document.getElementById("paymentsBody");
+    const withdrawalsBody = document.getElementById("withdrawalsBody");
+
+    const msg = document.getElementById("msg");
+    const wMsg = document.getElementById("wMsg");
+
+    const refreshBtn = document.getElementById("refreshBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    const tVerified = document.getElementById("tVerified");
+    const tApprovedWd = document.getElementById("tApprovedWd");
+    const tMoney = document.getElementById("tMoney");
+
+    function esc(s) {
+      return String(s ?? "").replace(/[&<>"']/g, (c) => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+      }[c]));
     }
-  }
+    function formatTime(ts) {
+      try {
+        if (!ts) return "-";
+        if (typeof ts.toDate === "function") return ts.toDate().toLocaleString();
+        return new Date(ts).toLocaleString();
+      } catch { return "-"; }
+    }
+    function money(n){ return `$${Number(n||0).toFixed(2)}`; }
+    function errText(e){
+      const code = e?.code ? `(${e.code}) ` : "";
+      const m = e?.message || String(e || "");
+      return code + m;
+    }
 
-  await setDoc(userRef, {
-    email,
-    referralCode: myCode,
-    referredBy: referredByUid,      // uid of referrer or null
-    createdAt: serverTimestamp(),
-    totalDeposits: 0,
-    referralEarnings: 0,
-    referredUsersCount: 0
-  });
+    // ✅ totals (reads up to 500 docs)
+    async function loadTotals(){
+      try{
+        const pSnap = await getDocs(query(collection(db,"payments"), limit(500)));
+        let verifiedCount = 0;
+        let depositSum = 0;
 
-  // Increase referrer stats if there is a referrer
-  if (referredByUid) {
-    await updateDoc(doc(db, "users", referredByUid), {
-      referredUsersCount: increment(1)
+        pSnap.forEach(d=>{
+          const p = d.data();
+          if(String(p.status||"").toLowerCase()==="verified"){
+            verifiedCount++;
+            depositSum += Number(p.amount||0);
+          }
+        });
+
+        const wSnap = await getDocs(query(collection(db,"withdrawals"), limit(500)));
+        let approvedCount = 0;
+        let withdrawSum = 0;
+
+        wSnap.forEach(d=>{
+          const w = d.data();
+          if(String(w.status||"").toLowerCase()==="approved"){
+            approvedCount++;
+            withdrawSum += Number(w.amount||0);
+          }
+        });
+
+        if(tVerified) tVerified.textContent = String(verifiedCount);
+        if(tApprovedWd) tApprovedWd.textContent = String(approvedCount);
+        if(tMoney) tMoney.textContent = `${money(depositSum)} / ${money(withdrawSum)}`;
+      }catch(e){
+        console.warn("Totals failed:", e);
+      }
+    }
+
+    // ---------------- PAYMENTS ----------------
+    async function loadPendingPayments() {
+      if (!paymentsBody) return;
+      paymentsBody.innerHTML = "";
+      msg.textContent = "Loading pending payments…";
+
+      try {
+        let q1 = query(
+          collection(db, "payments"),
+          where("status", "==", "pending"),
+          orderBy("createdAt", "desc"),
+          limit(50)
+        );
+
+        let snap;
+        try { snap = await getDocs(q1); }
+        catch (e) {
+          console.warn("Payments fallback (no orderBy):", e?.code || e);
+          snap = await getDocs(query(
+            collection(db, "payments"),
+            where("status", "==", "pending"),
+            limit(50)
+          ));
+        }
+
+        if (snap.empty) { msg.textContent = "✅ No pending payments."; return; }
+
+        msg.textContent = `Found ${snap.size} pending payment(s).`;
+
+        snap.forEach((docSnap) => {
+          const p  = docSnap.data();
+          const id = docSnap.id;
+
+          const tr = document.createElement("tr");
+          tr.style.borderBottom = "1px solid rgba(255,255,255,.08)";
+
+          tr.innerHTML = `
+            <td style="padding:10px;">${esc(formatTime(p.createdAt))}</td>
+            <td style="padding:10px;">${esc(p.email || p.uid || "-")}</td>
+            <td style="padding:10px;">${esc(p.planName || "-")}</td>
+            <td style="padding:10px;">$${esc(p.amount ?? "-")}</td>
+            <td style="padding:10px;">${esc(p.method || "-")}</td>
+            <td style="padding:10px; max-width:260px; word-break:break-all;">${esc(p.txid || "-")}</td>
+            <td style="padding:10px;">${esc(p.status || "-")}</td>
+            <td style="padding:10px; display:flex; gap:8px; flex-wrap:wrap;">
+              <button class="btn btn-primary" type="button" data-type="pay" data-act="approve" data-id="${esc(id)}">Approve</button>
+              <button class="btn btn-outline" type="button" data-type="pay" data-act="reject" data-id="${esc(id)}">Reject</button>
+            </td>
+          `;
+          paymentsBody.appendChild(tr);
+        });
+
+      } catch (e) {
+        console.error(e);
+        msg.textContent = "❌ Failed to load payments: " + errText(e);
+      }
+    }
+
+    // ✅ Payment approve/reject (transaction-safe) + 🔥 referral commissions
+    async function setPaymentStatus(paymentId, status) {
+      const payRef = doc(db, "payments", paymentId);
+
+      let emailToNotify = "";
+      let amountToNotify = 0;
+
+      await runTransaction(db, async (tx) => {
+        const paySnap = await tx.get(payRef);
+        if (!paySnap.exists()) return;
+
+        const p = paySnap.data();
+        const currentStatus = String(p.status || "").toLowerCase();
+
+        // prevent double verify
+        if (currentStatus === "verified" && status === "verified") return;
+
+        const uid = p.uid;
+        const email = p.email || "";
+        const amount = Number(p.amount || 0);
+
+        let userRef = null;
+        let userSnap = null;
+
+        if (status === "verified" && uid && Number.isFinite(amount) && amount > 0) {
+          userRef = doc(db, "users", uid);
+          userSnap = await tx.get(userRef); // READ before writes
+        }
+
+        // update payment status
+        tx.update(payRef, { status, verifiedAt: serverTimestamp() });
+
+        if (status !== "verified" || !userRef) return;
+
+        if (!userSnap.exists()) {
+          tx.set(userRef, { email, balance: 0, createdAt: serverTimestamp() });
+        }
+
+        // add deposit to balance
+        tx.update(userRef, { balance: increment(amount) });
+
+        // 🔥 Referral commission (1% or 7%) - only if referredBy exists and amount>=350
+        const userData = userSnap.exists() ? userSnap.data() : {};
+        const refUid = userData.referredBy;
+
+        if (refUid && amount >= 350) {
+          const rate = amount >= 5000 ? 0.07 : 0.01;
+          const commission = amount * rate;
+
+          const refUserRef = doc(db, "users", refUid);
+          const refSnap = await tx.get(refUserRef);
+
+          if (refSnap.exists()) {
+            tx.update(refUserRef, { referralEarnings: increment(commission) });
+
+            tx.set(doc(collection(db, "referral_commissions")), {
+              refUid,
+              fromUid: uid,
+              fromEmail: email,
+              depositAmount: amount,
+              rate,
+              commission,
+              paymentId,
+              createdAt: serverTimestamp()
+            });
+          }
+        }
+
+        tx.set(doc(collection(db, "audit")), {
+          type: "payment_approved",
+          paymentId,
+          uid,
+          email,
+          amount,
+          byAdmin: auth.currentUser?.uid || "",
+          at: serverTimestamp()
+        });
+
+        emailToNotify = email;
+        amountToNotify = amount;
+      });
+
+      // optional mail after transaction
+      if (status === "verified" && emailToNotify) {
+        try {
+          await addDoc(collection(db, "mail"), {
+            to: emailToNotify,
+            message: {
+              subject: "Payment Approved ✅",
+              text: `Your payment of $${amountToNotify} has been approved. Your dashboard balance has been updated.`
+            }
+          });
+        } catch (e) {
+          console.warn("Mail queue skipped:", e);
+        }
+      }
+    }
+
+    // ---------------- WITHDRAWALS ----------------
+    async function loadPendingWithdrawals() {
+      if (!withdrawalsBody) return;
+      withdrawalsBody.innerHTML = "";
+      if (wMsg) wMsg.textContent = "Loading pending withdrawals…";
+
+      try {
+        let q1 = query(
+          collection(db, "withdrawals"),
+          where("status", "==", "pending"),
+          orderBy("createdAt", "desc"),
+          limit(50)
+        );
+
+        let snap;
+        try { snap = await getDocs(q1); }
+        catch (e) {
+          console.warn("Withdrawals fallback (no orderBy):", e?.code || e);
+          snap = await getDocs(query(
+            collection(db, "withdrawals"),
+            where("status", "==", "pending"),
+            limit(50)
+          ));
+        }
+
+        if (snap.empty) { if (wMsg) wMsg.textContent = "✅ No pending withdrawals."; return; }
+
+        if (wMsg) wMsg.textContent = `Found ${snap.size} pending withdrawal(s).`;
+
+        snap.forEach((docSnap) => {
+          const w  = docSnap.data();
+          const id = docSnap.id;
+
+          const tr = document.createElement("tr");
+          tr.style.borderBottom = "1px solid rgba(255,255,255,.08)";
+
+          tr.innerHTML = `
+            <td style="padding:10px;">${esc(formatTime(w.createdAt))}</td>
+            <td style="padding:10px;">${esc(w.email || w.uid || "-")}</td>
+            <td style="padding:10px;">$${esc(w.amount ?? "-")}</td>
+            <td style="padding:10px; max-width:320px; word-break:break-all;">${esc(w.wallet || w.walletAddress || "-")}</td>
+            <td style="padding:10px;">${esc(w.status || "-")}</td>
+            <td style="padding:10px; display:flex; gap:8px; flex-wrap:wrap;">
+              <button class="btn btn-primary" type="button" data-type="wd" data-act="approve" data-id="${esc(id)}">Approve</button>
+              <button class="btn btn-outline" type="button" data-type="wd" data-act="reject" data-id="${esc(id)}">Reject</button>
+            </td>
+          `;
+          withdrawalsBody.appendChild(tr);
+        });
+
+      } catch (e) {
+        console.error(e);
+        if (wMsg) wMsg.textContent = "❌ Failed to load withdrawals: " + errText(e);
+      }
+    }
+
+    // ✅ Withdrawal approve/reject (transaction-safe)
+    async function setWithdrawalStatus(withdrawalId, status) {
+      const wRef = doc(db, "withdrawals", withdrawalId);
+
+      await runTransaction(db, async (tx) => {
+        const wSnap = await tx.get(wRef);
+        if (!wSnap.exists()) return;
+
+        const w = wSnap.data();
+        const currentStatus = String(w.status || "").toLowerCase();
+
+        if (currentStatus === "approved" && status === "approved") return;
+
+        tx.update(wRef, { status, processedAt: serverTimestamp() });
+
+        if (status !== "approved") return;
+
+        const uid = w.uid;
+        const amount = Number(w.amount || 0);
+        if (!uid || !Number.isFinite(amount) || amount <= 0) return;
+
+        const userRef = doc(db, "users", uid);
+        tx.update(userRef, { balance: increment(-amount) });
+
+        tx.set(doc(collection(db, "audit")), {
+          type: "withdrawal_approved",
+          withdrawalId,
+          uid,
+          amount,
+          byAdmin: auth.currentUser?.uid || "",
+          at: serverTimestamp()
+        });
+      });
+    }
+
+    // ---------------- CLICK HANDLER ----------------
+    document.addEventListener("click", async (e) => {
+      const btn = e.target.closest("button[data-type][data-act][data-id]");
+      if (!btn) return;
+
+      const type = btn.getAttribute("data-type");
+      const act  = btn.getAttribute("data-act");
+      const id   = btn.getAttribute("data-id");
+      if (!id) return;
+
+      btn.disabled = true;
+
+      try {
+        if (type === "pay") {
+          msg.textContent = "Updating payment…";
+          if (act === "approve") await setPaymentStatus(id, "verified");
+          if (act === "reject")  await setPaymentStatus(id, "rejected");
+          msg.textContent = "✅ Payment updated.";
+          await loadPendingPayments();
+        }
+
+        if (type === "wd") {
+          if (wMsg) wMsg.textContent = "Updating withdrawal…";
+          if (act === "approve") await setWithdrawalStatus(id, "approved");
+          if (act === "reject")  await setWithdrawalStatus(id, "rejected");
+          if (wMsg) wMsg.textContent = "✅ Withdrawal updated.";
+          await loadPendingWithdrawals();
+        }
+
+        await loadTotals();
+
+      } catch (err) {
+        console.error(err);
+        if (type === "pay") msg.textContent = "❌ Payment update failed: " + errText(err);
+        if (type === "wd" && wMsg) wMsg.textContent = "❌ Withdrawal update failed: " + errText(err);
+      } finally {
+        btn.disabled = false;
+      }
     });
-  }
-}
 
-// Call this AFTER a deposit is confirmed
-export async function recordDepositAndPayReferral(uid, amount) {
-  const amt = Number(amount);
-  if (!amt || amt <= 0) return;
+    // ---------------- BUTTONS ----------------
+    refreshBtn?.addEventListener("click", async () => {
+      await loadPendingPayments();
+      await loadPendingWithdrawals();
+      await loadTotals();
+    });
 
-  const userRef = doc(db, "users", uid);
-  const userSnap = await getDoc(userRef);
-  if (!userSnap.exists()) return;
+    logoutBtn?.addEventListener("click", async () => {
+      try { await signOut(auth); } catch (e) {}
+      window.location.replace("login.html");
+    });
 
-  const userData = userSnap.data();
+    // ---------------- ADMIN ACCESS ----------------
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) { window.location.replace("login.html"); return; }
 
-  // 1) save deposit record
-  await addDoc(collection(db, "deposits"), {
-    uid,
-    amount: amt,
-    createdAt: serverTimestamp()
-  });
+      if (!ADMIN_UIDS.includes(user.uid)) {
+        adminInfo.textContent = "❌ Access denied (not admin).";
+        if (paymentsBody) paymentsBody.innerHTML = "";
+        if (withdrawalsBody) withdrawalsBody.innerHTML = "";
+        window.location.replace("dashboard.html");
+        return;
+      }
 
-  // 2) update user's total deposits
-  await updateDoc(userRef, {
-    totalDeposits: increment(amt)
-  });
+      adminInfo.textContent = `✅ Admin: ${user.email || user.uid}`;
+      await loadPendingPayments();
+      await loadPendingWithdrawals();
+      await loadTotals();
+    });
+  </script>
 
-  // 3) referral commission (only if user was referred)
-  const refUid = userData.referredBy;
-  if (!refUid) return;
-
-  // Minimum deposit condition
-  const MIN_DEPOSIT = 350; // change this if your minimum is different
-  if (amt < MIN_DEPOSIT) return;
-
-  // Commission rules:
-  // - 7% if >= 5000
-  // - 1% otherwise
-  const commissionRate = (amt >= 5000) ? 0.07 : 0.01;
-  const commission = amt * commissionRate;
-
-  await addDoc(collection(db, "referral_commissions"), {
-    refUid,
-    fromUid: uid,
-    depositAmount: amt,
-    rate: commissionRate,
-    commission,
-    createdAt: serverTimestamp()
-  });
-
-  await updateDoc(doc(db, "users", refUid), {
-    referralEarnings: increment(commission)
-  });
-}
+</body>
+</html>
