@@ -21,6 +21,11 @@
         <button id="logoutBtn" class="btn btn-logout" type="button">Logout</button>
         <button id="clearPlanBtn" class="btn btn-outline" type="button">Clear Plan</button>
         <button id="payNowBtn" class="btn btn-primary" type="button">Pay Now</button>
+
+        <!-- ✅ NEW: Only shows after verified -->
+        <a id="withdrawBtn" class="btn btn-primary" href="withdrawal.html" style="display:none; text-decoration:none;">
+          Withdraw
+        </a>
       </div>
     </header>
 
@@ -64,51 +69,41 @@
   </div>
 
   <script type="module">
-    import { auth } from "./js/firebase.js";
-    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-    const ADMIN_UIDS = ["40B1eYKROIXFAZLpelBhjjFTDm72"];
+    import { auth, db } from "./js/firebase.js";
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import {
+      collection, query, where, orderBy, limit, getDocs
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-onAuthStateChanged(auth, (user) => {
-  if (!user) {
-    window.location.replace("login.html");
-    return;
-  }
-
-  if (ADMIN_UIDS.includes(user.uid)) {
-    window.location.replace("admin.html");
-    return;
-  }
-
-  // normal user continues here
-});
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    alert("Your UID is:\n" + user.uid);
-    console.log("UID:", user.uid);
-  }
-});
     console.log("✅ Dashboard script running");
 
+    // ✅ PUT YOUR ADMIN UID(S) HERE
+    const ADMIN_UIDS = ["40B1eYKROIXFAZLpelBhjjFTDm72"];
+
     // ----------------- ELEMENTS -----------------
-    const payNowBtn = document.getElementById("payNowBtn");
-    const clearBtn  = document.getElementById("clearPlanBtn");
-    const calcBtn   = document.getElementById("dashCalcBtn");
-    const logoutBtn = document.getElementById("logoutBtn");
+    const payNowBtn   = document.getElementById("payNowBtn");
+    const clearBtn    = document.getElementById("clearPlanBtn");
+    const calcBtn     = document.getElementById("dashCalcBtn");
+    const logoutBtn   = document.getElementById("logoutBtn");
 
-    const statusEl  = document.getElementById("paymentStatusText");
-    const emailEl   = document.getElementById("userEmail");
+    const statusEl    = document.getElementById("paymentStatusText");
+    const emailEl     = document.getElementById("userEmail");
 
-    const nameEl    = document.getElementById("dashPlanName");
-    const infoEl    = document.getElementById("dashPlanInfo");
-    const profitEl  = document.getElementById("weeklyProfitValue");
-    const resultEl  = document.getElementById("dashCalcResult");
+    const nameEl      = document.getElementById("dashPlanName");
+    const infoEl      = document.getElementById("dashPlanInfo");
+    const profitEl    = document.getElementById("weeklyProfitValue");
+    const resultEl    = document.getElementById("dashCalcResult");
 
-    // ----------------- SAFE STORAGE -----------------
-    function getStorage(key) {
-      try { return localStorage.getItem(key); } catch(e) { return null; }
+    const withdrawBtn = document.getElementById("withdrawBtn");
+
+    // ----------------- HELPERS -----------------
+    function setStatus(text) {
+      if (statusEl) statusEl.textContent = text;
     }
-    function getSession(key) {
-      try { return sessionStorage.getItem(key); } catch(e) { return null; }
+
+    function money(n) {
+      const x = Number(n || 0);
+      return `$${x.toFixed(2)}`;
     }
 
     // Percent rules (fallback)
@@ -116,9 +111,17 @@ onAuthStateChanged(auth, (user) => {
       const a = Number(amount) || 0;
       if (a >= 5000) return 4;
       if (a >= 1000) return 3;
-      if (a >= 700) return 2;
-      if (a >= 350) return 1.5;
+      if (a >= 700)  return 2;
+      if (a >= 350)  return 1.5;
       return 0;
+    }
+
+    // SAFE storage helpers
+    function getStorage(key) {
+      try { return localStorage.getItem(key); } catch(e) { return null; }
+    }
+    function getSession(key) {
+      try { return sessionStorage.getItem(key); } catch(e) { return null; }
     }
 
     // ✅ Handles BOTH:
@@ -143,7 +146,6 @@ onAuthStateChanged(auth, (user) => {
       } catch(e) {}
 
       // Try parse string
-      // Examples: "Basic - $350" / "Growth Plan - $700"
       const amtMatch = raw.match(/(\d{2,})/);
       const amount = amtMatch ? Number(amtMatch[1]) : 0;
       return {
@@ -154,97 +156,130 @@ onAuthStateChanged(auth, (user) => {
       };
     }
 
-    function loadLocalPaymentProof() {
-      const raw = getStorage("paymentProof");
-      if (!raw) return null;
-      try { return JSON.parse(raw); } catch(e) { return null; }
-    }
+    function renderPlan(plan) {
+      const p = plan || loadPlanSafely();
 
-    // ----------------- RENDER PLAN -----------------
-    function renderPlan() {
-      const plan = loadPlanSafely();
-
-      if (!plan) {
+      if (!p) {
         nameEl.textContent = "Not selected";
         infoEl.textContent = "";
         profitEl.textContent = "$0.00";
         return;
       }
 
-      nameEl.textContent = plan.name || "Selected Plan";
-
-      const withdrawText = plan.withdraw ? ` • ${plan.withdraw}` : "";
-      infoEl.textContent = `$${plan.amount} • ${plan.percent}% weekly${withdrawText}`;
+      nameEl.textContent = p.name || "Selected Plan";
+      const withdrawText = p.withdraw ? ` • ${p.withdraw}` : "";
+      infoEl.textContent = `$${p.amount} • ${p.percent}% weekly${withdrawText}`;
     }
 
-    // ----------------- PAYMENT STATUS (Firestore first) -----------------
-    function setStatus(text) {
-      if (statusEl) statusEl.textContent = text;
+    function lockUI() {
+      // Only show pay now if not verified
+      if (withdrawBtn) withdrawBtn.style.display = "none";
+    }
+
+    function unlockUI() {
+      // Show withdrawal button if verified
+      if (withdrawBtn) withdrawBtn.style.display = "inline-flex";
+    }
+
+    function renderProfitFromAmount(amount) {
+      const plan = loadPlanSafely();
+      const pct = plan?.percent ?? percentByAmount(amount);
+      const weekly = (Number(amount || 0) * Number(pct || 0)) / 100;
+      profitEl.textContent = money(weekly);
+    }
+
+    function renderProfitFromPaymentDoc(docData) {
+      const amount = Number(docData?.amount || 0);
+      renderProfitFromAmount(amount);
+    }
+
+    // ----------------- PAYMENT STATUS (MOST IMPORTANT FIX) -----------------
+    async function getVerifiedPaymentDoc(user) {
+      // ✅ First: look for ANY verified doc for this user (no orderBy needed)
+      const q1 = query(
+        collection(db, "payments"),
+        where("uid", "==", user.uid),
+        where("status", "==", "verified"),
+        limit(1)
+      );
+
+      const snap1 = await getDocs(q1);
+      if (!snap1.empty) return snap1.docs[0].data();
+
+      return null;
+    }
+
+    async function getLatestPaymentDoc(user) {
+      // ✅ Second: latest payment (pending/rejected/etc)
+      const q2 = query(
+        collection(db, "payments"),
+        where("uid", "==", user.uid),
+        orderBy("createdAt", "desc"),
+        limit(1)
+      );
+
+      const snap2 = await getDocs(q2);
+      if (!snap2.empty) return snap2.docs[0].data();
+
+      return null;
     }
 
     async function renderPaymentStatusFromFirestore(user) {
-      // default
       setStatus("Checking…");
 
-      // 1) Try Firestore (global)
       try {
-        const { db } = await import("./js/firebase.js");
-        const {
-          collection,
-          query,
-          where,
-          orderBy,
-          limit,
-          getDocs
-        } = await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js");
+        const verifiedDoc = await getVerifiedPaymentDoc(user);
 
-        const q = query(
-          collection(db, "payments"),
-          where("uid", "==", user.uid),
-          orderBy("createdAt", "desc"),
-          limit(1)
-        );
+        if (verifiedDoc) {
+          setStatus("✅ Payment Verified — Full access unlocked");
+          unlockUI();
 
-        const snap = await getDocs(q);
+          // Update plan display & profit using Firestore amount
+          // (your Firestore doc already has planName + amount)
+          if (verifiedDoc.planName && verifiedDoc.amount) {
+            // Show plan from Firestore (without breaking your old structure)
+            nameEl.textContent = verifiedDoc.planName;
+            infoEl.textContent = `$${verifiedDoc.amount} • ${percentByAmount(verifiedDoc.amount)}% weekly`;
+            renderProfitFromPaymentDoc(verifiedDoc);
+          } else {
+            renderPlan();
+            const plan = loadPlanSafely();
+            if (plan) renderProfitFromAmount(plan.amount);
+          }
 
-        if (!snap.empty) {
-          const doc = snap.docs[0].data();
-          const st = (doc.status || "").toLowerCase();
-
-        if (st === "verified") {
-  setStatus("✅ Payment Verified — Full access unlocked");
-
-  window.__lastPaymentDoc = doc;
-  unlockUI();
-  renderProfit(doc);
-  return;
-}
-
-if (st === "pending") {
-  setStatus("⏳ Payment Pending — Waiting for verification");
-  lockUI();
-  return;
-}
-
-// fallback
-setStatus(`ℹ️ Payment Status: ${doc.status || "Unknown"}`);
-lockUI();
-return;
-
-          // Unknown status fallback
-          setStatus(`ℹ️ Payment Status: ${doc.status || "Unknown"}`);
           return;
         }
-      } catch (e) {
-        console.log("Firestore payment status failed, fallback to local:", e);
-      }
 
-      // 2) Fallback: localStorage (same device)
-      const proof = loadLocalPaymentProof();
-      if (proof && proof.txid) {
-        setStatus("⏳ Payment Pending — Waiting for verification");
-      } else {
-        setStatus("❌ No payment submitted");
+        // Not verified yet → show latest status
+        const latestDoc = await getLatestPaymentDoc(user);
+
+        if (!latestDoc) {
+          setStatus("❌ No payment submitted");
+          lockUI();
+          return;
+        }
+
+        const st = String(latestDoc.status || "").toLowerCase();
+
+        if (st === "pending") {
+          setStatus("⏳ Payment Pending — Waiting for verification");
+          lockUI();
+          return;
+        }
+
+        if (st === "rejected") {
+          setStatus("❌ Payment Rejected — Please submit again");
+          lockUI();
+          return;
+        }
+
+        // unknown
+        setStatus(`ℹ️ Payment Status: ${latestDoc.status || "Unknown"}`);
+        lockUI();
+      } catch (e) {
+        console.error("Firestore payment status failed:", e);
+        setStatus("⚠️ Could not read payment status (check Firestore rules/index)");
+        lockUI();
       }
     }
 
@@ -263,6 +298,7 @@ return;
       try { localStorage.removeItem("selectedPlan"); } catch(e) {}
       try { sessionStorage.removeItem("selectedPlan"); } catch(e) {}
       renderPlan();
+      profitEl.textContent = "$0.00";
       alert("Plan cleared");
     });
 
@@ -285,52 +321,39 @@ return;
       const profit = (amount * Number(plan.percent || 0)) / 100;
       resultEl.style.display = "block";
       resultEl.textContent = `Estimated weekly profit: $${profit.toFixed(2)}`;
-      profitEl.textContent = `$${profit.toFixed(2)}`;
+      profitEl.textContent = money(profit);
     });
 
-    // ----------------- LOGOUT fallback (always works) -----------------
-    logoutBtn?.addEventListener("click", () => {
+    // Logout
+    logoutBtn?.addEventListener("click", async () => {
+      try { await signOut(auth); } catch(e) {}
       window.location.replace("login.html");
     });
 
-    // ----------------- FIREBASE AUTH PROTECT -----------------
-    (async () => {
-      try {
-        const { auth } = await import("./js/firebase.js");
-        const { onAuthStateChanged, signOut } =
-          await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js");
-
-        onAuthStateChanged(auth, async (user) => {
-          if (!user) {
-            window.location.replace("login.html");
-            return;
-          }
-
-          if (emailEl) emailEl.textContent = user.email || "";
-
-          // ✅ Update payment status using Firestore (global)
-          await renderPaymentStatusFromFirestore(user);
-        });
-
-        // Real signOut
-        if (logoutBtn) {
-          logoutBtn.onclick = async () => {
-            try { await signOut(auth); } catch(e) {}
-            window.location.replace("login.html");
-          };
-        }
-      } catch (e) {
-        console.log("Firebase import failed:", e);
-        // If Firebase fails, we still show local payment status
-        const proof = loadLocalPaymentProof();
-        if (proof && proof.txid) setStatus("⏳ Payment Pending — Waiting for verification");
-        else setStatus("❌ No payment submitted");
+    // ----------------- AUTH PROTECT (ONLY ONE onAuthStateChanged ✅) -----------------
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.replace("login.html");
+        return;
       }
-    })();
+
+      // Admin redirect
+      if (ADMIN_UIDS.includes(user.uid)) {
+        window.location.replace("admin.html");
+        return;
+      }
+
+      if (emailEl) emailEl.textContent = user.email || "";
+
+      // Always show plan first (local)
+      renderPlan();
+
+      // Then check verified/pending from Firestore
+      await renderPaymentStatusFromFirestore(user);
+    });
 
     // ----------------- INITIAL RENDER -----------------
     renderPlan();
-    // Payment status will be updated after auth loads
   </script>
 
 </body>
