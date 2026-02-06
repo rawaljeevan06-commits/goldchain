@@ -244,5 +244,34 @@
     window.location.href = "dashboard.html";
   });
 </script>
+    <script>
+document.addEventListener("DOMContentLoaded", () => {
+  const calcBtn = document.getElementById("calcBtn");
+  const amountInput = document.getElementById("amountInput");
+  const resultEl = document.getElementById("resultEl");
+
+  if (!calcBtn || !amountInput || !resultEl) {
+    console.log("Calculator elements missing:", { calcBtn, amountInput, resultEl });
+    return;
+  }
+
+  calcBtn.addEventListener("click", () => {
+    const amount = parseFloat(amountInput.value);
+
+    if (!amount || amount <= 0) {
+      alert("Please enter a valid amount");
+      return;
+    }
+
+    const monthlyProfit = amount * 0.16;
+    const weeklyEstimate = monthlyProfit / 4;
+
+    resultEl.style.display = "block";
+    resultEl.innerHTML =
+      "Monthly Profit (16%): $ " + monthlyProfit.toFixed(2) +
+      "<br>Weekly Estimate: $ " + weeklyEstimate.toFixed(2);
+  });
+});
+</script>
 </body>
 </html>
