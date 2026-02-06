@@ -24,9 +24,8 @@
 
       <nav class="nav">
         <a href="index.html">Home</a>
-        <a href="plans.html">Plans</a>
-        <a href="about.html">Our Impact</a>
-        <a href="faq.html">FAQ</a>
+        <a href="project.html">Our Project</a>
+        <a href="legal.html">Legal</a>
         <a href="contact.html">Contact</a>
       </nav>
 
@@ -61,7 +60,7 @@
         <div class="card">
           <h3>Plan</h3>
           <p class="small" id="planEl">Loading...</p>
-          <a class="btn btn-ghost full" href="plans.html" style="margin-top:10px;">Change Plan</a>
+          <a class="btn btn-ghost full" href="index.html#plans" style="margin-top:10px;">View Plans</a>
         </div>
 
         <!-- ✅ Referral Card -->
@@ -77,9 +76,90 @@
           <p class="small" style="margin-top:10px;">
             Earnings: <b>$<span id="refEarn">0.00</span></b>
           </p>
+
           <a href="referral.html" class="btn btn-primary" style="margin-top:10px;">Open Referral Center</a>
         </div>
 
+      </div>
+
+      <!-- ✅ OUR SUCCESS -->
+      <div class="card" style="margin-top:18px;">
+        <h2>Our Success</h2>
+        <p class="small" style="opacity:.9;">
+          We focus on controlled verification, transparency, and a premium dashboard experience.
+        </p>
+
+        <div style="display:flex; gap:18px; flex-wrap:wrap; margin-top:14px;">
+          <div class="card" style="flex:1; min-width:180px;">
+            <h3>Verified Deposits</h3>
+            <p class="big">Secure</p>
+            <p class="small">Balance updates only after verification.</p>
+          </div>
+
+          <div class="card" style="flex:1; min-width:180px;">
+            <h3>Withdrawals</h3>
+            <p class="big">Controlled</p>
+            <p class="small">Approval flow for accountability.</p>
+          </div>
+
+          <div class="card" style="flex:1; min-width:180px;">
+            <h3>Referral Rewards</h3>
+            <p class="big">Tracked</p>
+            <p class="small">Earnings recorded after verified deposits.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ✅ TESTIMONIALS -->
+      <div class="card" style="margin-top:18px;">
+        <h2>Testimonials</h2>
+        <p class="small" style="opacity:.9;">What our members say about GoldChain Investment:</p>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(230px, 1fr)); gap:14px; margin-top:12px;">
+          <div class="card">
+            <p class="small" style="line-height:1.8;">
+              “The dashboard is very clear. Deposit verification gives me confidence that everything is tracked properly.”
+            </p>
+            <p class="small" style="opacity:.7; margin-top:10px;"><b>— Member A</b></p>
+          </div>
+
+          <div class="card">
+            <p class="small" style="line-height:1.8;">
+              “I like the referral center because it shows my code and earnings clearly. Copy button is very helpful.”
+            </p>
+            <p class="small" style="opacity:.7; margin-top:10px;"><b>— Member B</b></p>
+          </div>
+
+          <div class="card">
+            <p class="small" style="line-height:1.8;">
+              “Plans are simple to understand and I can see my account status anytime. Looks professional.”
+            </p>
+            <p class="small" style="opacity:.7; margin-top:10px;"><b>— Member C</b></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ✅ LEGAL & RISK (SHOW DIRECTLY IN DASHBOARD) -->
+      <div class="card" style="margin-top:18px;">
+        <h2>Legal & Risk Disclosure</h2>
+        <p class="small" style="opacity:.9; line-height:1.9;">
+          Participation in financial programs involves risk. Any percentages, examples, or calculator results shown on this platform
+          are informational only and do not guarantee future outcomes. Use this platform responsibly and only allocate funds you can afford.
+        </p>
+
+        <ul class="small" style="margin-top:10px; line-height:1.9;">
+          <li><b>No guarantee:</b> outcomes are not guaranteed.</li>
+          <li><b>User responsibility:</b> you decide and accept your own risks.</li>
+          <li><b>Verification:</b> deposits are verified before balance update.</li>
+          <li><b>Withdrawals:</b> processed through review/approval workflow.</li>
+        </ul>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+          <a class="btn btn-outline" href="legal.html">Open Full Legal Page</a>
+          <a class="btn btn-primary" href="GoldChain-Legal-Risk-Disclosure.pdf" target="_blank" rel="noopener">
+            Download PDF
+          </a>
+        </div>
       </div>
 
     </div>
@@ -131,9 +211,7 @@
     });
 
     logoutBtn?.addEventListener("click", async () => {
-      try {
-        await signOut(auth);
-      } catch (e) {}
+      try { await signOut(auth); } catch (e) {}
       window.location.href = "login.html";
     });
 
@@ -186,8 +264,7 @@
         // Plan
         planEl.textContent = data.plan ? `Selected Plan: $${data.plan}` : "No plan selected";
 
-        // Payment status (customize based on your fields)
-        // If you later store something like paymentVerified:true, show it here.
+        // Payment status
         if (data.paymentVerified === true) {
           payStatusEl.innerHTML = `<span style="color:var(--success, #36d399); font-weight:700;">✅ Payment Verified</span>`;
         } else {
@@ -195,8 +272,8 @@
         }
 
         // Referral
-        myRefCodeEl.value = data.referralCode || "";
-        refEarnEl.textContent = Number(data.referralEarnings || 0).toFixed(2);
+        if (myRefCodeEl) myRefCodeEl.value = data.referralCode || "";
+        if (refEarnEl) refEarnEl.textContent = Number(data.referralEarnings || 0).toFixed(2);
 
       } catch (e) {
         console.log("Dashboard load error:", e);
@@ -204,6 +281,13 @@
         payStatusEl.textContent = "Error loading profile.";
       }
     });
+  </script>
+
+  <script>
+    // mobile menu toggle
+    const navToggle = document.querySelector(".nav-toggle");
+    const nav = document.querySelector(".nav");
+    if (navToggle && nav) navToggle.addEventListener("click", () => nav.classList.toggle("open"));
   </script>
 
 </body>
