@@ -31,6 +31,26 @@
   <section class="section">
     <div class="container">
       <div class="card">
+
+        <!-- ✅ ADMIN STATS (C) -->
+        <div class="dash-cards" style="margin-top:12px;">
+          <div class="card">
+            <h3>Total Verified Payments</h3>
+            <p class="big" id="statVerifiedCount">0</p>
+          </div>
+          <div class="card">
+            <h3>Total Approved Withdrawals</h3>
+            <p class="big" id="statApprovedWdCount">0</p>
+          </div>
+          <div class="card">
+            <h3>Totals</h3>
+            <p class="muted">Deposits / Withdrawals</p>
+            <p class="big" id="statTotals">$0.00 / $0.00</p>
+          </div>
+        </div>
+
+        <hr style="margin:18px 0; opacity:.25;">
+
         <h2>Pending Payments</h2>
         <p class="small" id="adminInfo">Checking admin access…</p>
 
@@ -49,7 +69,6 @@
               </tr>
             </thead>
 
-            <!-- ✅ IMPORTANT: THIS ID MUST MATCH JS -->
             <tbody id="paymentsBody"></tbody>
           </table>
         </div>
@@ -86,7 +105,7 @@
     import { auth, db } from "./js/firebase.js";
     import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
     import {
-      collection, query, where, orderBy, limit, getDocs,
+      collection, query, where, limit, getDocs,
       doc, updateDoc, serverTimestamp,
       getDoc, setDoc, addDoc, increment
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
@@ -94,15 +113,21 @@
     // ✅ PUT YOUR ADMIN UID(S) HERE
     const ADMIN_UIDS = ["40B1eYKROIXFAZLpelBhjjFTDm72"];
 
-    const adminInfo      = document.getElementById("adminInfo");
-    const paymentsBody   = document.getElementById("paymentsBody");
-    const withdrawalsBody= document.getElementById("withdrawalsBody");
+    const adminInfo       = document.getElementById("adminInfo");
+    const paymentsBody    = document.getElementById("paymentsBody");
+    const withdrawalsBody = document.getElementById("withdrawalsBody");
 
-    const msg            = document.getElementById("msg");
-    const wMsg           = document.getElementById("wMsg");
+    const msg  = document.getElementById("msg");
+    const wMsg = document.getElementById("wMsg");
 
-    const refreshBtn     = document.getElementById("refreshBtn");
-    const logoutBtn      = document.getElementById("logoutBtn");
+    const refreshBtn = document.getElementById("refreshBtn");
+    const logoutBtn  = document.getElementById("logoutBtn");
+
+    const statVerifiedCount   = document.getElementById("statVerifiedCount");
+    const statApprovedWdCount = document.getElementById("statApprovedWdCount");
+    const statTotals          = document.getElementById("statTotals");
+
+    function money(n){ return `$${Number(n||0).toFixed(2)}`; }
 
     function esc(s) {
       return String(s ?? "").replace(/[&<>"']/g, (c) => ({
@@ -115,46 +140,58 @@
         if (!ts) return "-";
         if (typeof ts.toDate === "function") return ts.toDate().toLocaleString();
         return new Date(ts).toLocaleString();
-      } catch {
-        return "-";
-      }
+      } catch { return "-"; }
     }
 
-    // ---------------- PAYMENTS ----------------
+    // ✅ Admin stats (index-free)
+    async function loadAdminStats(){
+      let verifiedCount = 0, wdApprovedCount = 0;
+      let verifiedSum = 0, wdApprovedSum = 0;
+
+      try {
+        const snap = await getDocs(query(collection(db, "payments"), limit(500)));
+        snap.forEach(d => {
+          const p = d.data();
+          if (String(p.status||"").toLowerCase() === "verified") {
+            verifiedCount++;
+            verifiedSum += Number(p.amount || 0);
+          }
+        });
+      } catch(e) { console.warn("Stats payments failed:", e); }
+
+      try {
+        const snap = await getDocs(query(collection(db, "withdrawals"), limit(500)));
+        snap.forEach(d => {
+          const w = d.data();
+          if (String(w.status||"").toLowerCase() === "approved") {
+            wdApprovedCount++;
+            wdApprovedSum += Number(w.amount || 0);
+          }
+        });
+      } catch(e) { console.warn("Stats withdrawals failed:", e); }
+
+      if (statVerifiedCount) statVerifiedCount.textContent = String(verifiedCount);
+      if (statApprovedWdCount) statApprovedWdCount.textContent = String(wdApprovedCount);
+      if (statTotals) statTotals.textContent = `${money(verifiedSum)} / ${money(wdApprovedSum)}`;
+    }
+
+    // ---------------- PAYMENTS (pending) ----------------
     async function loadPendingPayments() {
       if (!paymentsBody) return;
       paymentsBody.innerHTML = "";
-      msg.textContent = "Loading pending payments…";
+      if (msg) msg.textContent = "Loading pending payments…";
 
       try {
-        // Try with orderBy (needs index sometimes)
-        let q1 = query(
-          collection(db, "payments"),
-          where("status", "==", "pending"),
-          orderBy("createdAt", "desc"),
-          limit(50)
+        const snap = await getDocs(
+          query(collection(db, "payments"), where("status", "==", "pending"), limit(50))
         );
 
-        let snap;
-        try {
-          snap = await getDocs(q1);
-        } catch (e) {
-          // fallback without orderBy if index complains
-          console.warn("Payments query fallback (no orderBy):", e?.code || e);
-          const qFallback = query(
-            collection(db, "payments"),
-            where("status", "==", "pending"),
-            limit(50)
-          );
-          snap = await getDocs(qFallback);
-        }
-
         if (snap.empty) {
-          msg.textContent = "✅ No pending payments.";
+          if (msg) msg.textContent = "✅ No pending payments.";
           return;
         }
 
-        msg.textContent = `Found ${snap.size} pending payment(s).`;
+        if (msg) msg.textContent = `Found ${snap.size} pending payment(s).`;
 
         snap.forEach((docSnap) => {
           const p  = docSnap.data();
@@ -182,14 +219,10 @@
 
       } catch (e) {
         console.error(e);
-        msg.textContent = "❌ Failed to load payments (check Firestore rules / index).";
+        if (msg) msg.textContent = "❌ Failed to load payments (rules).";
       }
     }
 
-    /**
-     * ✅ Payment Approve/Reject
-     * - Approve: marks verified, increments users/{uid}.balance, queues email (optional)
-     */
     async function setPaymentStatus(paymentId, status) {
       await updateDoc(doc(db, "payments", paymentId), {
         status,
@@ -222,7 +255,7 @@
 
       await updateDoc(userRef, { balance: increment(amount) });
 
-      // Optional email queue (only if you use Trigger Email extension)
+      // Optional mail queue
       if (email) {
         try {
           await addDoc(collection(db, "mail"), {
@@ -232,39 +265,20 @@
               text: `Your payment of $${amount} has been approved. Your dashboard balance has been updated.`
             }
           });
-        } catch (e) {
-          console.warn("Mail queue skipped:", e);
-        }
+        } catch (e) {}
       }
     }
 
-    // ---------------- WITHDRAWALS ----------------
+    // ---------------- WITHDRAWALS (pending) ----------------
     async function loadPendingWithdrawals() {
       if (!withdrawalsBody) return;
       withdrawalsBody.innerHTML = "";
       if (wMsg) wMsg.textContent = "Loading pending withdrawals…";
 
       try {
-        // Try with orderBy (may need index)
-        let q1 = query(
-          collection(db, "withdrawals"),
-          where("status", "==", "pending"),
-          orderBy("createdAt", "desc"),
-          limit(50)
+        const snap = await getDocs(
+          query(collection(db, "withdrawals"), where("status", "==", "pending"), limit(50))
         );
-
-        let snap;
-        try {
-          snap = await getDocs(q1);
-        } catch (e) {
-          console.warn("Withdrawals query fallback (no orderBy):", e?.code || e);
-          const qFallback = query(
-            collection(db, "withdrawals"),
-            where("status", "==", "pending"),
-            limit(50)
-          );
-          snap = await getDocs(qFallback);
-        }
 
         if (snap.empty) {
           if (wMsg) wMsg.textContent = "✅ No pending withdrawals.";
@@ -291,21 +305,15 @@
               <button class="btn btn-outline" type="button" data-type="wd" data-act="reject" data-id="${esc(id)}">Reject</button>
             </td>
           `;
-
           withdrawalsBody.appendChild(tr);
         });
 
       } catch (e) {
         console.error(e);
-        if (wMsg) wMsg.textContent = "❌ Failed to load withdrawals (check Firestore rules / index).";
+        if (wMsg) wMsg.textContent = "❌ Failed to load withdrawals (rules).";
       }
     }
 
-    /**
-     * ✅ Withdrawal Approve/Reject
-     * - Approve: marks approved + decreases users/{uid}.balance by amount
-     * - Reject: marks rejected only
-     */
     async function setWithdrawalStatus(withdrawalId, status) {
       const wRef = doc(db, "withdrawals", withdrawalId);
 
@@ -316,7 +324,6 @@
 
       if (status !== "approved") return;
 
-      // On approve, reduce user balance
       const wSnap = await getDoc(wRef);
       if (!wSnap.exists()) return;
 
@@ -326,15 +333,14 @@
 
       if (!uid || !Number.isFinite(amount) || amount <= 0) return;
 
+      // Reduce user balance (optional)
       const userRef = doc(db, "users", uid);
       try {
         await updateDoc(userRef, { balance: increment(-amount) });
-      } catch (e) {
-        console.warn("Could not decrement balance:", e);
-      }
+      } catch (e) {}
     }
 
-    // ---------------- CLICK HANDLER (PAY + WD) ----------------
+    // ---------------- CLICK HANDLER ----------------
     document.addEventListener("click", async (e) => {
       const btn = e.target.closest("button[data-type][data-act][data-id]");
       if (!btn) return;
@@ -348,11 +354,12 @@
 
       try {
         if (type === "pay") {
-          msg.textContent = "Updating payment…";
+          if (msg) msg.textContent = "Updating payment…";
           if (act === "approve") await setPaymentStatus(id, "verified");
           if (act === "reject")  await setPaymentStatus(id, "rejected");
-          msg.textContent = "✅ Payment updated.";
+          if (msg) msg.textContent = "✅ Payment updated.";
           await loadPendingPayments();
+          await loadAdminStats();
         }
 
         if (type === "wd") {
@@ -361,21 +368,22 @@
           if (act === "reject")  await setWithdrawalStatus(id, "rejected");
           if (wMsg) wMsg.textContent = "✅ Withdrawal updated.";
           await loadPendingWithdrawals();
+          await loadAdminStats();
         }
 
       } catch (err) {
         console.error(err);
-        if (type === "pay") msg.textContent = "❌ Payment update failed (check rules/admin UID).";
-        if (type === "wd" && wMsg) wMsg.textContent = "❌ Withdrawal update failed (check rules/admin UID).";
+        if (type === "pay" && msg) msg.textContent = "❌ Payment update failed.";
+        if (type === "wd" && wMsg) wMsg.textContent = "❌ Withdrawal update failed.";
       } finally {
         btn.disabled = false;
       }
     });
 
-    // ---------------- BUTTONS ----------------
     refreshBtn?.addEventListener("click", async () => {
       await loadPendingPayments();
       await loadPendingWithdrawals();
+      await loadAdminStats();
     });
 
     logoutBtn?.addEventListener("click", async () => {
@@ -383,7 +391,6 @@
       window.location.replace("login.html");
     });
 
-    // ---------------- ADMIN ACCESS ----------------
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
         window.location.replace("login.html");
@@ -400,7 +407,8 @@
 
       adminInfo.textContent = `✅ Admin: ${user.email || user.uid}`;
       await loadPendingPayments();
-      await loadPendingWithdrawals(); // ✅ load withdrawals too
+      await loadPendingWithdrawals();
+      await loadAdminStats();
     });
   </script>
 
