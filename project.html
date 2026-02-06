@@ -3,159 +3,241 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Our Project | GoldChain</title>
+  <title>Our Project | GoldChain Investment</title>
+
   <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
+
 <body>
+  <div class="topbar">Our Project — Transparent. Structured. Secure.</div>
 
-  <header class="gc-nav">
-    <div class="gc-nav-inner">
-      <div class="gc-logo">GoldChain</div>
+  <!-- HEADER -->
+  <header class="header">
+    <div class="container header-in">
+      <a class="brand" href="index.html">
+        <img src="images/logo.png" alt="GoldChain Logo">
+        <span>GoldChain</span>
+      </a>
 
-      <nav class="gc-links">
-        <a href="index.html#home">Home</a>
-        <a href="index.html#history">Gold History</a>
-        <a href="index.html#plans">Plans</a>
-        <a href="project.html" style="opacity:1; font-weight:800;">Our Project</a>
-        <a href="index.html#contact">Contact</a>
+      <button class="nav-toggle" type="button" aria-label="Menu">☰</button>
+
+      <nav class="nav">
+        <a href="index.html">Home</a>
+        <a href="plans.html">Plans</a>
+        <a href="project.html" class="active">Our Project</a>
+        <a href="legal.html">Legal</a>
+        <a href="contact.html">Contact</a>
       </nav>
 
-      <div class="gc-actions">
-        <a class="btn btn-outline" href="login.html">Login</a>
+      <div class="actions">
+        <a class="btn btn-ghost" href="login.html">Login</a>
         <a class="btn btn-primary" href="signup.html">Sign Up</a>
       </div>
     </div>
   </header>
 
-  <section class="gc-hero" style="min-height:auto; padding:60px 0;">
-    <div class="gc-hero-inner">
-      <h1>GoldChain Investment Project</h1>
-      <p>Structured participation, transparent tracking, and verified transactions — built for clarity and confidence.</p>
-
-      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:14px;">
-        <a class="btn btn-primary" href="docs/GoldChain_Investor_Proposal.pdf" target="_blank" rel="noopener">
-          Open Investor Proposal (PDF)
-        </a>
-        <a class="btn btn-outline" href="docs/GoldChain_Terms_and_Disclosures_Draft.pdf" target="_blank" rel="noopener">
-          Open Terms & Disclosures (PDF)
-        </a>
-      </div>
-    </div>
-  </section>
-
+  <!-- HERO -->
   <section class="section">
-    <div class="container" style="max-width:900px;">
-
-      <div class="card">
-        <h2>Our Vision</h2>
-        <p class="small">
-          GoldChain Investment is designed to provide a structured digital participation experience with secure access,
-          transparent user tracking, and controlled verification processes. We focus on discipline, clarity, and trust.
+    <div class="container" style="max-width:980px;">
+      <div class="card" style="padding:26px;">
+        <h1 style="margin-bottom:8px;">GoldChain Investment Project</h1>
+        <p class="small" style="opacity:.9; line-height:1.8;">
+          GoldChain Investment is a structured digital participation platform designed to create a clear, trackable
+          experience for members — from choosing a plan to deposit verification, dashboard access, withdrawals, and referral rewards.
+          We focus on transparency, controlled workflows, and a premium user experience.
         </p>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;">
+          <a class="btn btn-primary" href="signup.html">Create Account</a>
+          <a class="btn btn-outline" href="login.html">Go to Dashboard</a>
+          <a class="btn btn-ghost" href="legal.html">Read Legal & Risk</a>
+        </div>
       </div>
-
-      <div class="card" style="margin-top:14px;">
-        <h2>How It Works</h2>
-        <ul class="small">
-          <li>Create an account (Sign Up).</li>
-          <li>Select a plan that matches your goal.</li>
-          <li>Submit your deposit request.</li>
-          <li>Admin verifies the payment.</li>
-          <li>Your dashboard updates balance & status.</li>
-          <li>Withdrawals are processed through a controlled approval flow.</li>
-        </ul>
-      </div>
-
-      <div class="card" style="margin-top:14px;">
-        <h2>Two-Level Referral System</h2>
-        <p class="small">
-          Each user has a personal referral code. When someone signs up using your code and completes a verified deposit,
-          you earn referral commission. The system also supports 2-level structure (direct + indirect).
-        </p>
-        <ul class="small">
-          <li><b>Level 1:</b> Commission from your direct referral after verified deposit.</li>
-          <li><b>Level 2:</b> Commission from your referral’s referral after verified deposit.</li>
-        </ul>
-        <p class="small" style="opacity:.85;">
-          *Rates and thresholds can be configured by admin policy.
-        </p>
-      </div>
-
-      <div class="card" style="margin-top:14px;">
-        <h2>Security & Transparency</h2>
-        <ul class="small">
-          <li>Secure login system (Firebase Authentication).</li>
-          <li>Verified deposits before balance update.</li>
-          <li>Controlled withdrawal approvals.</li>
-          <li>Recorded histories (payments, withdrawals, referral records).</li>
-          <li>Admin access control and audit logs.</li>
-        </ul>
-      </div>
-
-      <div class="card" style="margin-top:14px;">
-        <h2>Important Notice</h2>
-        <p class="small">
-          GoldChain Investment operates under structured participation rules. Users should participate responsibly and
-          only allocate funds they are comfortable committing. This website content is informational and should not be
-          treated as financial advice.
-        </p>
-      </div>
-
-      <div style="text-align:center; margin-top:18px;">
-        <a class="btn btn-primary" href="signup.html">Join Now</a>
-        <a class="btn btn-outline" href="index.html#plans">View Plans</a>
-      </div>
-<section class="section">
-  <div class="container" style="max-width:900px;">
-
-    <div class="card">
-      <h2>Platform Terms & Conditions</h2>
-
-      <p class="small" style="opacity:.9;">
-        By accessing and using GoldChain Investment, you confirm that you understand and agree to the rules below.
-        These terms are designed to protect users and maintain transparency.
-      </p>
-
-      <ul class="small" style="margin-top:12px; line-height:1.9;">
-        <li><b>Account Responsibility:</b> You are responsible for keeping your login credentials secure and for all actions performed under your account.</li>
-        <li><b>Accurate Information:</b> You must provide accurate information during sign up and keep your profile details updated.</li>
-        <li><b>Deposit Verification:</b> Deposits are recorded as <i>pending</i> and are only added to your balance after admin verification.</li>
-        <li><b>Withdrawal Processing:</b> Withdrawals are processed through an approval workflow. Processing time can vary depending on verification and platform policy.</li>
-        <li><b>Referral Rewards:</b> Referral commissions are credited only after a verified deposit. Referral commission records are tracked in the system.</li>
-        <li><b>Prohibited Activity:</b> Fraud, manipulation, fake deposits, self-referrals, or multi-account abuse may result in suspension or permanent restriction.</li>
-        <li><b>Policy Updates:</b> Platform policies, plan rules, and commission rates may be updated. Updates will be reflected on the website or within user communication.</li>
-      </ul>
-
-      <hr style="margin:26px 0; opacity:.2;">
-
-      <h2>Risk Disclosure & Legal Notice</h2>
-
-      <p class="small" style="opacity:.9;">
-        All financial participation carries risk. Users should participate responsibly and only allocate funds they can afford to commit.
-        Nothing on this website should be interpreted as financial advice, and no outcome is guaranteed.
-      </p>
-
-      <ul class="small" style="margin-top:12px; line-height:1.9;">
-        <li><b>No Guarantee:</b> Past performance or displayed calculations do not guarantee future outcomes.</li>
-        <li><b>User Decision:</b> You are solely responsible for your investment decisions and participation activity.</li>
-        <li><b>Availability:</b> The platform may be updated, paused, or restricted in certain circumstances to maintain security and compliance.</li>
-        <li><b>Limitation of Liability:</b> To the extent permitted by law, GoldChain Investment is not responsible for indirect or consequential losses.</li>
-      </ul>
-
-      <p class="small" style="margin-top:14px; opacity:.85;">
-        For questions, please use the Contact page or official support channels listed on the website.
-      </p>
-    </div>
-
-  </div>
-</section>
     </div>
   </section>
+
+  <!-- MAIN CONTENT -->
+  <section class="section">
+    <div class="container" style="max-width:980px; display:grid; gap:14px;">
+
+      <!-- Vision -->
+      <div class="card">
+        <h2>1) Vision & Purpose</h2>
+        <p class="small" style="line-height:1.9;">
+          Our goal is to make participation simple and understandable: users choose a plan, complete a deposit,
+          and then access the dashboard to track status, balance, and activity history. We believe trust grows when
+          the process is visible, predictable, and documented.
+        </p>
+      </div>
+
+      <!-- How it works -->
+      <div class="card">
+        <h2>2) How the Platform Works</h2>
+        <div class="dash-cards" style="margin-top:10px;">
+          <div class="card">
+            <h3>Step 1</h3>
+            <p class="small">Create an account and choose a plan.</p>
+          </div>
+          <div class="card">
+            <h3>Step 2</h3>
+            <p class="small">Submit deposit details (TXID / method).</p>
+          </div>
+          <div class="card">
+            <h3>Step 3</h3>
+            <p class="small">Admin verifies payment before unlocking.</p>
+          </div>
+          <div class="card">
+            <h3>Step 4</h3>
+            <p class="small">Dashboard shows plan, balance, history, referral.</p>
+          </div>
+        </div>
+
+        <p class="small" style="margin-top:12px; opacity:.9; line-height:1.9;">
+          This controlled verification process is used to reduce errors and keep operations traceable. It also helps
+          prevent fake deposits or unverified balance updates.
+        </p>
+      </div>
+
+      <!-- Security -->
+      <div class="card">
+        <h2>3) Security & Transparency</h2>
+        <ul class="small" style="margin-top:10px; line-height:1.9;">
+          <li><b>Authentication:</b> Secure login system to protect user access.</li>
+          <li><b>Verification:</b> Deposits are verified before balance is activated.</li>
+          <li><b>Audit Tracking:</b> Admin actions can be logged for accountability.</li>
+          <li><b>Clear History:</b> Users can see deposits/withdrawals records in the dashboard.</li>
+        </ul>
+
+        <p class="small" style="margin-top:10px; opacity:.9;">
+          Always use your real details and never share your password. If you believe your account is at risk,
+          contact support immediately.
+        </p>
+      </div>
+
+      <!-- Plans summary -->
+      <div class="card">
+        <h2>4) Plans & Participation</h2>
+        <p class="small" style="line-height:1.9;">
+          We offer multiple plans so users can join at a level that fits their budget and timeline.
+          Each plan has its own minimum amount and withdrawal schedule.
+        </p>
+
+        <div style="overflow:auto; margin-top:12px;">
+          <table style="width:100%; border-collapse:collapse; min-width:680px;">
+            <thead>
+              <tr style="text-align:left; border-bottom:1px solid rgba(255,255,255,.15);">
+                <th style="padding:10px;">Plan</th>
+                <th style="padding:10px;">Minimum</th>
+                <th style="padding:10px;">Return</th>
+                <th style="padding:10px;">Withdrawal</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid rgba(255,255,255,.08);">
+                <td style="padding:10px;">Starter</td>
+                <td style="padding:10px;">$350</td>
+                <td style="padding:10px;">16% Monthly (estimate)</td>
+                <td style="padding:10px;">After 45 days</td>
+              </tr>
+              <tr style="border-bottom:1px solid rgba(255,255,255,.08);">
+                <td style="padding:10px;">Growth</td>
+                <td style="padding:10px;">$700</td>
+                <td style="padding:10px;">16% Monthly (estimate)</td>
+                <td style="padding:10px;">After 1 month</td>
+              </tr>
+              <tr style="border-bottom:1px solid rgba(255,255,255,.08);">
+                <td style="padding:10px;">Pro</td>
+                <td style="padding:10px;">$1000</td>
+                <td style="padding:10px;">16% Monthly (estimate)</td>
+                <td style="padding:10px;">After 15 days</td>
+              </tr>
+              <tr>
+                <td style="padding:10px;">Premium</td>
+                <td style="padding:10px;">$5000+</td>
+                <td style="padding:10px;">18% Monthly (estimate)</td>
+                <td style="padding:10px;">Weekly</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="small" style="margin-top:12px; opacity:.9;">
+          Note: Performance figures shown are estimates/targets and must not be understood as guaranteed profit.
+          Please review the <a href="legal.html" style="color:var(--gold2); font-weight:700;">Legal & Risk Disclosure</a>.
+        </p>
+      </div>
+
+      <!-- Referral -->
+      <div class="card">
+        <h2>5) Referral Center (IB System)</h2>
+        <p class="small" style="line-height:1.9;">
+          Every member can have their own referral code. If a new user signs up using your code and later completes
+          a verified deposit, referral rewards may be applied based on your configured rules.
+        </p>
+        <ul class="small" style="margin-top:10px; line-height:1.9;">
+          <li><b>Minimum deposit reward:</b> 1% (after verified deposit)</li>
+          <li><b>Above $5000 deposit reward:</b> 7% (after verified deposit)</li>
+          <li><b>Two-level option:</b> can be added (Level 1 & Level 2 rewards after deposit)</li>
+        </ul>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+          <a class="btn btn-primary" href="referral.html">Open Referral Center</a>
+          <a class="btn btn-outline" href="signup.html">Join With a Code</a>
+        </div>
+      </div>
+
+      <!-- Commitment -->
+      <div class="card">
+        <h2>6) Our Commitment</h2>
+        <p class="small" style="line-height:1.9;">
+          We’re building GoldChain as a platform with clear steps, visible records, and strict admin verification.
+          The main focus is to keep everything organized, auditable, and simple for users — while continuously improving
+          design, security, and user experience.
+        </p>
+      </div>
+
+      <!-- CTA -->
+      <div class="card" style="text-align:center;">
+        <h2>Ready to Start?</h2>
+        <p class="small" style="opacity:.9; line-height:1.9;">
+          Create an account, choose your plan, and begin your journey with a structured platform designed for clarity.
+        </p>
+        <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:12px;">
+          <a class="btn btn-primary" href="signup.html">Create Account</a>
+          <a class="btn btn-ghost" href="legal.html">Read Legal & Risk</a>
+          <a class="btn btn-outline" href="contact.html">Contact Support</a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FOOTER -->
   <footer class="footer">
     <div class="container footer-in">
       <p class="small">©️ 2026 GoldChain Investment. All rights reserved.</p>
+      <div class="social">
+        <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+      </div>
     </div>
   </footer>
 
+  <!-- WhatsApp Floating Button -->
+  <a class="whatsapp-float" href="https://wa.me/974876535344" target="_blank" aria-label="WhatsApp Chat">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+
+  <!-- Small script for mobile nav toggle (safe even if your CSS already handles it) -->
+  <script>
+    const navToggle = document.querySelector(".nav-toggle");
+    const nav = document.querySelector(".nav");
+    if (navToggle && nav) {
+      navToggle.addEventListener("click", () => nav.classList.toggle("open"));
+    }
+  </script>
 </body>
 </html>
