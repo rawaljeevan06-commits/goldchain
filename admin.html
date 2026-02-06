@@ -103,11 +103,9 @@
     import {
       collection, query, where, orderBy, limit, getDocs,
       doc, updateDoc, serverTimestamp,
-      getDoc, setDoc, addDoc, increment,
-      runTransaction
+      getDoc, setDoc, addDoc, increment
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-    // ✅ PUT YOUR ADMIN UID(S) HERE
     const ADMIN_UIDS = ["40B1eYKROIXFAZLpelBhjjFTDm72"];
 
     const adminInfo = document.getElementById("adminInfo");
@@ -141,6 +139,7 @@
     // ✅ D: totals (index-free by reading limited sets)
     async function loadTotals(){
       try{
+        // Payments totals (read last 500 max)
         const pSnap = await getDocs(query(collection(db,"payments"), limit(500)));
         let verifiedCount = 0;
         let depositSum = 0;
@@ -152,6 +151,7 @@
           }
         });
 
+        // Withdrawals totals (read last 500 max)
         const wSnap = await getDocs(query(collection(db,"withdrawals"), limit(500)));
         let approvedCount = 0;
         let withdrawSum = 0;
@@ -171,7 +171,6 @@
       }
     }
 
-    // ---------------- PAYMENTS ----------------
     async function loadPendingPayments() {
       if (!paymentsBody) return;
       paymentsBody.innerHTML = "";
@@ -229,81 +228,46 @@
       }
     }
 
-    // ✅ A: Transaction-safe approve/reject
     async function setPaymentStatus(paymentId, status) {
-      const payRef = doc(db, "payments", paymentId);
-
-      // We'll collect email info to send AFTER transaction
-      let emailToSend = "";
-      let amountToSend = 0;
-
-      await runTransaction(db, async (tx) => {
-        const paySnap = await tx.get(payRef);
-        if (!paySnap.exists()) return;
-
-        const p = paySnap.data();
-
-        // 🔒 Prevent double approval
-        if (String(p.status || "").toLowerCase() === "verified" && status === "verified") return;
-
-        tx.update(payRef, {
-          status,
-          verifiedAt: serverTimestamp()
-        });
-
-        if (status !== "verified") return;
-
-        const uid = p.uid;
-        const email = p.email || "";
-        const amount = Number(p.amount || 0);
-        if (!uid || !Number.isFinite(amount) || amount <= 0) return;
-
-        const userRef = doc(db, "users", uid);
-        const userSnap = await tx.get(userRef);
-
-        if (!userSnap.exists()) {
-          tx.set(userRef, {
-            email,
-            balance: 0,
-            createdAt: serverTimestamp()
-          });
-        }
-
-        tx.update(userRef, { balance: increment(amount) });
-
-        // 📘 Audit log
-        tx.set(doc(collection(db, "audit")), {
-          type: "payment_approved",
-          paymentId,
-          uid,
-          email,
-          amount,
-          byAdmin: auth.currentUser?.uid || "",
-          at: serverTimestamp()
-        });
-
-        // store for email outside transaction
-        emailToSend = email;
-        amountToSend = amount;
+      await updateDoc(doc(db, "payments", paymentId), {
+        status,
+        verifiedAt: serverTimestamp()
       });
 
-      // Optional email queue (outside transaction)
-      if (status === "verified" && emailToSend) {
+      if (status !== "verified") return;
+
+      const payRef  = doc(db, "payments", paymentId);
+      const paySnap = await getDoc(payRef);
+      if (!paySnap.exists()) return;
+
+      const p = paySnap.data();
+      const uid = p.uid;
+      const email = p.email;
+      const amount = Number(p.amount || 0);
+
+      if (!uid || !Number.isFinite(amount) || amount <= 0) return;
+
+      const userRef  = doc(db, "users", uid);
+      const userSnap = await getDoc(userRef);
+
+      if (!userSnap.exists()) {
+        await setDoc(userRef, { email: email || "", balance: 0, createdAt: serverTimestamp() });
+      }
+      await updateDoc(userRef, { balance: increment(amount) });
+
+      if (email) {
         try {
           await addDoc(collection(db, "mail"), {
-            to: emailToSend,
+            to: email,
             message: {
               subject: "Payment Approved ✅",
-              text: `Your payment of $${amountToSend} has been approved. Your dashboard balance has been updated.`
+              text: `Your payment of $${amount} has been approved. Your dashboard balance has been updated.`
             }
           });
-        } catch (e) {
-          console.warn("Mail queue skipped:", e);
-        }
+        } catch (e) { console.warn("Mail queue skipped:", e); }
       }
     }
 
-    // ---------------- WITHDRAWALS ----------------
     async function loadPendingWithdrawals() {
       if (!withdrawalsBody) return;
       withdrawalsBody.innerHTML = "";
@@ -380,7 +344,6 @@
       catch (e) { console.warn("Could not decrement balance:", e); }
     }
 
-    // ---------------- CLICK HANDLER ----------------
     document.addEventListener("click", async (e) => {
       const btn = e.target.closest("button[data-type][data-act][data-id]");
       if (!btn) return;
@@ -409,7 +372,7 @@
           await loadPendingWithdrawals();
         }
 
-        await loadTotals();
+        await loadTotals(); // update totals after actions
 
       } catch (err) {
         console.error(err);
@@ -420,7 +383,6 @@
       }
     });
 
-    // ---------------- BUTTONS ----------------
     refreshBtn?.addEventListener("click", async () => {
       await loadPendingPayments();
       await loadPendingWithdrawals();
@@ -432,7 +394,6 @@
       window.location.replace("login.html");
     });
 
-    // ---------------- ADMIN ACCESS ----------------
     onAuthStateChanged(auth, async (user) => {
       if (!user) { window.location.replace("login.html"); return; }
 
@@ -450,6 +411,5 @@
       await loadTotals();
     });
   </script>
-
 </body>
 </html>
