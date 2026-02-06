@@ -1,75 +1,93 @@
-import { auth, db } from "./firebase.js";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign Up | GoldChain Investment</title>
 
-import {
-  createUserWithEmailAndPassword,
-  updateProfile
-} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
 
-import {
-  doc,
-  setDoc,
-  serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+<body>
+  <div class="topbar">Sign Up — Secure. Smart. Simple.</div>
 
-document.addEventListener("DOMContentLoaded", () => {
+  <header class="header">
+    <div class="container header-in">
+      <a class="brand" href="index.html">
+        <img src="images/logo.png" alt="GoldChain Logo">
+        <span>GoldChain</span>
+      </a>
 
-  const form = document.getElementById("signupForm");
-  const msg = document.getElementById("signupMsg");
+      <button class="nav-toggle" type="button" aria-label="Menu">☰</button>
 
-  if (!form) return;
+      <nav class="nav">
+        <a href="index.html">Home</a>
+        <a href="plans.html">Plans</a>
+        <a href="about.html">Our Impact</a>
+        <a href="faq.html">FAQ</a>
+        <a href="contact.html">Contact</a>
+      </nav>
 
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
+      <div class="actions">
+        <a class="btn btn-ghost" href="login.html">Login</a>
+        <a class="btn btn-primary" href="signup.html">Sign Up</a>
+      </div>
+    </div>
+  </header>
 
-    try {
-      msg.textContent = "Creating account...";
+  <section class="section">
+    <div class="container" style="max-width:560px;">
+      <div class="card">
+        <h2>Create Account</h2>
+        <p class="small">Create your account using email and password.</p>
 
-      const name = document.getElementById("suName").value.trim();
-      const email = document.getElementById("suEmail").value.trim();
-      const phone = document.getElementById("suPhone").value.trim();
-      const plan = document.getElementById("suPlan").value;
-      const password = document.getElementById("suPass").value;
-      const refCode = document.getElementById("refCode").value.trim().toUpperCase();
+        <form id="signupForm" class="form-grid">
+          <input class="input" id="suName" type="text" placeholder="Full Name" required>
+          <input class="input" id="suEmail" type="email" placeholder="Email" required>
+          <input class="input" id="suPhone" type="tel" placeholder="Phone (optional)">
 
-      if (!plan) {
-        msg.textContent = "Please select a plan.";
-        return;
-      }
+          <label class="small" for="refCode">Referral Code (optional)</label>
+          <input class="input" id="refCode" type="text" placeholder="Enter referral code (optional)"/>
 
-      // Create auth user
-      const userCred = await createUserWithEmailAndPassword(auth, email, password);
+          <select class="input" id="suPlan" required>
+            <option value="" disabled selected>Select Plan</option>
+            <option value="350">Starter — $350 (16% Monthly)</option>
+            <option value="700">Growth — $700 (16% Monthly)</option>
+            <option value="1000">Pro — $1000 (16% Monthly)</option>
+            <option value="5000">VIP — $5000+ (18% Monthly)</option>
+          </select>
 
-      if (name) {
-        await updateProfile(userCred.user, { displayName: name });
-      }
+          <input class="input" id="suPass" type="password" placeholder="Password" required>
 
-      const uid = userCred.user.uid;
+          <button class="btn btn-primary full" type="submit">Create Account</button>
 
-      // Generate referral code
-      const myReferralCode = ("GC" + uid.slice(0, 8)).toUpperCase();
+          <p id="signupMsg" class="small" style="margin-top:10px;"></p>
 
-      // Save user in Firestore
-      await setDoc(doc(db, "users", uid), {
-        name,
-        email,
-        phone,
-        plan,
-        balance: 0,
-        referralCode: myReferralCode,
-        referredBy: null,
-        referralEarnings: 0,
-        totalDeposits: 0,
-        referredUsersCount: 0,
-        createdAt: serverTimestamp()
-      });
+          <p class="small">Already have an account?
+            <a href="login.html" style="color:var(--gold2);font-weight:700;">Login</a>
+          </p>
+        </form>
+      </div>
+    </div>
+  </section>
 
-      msg.textContent = "✅ Account created successfully!";
-      window.location.href = "dashboard.html";
+  <footer class="footer">
+    <div class="container footer-in">
+      <p class="small">©️ 2026 GoldChain Investment. All rights reserved.</p>
+      <div class="social">
+        <a href="#"><i class="fab fa-facebook"></i></a>
+        <a href="#"><i class="fab fa-youtube"></i></a>
+        <a href="#"><i class="fab fa-instagram"></i></a>
+        <a href="#"><i class="fab fa-linkedin"></i></a>
+      </div>
+    </div>
+  </footer>
 
-    } catch (err) {
-      console.error(err);
-      msg.textContent = err.message || "Signup failed.";
-    }
-  });
+  <a class="whatsapp-float" href="https://wa.me/9779851406537" target="_blank" aria-label="WhatsApp Chat">
+    <i class="fab fa-whatsapp"></i>
+  </a>
 
-});
+  <script type="module" src="js/signup.js"></script>
+</body>
+</html>
