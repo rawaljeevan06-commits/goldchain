@@ -229,80 +229,81 @@
       }
     }
 
-    // ✅ A: Transaction-safe approve/reject
-    async function setPaymentStatus(paymentId, status) {
-      const payRef = doc(db, "payments", paymentId);
+    // ✅ Payment approve/reject (transaction-safe)
+async function setPaymentStatus(paymentId, status) {
+  const payRef = doc(db, "payments", paymentId);
 
-      // We'll collect email info to send AFTER transaction
-      let emailToSend = "";
-      let amountToSend = 0;
+  // Save for optional email after transaction
+  let emailToNotify = "";
+  let amountToNotify = 0;
 
-      await runTransaction(db, async (tx) => {
-        const paySnap = await tx.get(payRef);
-        if (!paySnap.exists()) return;
+  await runTransaction(db, async (tx) => {
+    const paySnap = await tx.get(payRef);
+    if (!paySnap.exists()) return;
 
-        const p = paySnap.data();
+    const p = paySnap.data();
+    const currentStatus = String(p.status || "").toLowerCase();
 
-        // 🔒 Prevent double approval
-        if (String(p.status || "").toLowerCase() === "verified" && status === "verified") return;
+    // 🔒 Prevent double approval
+    if (currentStatus === "verified" && status === "verified") return;
 
-        tx.update(payRef, {
-          status,
-          verifiedAt: serverTimestamp()
-        });
+    tx.update(payRef, {
+      status,
+      verifiedAt: serverTimestamp()
+    });
 
-        if (status !== "verified") return;
+    // Only on verify -> credit user
+    if (status !== "verified") return;
 
-        const uid = p.uid;
-        const email = p.email || "";
-        const amount = Number(p.amount || 0);
-        if (!uid || !Number.isFinite(amount) || amount <= 0) return;
+    const uid = p.uid;
+    const email = p.email || "";
+    const amount = Number(p.amount || 0);
 
-        const userRef = doc(db, "users", uid);
-        const userSnap = await tx.get(userRef);
+    if (!uid || !Number.isFinite(amount) || amount <= 0) return;
 
-        if (!userSnap.exists()) {
-          tx.set(userRef, {
-            email,
-            balance: 0,
-            createdAt: serverTimestamp()
-          });
-        }
+    const userRef = doc(db, "users", uid);
+    const userSnap = await tx.get(userRef);
 
-        tx.update(userRef, { balance: increment(amount) });
-
-        // 📘 Audit log
-        tx.set(doc(collection(db, "audit")), {
-          type: "payment_approved",
-          paymentId,
-          uid,
-          email,
-          amount,
-          byAdmin: auth.currentUser?.uid || "",
-          at: serverTimestamp()
-        });
-
-        // store for email outside transaction
-        emailToSend = email;
-        amountToSend = amount;
+    if (!userSnap.exists()) {
+      tx.set(userRef, {
+        email,
+        balance: 0,
+        createdAt: serverTimestamp()
       });
-
-      // Optional email queue (outside transaction)
-      if (status === "verified" && emailToSend) {
-        try {
-          await addDoc(collection(db, "mail"), {
-            to: emailToSend,
-            message: {
-              subject: "Payment Approved ✅",
-              text: `Your payment of $${amountToSend} has been approved. Your dashboard balance has been updated.`
-            }
-          });
-        } catch (e) {
-          console.warn("Mail queue skipped:", e);
-        }
-      }
     }
 
+    tx.update(userRef, { balance: increment(amount) });
+
+    // Audit log (optional)
+    tx.set(doc(collection(db, "audit")), {
+      type: "payment_approved",
+      paymentId,
+      uid,
+      email,
+      amount,
+      byAdmin: auth.currentUser?.uid || "",
+      at: serverTimestamp()
+    });
+
+    emailToNotify = email;
+    amountToNotify = amount;
+  });
+
+  // ✅ Optional email queue OUTSIDE transaction
+  if (status === "verified" && emailToNotify) {
+    try {
+      await addDoc(collection(db, "mail"), {
+        to: emailToNotify,
+        message: {
+          subject: "Payment Approved ✅",
+          text: `Your payment of $${amountToNotify} has been approved. Your dashboard balance has been updated.`
+        }
+      });
+    } catch (e) {
+      console.warn("Mail queue skipped:", e);
+    }
+  }
+}
     // ---------------- WITHDRAWALS ----------------
     async function loadPendingWithdrawals() {
       if (!withdrawalsBody) return;
