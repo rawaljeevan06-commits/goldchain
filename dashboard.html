@@ -138,43 +138,58 @@
       return Math.floor(ms / (1000*60*60*24));
     }
 
-    // ✅ Get verified payment doc for this user
+    // ✅ Get verified payment doc (index-free)
     async function getVerifiedPayment(user){
       const qv = query(
         collection(db, "payments"),
         where("uid", "==", user.uid),
-        where("status", "==", "verified"),
-        limit(1)
+        limit(20)
       );
       const snap = await getDocs(qv);
       if (snap.empty) return null;
-      return { id: snap.docs[0].id, ...snap.docs[0].data() };
+
+      for (const d of snap.docs) {
+        const data = d.data();
+        if (String(data.status || "").toLowerCase() === "verified") {
+          return { id: d.id, ...data };
+        }
+      }
+      return null;
     }
 
-    // ✅ Sum of approved withdrawals
+    // ✅ Sum of approved withdrawals (index-free)
     async function getApprovedWithdrawalSum(user){
-      const qa = query(
+      const qx = query(
         collection(db, "withdrawals"),
         where("uid", "==", user.uid),
-        where("status", "==", "approved"),
         limit(200)
       );
-      const snap = await getDocs(qa);
+      const snap = await getDocs(qx);
+
       let sum = 0;
-      snap.forEach(d => { sum += Number(d.data().amount || 0); });
+      snap.forEach((d) => {
+        const w = d.data();
+        if (String(w.status || "").toLowerCase() === "approved") {
+          sum += Number(w.amount || 0);
+        }
+      });
       return sum;
     }
 
-    // ✅ Check if pending withdrawal exists
+    // ✅ Check if pending withdrawal exists (index-free)
     async function hasPendingWithdrawal(user){
-      const qp = query(
+      const qx = query(
         collection(db, "withdrawals"),
         where("uid", "==", user.uid),
-        where("status", "==", "pending"),
-        limit(1)
+        limit(200)
       );
-      const snap = await getDocs(qp);
-      return !snap.empty;
+      const snap = await getDocs(qx);
+
+      for (const d of snap.docs) {
+        const w = d.data();
+        if (String(w.status || "").toLowerCase() === "pending") return true;
+      }
+      return false;
     }
 
     function unlockUI(){ if(withdrawBtn) withdrawBtn.style.display="inline-flex"; }
@@ -232,8 +247,6 @@
             : "Withdrawal available.";
         }
       }
-
-      // If pending exists or still locked, we keep button visible but withdrawal page will block submission too.
     }
 
     // Buttons
