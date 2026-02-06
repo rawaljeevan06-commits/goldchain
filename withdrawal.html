@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Withdraw | GoldChain</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <div class="topbar">Withdrawal — Verified users only</div>
+
+  <header class="header">
+    <div class="container header-in">
+      <a class="brand" href="index.html">
+        <img src="images/logo.png" alt="GoldChain Logo">
+        <span>GoldChain</span>
+      </a>
+
+      <nav class="nav">
+        <a href="dashboard.html">Dashboard</a>
+      </nav>
+
+      <div class="actions">
+        <button id="logoutBtn" class="btn btn-logout" type="button">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <section class="section">
+    <div class="container">
+      <div class="card">
+        <h2>Request Withdrawal</h2>
+        <p class="small" id="statusMsg">Checking verification…</p>
+
+        <form id="withdrawForm" style="display:none; margin-top:12px;">
+          <label class="small">Wallet Address</label>
+          <input id="wallet" type="text" required placeholder="Your USDT TRC20 address" style="width:100%; margin:8px 0; padding:10px;">
+
+          <label class="small">Amount (USD)</label>
+          <input id="amount" type="number" min="1" step="1" required placeholder="100" style="width:100%; margin:8px 0; padding:10px;">
+
+          <label class="small">Note (optional)</label>
+          <input id="note" type="text" placeholder="Any message" style="width:100%; margin:8px 0; padding:10px;">
+
+          <button class="btn btn-primary" type="submit">Submit Request</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <script type="module" src="./js/withdrawal.js"></script>
+</body>
+</html>
