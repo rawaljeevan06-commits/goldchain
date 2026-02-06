@@ -3,52 +3,184 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Withdraw | GoldChain</title>
+  <title>Withdrawal | GoldChain</title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
 
-  <div class="topbar">Withdrawal — Verified users only</div>
+  <div class="dash-wrap">
+    <header class="dash-top">
+      <div>
+        <h1 class="dash-title">Withdrawal</h1>
+        <p class="dash-sub">Request withdrawal after payment verification ✅</p>
+        <p id="userEmail" class="dash-email"></p>
+      </div>
 
-  <header class="header">
-    <div class="container header-in">
-      <a class="brand" href="index.html">
-        <img src="images/logo.png" alt="GoldChain Logo">
-        <span>GoldChain</span>
-      </a>
-
-      <nav class="nav">
-        <a href="dashboard.html">Dashboard</a>
-      </nav>
-
-      <div class="actions">
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button id="backBtn" class="btn btn-outline" type="button">Back</button>
         <button id="logoutBtn" class="btn btn-logout" type="button">Logout</button>
       </div>
-    </div>
-  </header>
+    </header>
 
-  <section class="section">
-    <div class="container">
+    <section class="dash-cards">
       <div class="card">
-        <h2>Request Withdrawal</h2>
-        <p class="small" id="statusMsg">Checking verification…</p>
+        <h3>Status</h3>
+        <p class="muted" id="payStatus">Checking…</p>
+      </div>
 
-        <form id="withdrawForm" style="display:none; margin-top:12px;">
-          <label class="small">Wallet Address</label>
-          <input id="wallet" type="text" required placeholder="Your USDT TRC20 address" style="width:100%; margin:8px 0; padding:10px;">
+      <div class="card">
+        <h3>Plan</h3>
+        <p class="muted">Verified plan</p>
+        <p class="big" id="planName">—</p>
+        <p class="muted" id="planInfo"></p>
+      </div>
 
-          <label class="small">Amount (USD)</label>
-          <input id="amount" type="number" min="1" step="1" required placeholder="100" style="width:100%; margin:8px 0; padding:10px;">
+      <div class="card">
+        <h3>Weekly Profit</h3>
+        <p class="muted">Estimated</p>
+        <p class="big" id="weeklyProfit">$0.00</p>
+      </div>
+    </section>
 
-          <label class="small">Note (optional)</label>
-          <input id="note" type="text" placeholder="Any message" style="width:100%; margin:8px 0; padding:10px;">
+    <div class="dash-box">
+      <h2>Request Withdrawal</h2>
+      <p class="muted">Fill details below and submit your request.</p>
 
-          <button class="btn btn-primary" type="submit">Submit Request</button>
-        </form>
+      <div class="calc-row" style="grid-template-columns: 1fr 1fr; gap:10px;">
+        <input id="amount" type="number" placeholder="Amount (USD)" />
+        <input id="wallet" type="text" placeholder="Wallet Address (USDT/BTC/ETH)" />
+      </div>
+
+      <div style="margin-top:10px;">
+        <textarea id="note" placeholder="Note (optional)" style="width:100%; min-height:90px; padding:12px; border-radius:12px;"></textarea>
+      </div>
+
+      <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
+        <button id="submitBtn" class="btn btn-primary" type="button" disabled>Submit Request</button>
+        <p class="muted" id="msg" style="margin:0;"></p>
       </div>
     </div>
-  </section>
+  </div>
 
-  <script type="module" src="./js/withdrawal.js"></script>
+  <script type="module">
+    import { auth, db } from "./js/firebase.js";
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import { collection, addDoc, query, where, limit, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    const emailEl = document.getElementById("userEmail");
+    const payStatusEl = document.getElementById("payStatus");
+    const planNameEl = document.getElementById("planName");
+    const planInfoEl = document.getElementById("planInfo");
+    const weeklyProfitEl = document.getElementById("weeklyProfit");
+
+    const amountEl = document.getElementById("amount");
+    const walletEl = document.getElementById("wallet");
+    const noteEl = document.getElementById("note");
+    const submitBtn = document.getElementById("submitBtn");
+    const msgEl = document.getElementById("msg");
+
+    document.getElementById("backBtn").addEventListener("click", () => {
+      window.location.href = "dashboard.html";
+    });
+
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+      try { await signOut(auth); } catch(e) {}
+      window.location.replace("login.html");
+    });
+
+    function percentByAmount(amount) {
+      const a = Number(amount) || 0;
+      if (a >= 5000) return 4;
+      if (a >= 1000) return 3;
+      if (a >= 700)  return 2;
+      if (a >= 350)  return 1.5;
+      return 0;
+    }
+
+    function money(n) {
+      const x = Number(n || 0);
+      return `$${x.toFixed(2)}`;
+    }
+
+    async function getVerifiedPayment(user) {
+      const q = query(
+        collection(db, "payments"),
+        where("uid", "==", user.uid),
+        where("status", "==", "verified"),
+        limit(1)
+      );
+      const snap = await getDocs(q);
+      return snap.empty ? null : snap.docs[0].data();
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.replace("login.html");
+        return;
+      }
+
+      emailEl.textContent = user.email || "";
+
+      payStatusEl.textContent = "Checking verification…";
+      submitBtn.disabled = true;
+
+      const verified = await getVerifiedPayment(user);
+
+      if (!verified) {
+        payStatusEl.textContent = "❌ Not verified yet. Withdrawal is locked.";
+        msgEl.textContent = "Go back to Dashboard and wait for verification.";
+        return;
+      }
+
+      payStatusEl.textContent = "✅ Verified — You can request withdrawal";
+      submitBtn.disabled = false;
+
+      // Show plan/profit
+      const amt = Number(verified.amount || 0);
+      planNameEl.textContent = verified.planName || "Verified Plan";
+      planInfoEl.textContent = amt ? `$${amt} • ${percentByAmount(amt)}% weekly` : "";
+      weeklyProfitEl.textContent = money((amt * percentByAmount(amt)) / 100);
+    });
+
+    submitBtn.addEventListener("click", async () => {
+      msgEl.textContent = "";
+      submitBtn.disabled = true;
+
+      try {
+        const user = auth.currentUser;
+        if (!user) {
+          window.location.replace("login.html");
+          return;
+        }
+
+        const amount = Number(amountEl.value);
+        const wallet = walletEl.value.trim();
+        const note = noteEl.value.trim();
+
+        if (!amount || amount <= 0) throw new Error("Enter a valid amount.");
+        if (!wallet) throw new Error("Enter your wallet address.");
+
+        await addDoc(collection(db, "withdrawals"), {
+          uid: user.uid,
+          email: user.email || "",
+          amount,
+          wallet,
+          note,
+          status: "pending",
+          createdAt: serverTimestamp()
+        });
+
+        msgEl.textContent = "✅ Withdrawal request submitted (pending).";
+        amountEl.value = "";
+        walletEl.value = "";
+        noteEl.value = "";
+      } catch (e) {
+        msgEl.textContent = "❌ " + (e?.message || "Failed to submit request.");
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+  </script>
+
 </body>
 </html>
