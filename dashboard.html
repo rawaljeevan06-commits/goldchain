@@ -224,69 +224,78 @@
       if (!Number.isFinite(a) || a < 350) return 0;
       return 16;
     }
+function weeklyFromMonthly(monthlyPct) {
+  const m = Number(monthlyPct || 0) / 100;
+  if (!Number.isFinite(m) || m <= 0) return 0;
 
-    async function renderAccountAccess(user) {
-      const rawPlan = loadSelectedPlanRaw();
-      const planObj = parsePlan(rawPlan);
+  // Convert monthly → weekly (compound approx 4 weeks)
+  return (Math.pow(1 + m, 1 / 4) - 1) * 100;
+}
+async function renderAccountAccess(user) {
 
-      const planName = planObj?.name || "Not selected";
-      const planAmount = Number(planObj?.amount || parseAmountFromText(rawPlan) || 0);
-      const monthlyPct = Number(planObj?.percent || monthlyPercentByAmount(planAmount) || 0);
+  const rawPlan = loadSelectedPlan();
+  const planObj = parsePlan(rawPlan);
 
-      const withdrawText =
-        planObj?.withdraw ||
-        planObj?.withdrawDays ||
-        planObj?.withdrawal ||
-        "";
+  const planName = planObj?.name || "Not selected";
+  const planAmount = Number(planObj?.amount || parseAmountFromPlan(rawPlan) || 0);
 
-      planEl.textContent = planName;
+  // 16% monthly for all plans >= 350
+  const monthlyPct = monthlyPercentByAmount(planAmount);
 
-      // Show monthly info in plan text
-      planPctEl.textContent = monthlyPct
-        ? `${monthlyPct}% monthly${withdrawText ? " • " + withdrawText : ""}`
-        : "";
+  // Convert to weekly automatically
+  const weeklyPct = weeklyFromMonthly(monthlyPct);
 
-      // ✅ OPTION 2: Weekly profit from monthly (÷4)
-      const monthlyProfit = monthlyPct ? (planAmount * monthlyPct) / 100 : 0;
-      const weeklyProfit = monthlyProfit / 4;
-      weeklyProfitEl.textContent = money(weeklyProfit);
+  planEl.textContent = planName;
 
-      // Balance
-      try {
-        const uRef = doc(db, "users", user.uid);
-        const uSnap = await getDoc(uRef);
-        const bal = uSnap.exists() ? Number(uSnap.data()?.balance || 0) : 0;
-        balanceEl.textContent = money(bal);
-        balanceNote.textContent = bal > 0 ? "Withdrawal available." : "No earnings yet.";
-      } catch (e) {
-        console.warn("Balance load failed:", e);
-        balanceEl.textContent = "$0.00";
-        balanceNote.textContent = "Could not load balance.";
-      }
+  planPctEl.textContent = monthlyPct
+    ? `${monthlyPct}% monthly • (~${weeklyPct.toFixed(2)}% weekly)`
+    : "";
 
-      accountStatus.textContent = "Active ✅";
-      payStatus.textContent = "Checking…";
+  // Weekly profit
+  const weeklyProfit = weeklyPct ? (planAmount * weeklyPct) / 100 : 0;
+  weeklyProfitEl.textContent = money(weeklyProfit);
 
-      try {
-        const qVerified = query(
-          collection(db, "payments"),
-          where("uid", "==", user.uid),
-          where("status", "==", "verified"),
-          orderBy("createdAt", "desc"),
-          limit(1)
-        );
+  // Load user balance
+  try {
+    const uRef = doc(db, "users", user.uid);
+    const uSnap = await getDoc(uRef);
+    const bal = uSnap.exists() ? Number(uSnap.data()?.balance || 0) : 0;
 
-        let snap;
-        try { snap = await getDocs(qVerified); }
-        catch {
-          snap = await getDocs(query(
-            collection(db, "payments"),
-            where("uid", "==", user.uid),
-            where("status", "==", "verified"),
-            limit(1)
-          ));
-        }
+    balanceEl.textContent = money(bal);
+    balanceNote.textContent = bal > 0
+      ? "Withdrawal available."
+      : "No earnings yet.";
 
+  } catch (e) {
+    console.warn("Balance load failed:", e);
+    balanceEl.textContent = "$0.00";
+    balanceNote.textContent = "Could not load balance.";
+  }
+
+  accountStatus.textContent = "Active ✅";
+  payStatus.textContent = "Checking…";
+
+  try {
+    const qVerified = query(
+      collection(db, "payments"),
+      where("uid", "==", user.uid),
+      where("status", "==", "verified"),
+      limit(1)
+    );
+
+    const snap = await getDocs(qVerified);
+
+    if (!snap.empty) {
+      payStatus.textContent = "✅ Payment Verified — Full access unlocked";
+    } else {
+      payStatus.textContent = "⏳ Not verified — Please complete payment";
+    }
+
+  } catch (e) {
+    console.warn("Payment check failed:", e);
+    payStatus.textContent = "⚠️ Could not check payment";
+  }
+}
         payStatus.textContent = snap.empty
           ? "⏳ Not verified — Please complete payment"
           : "✅ Payment Verified — Full access unlocked";
