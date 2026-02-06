@@ -62,11 +62,10 @@
           <p class="small" id="planPctEl" style="opacity:.8;"></p>
         </div>
 
-        <!-- OPTION 2: Weekly profit shown, but based on 16% MONTHLY -->
         <div class="card">
-          <h3>Weekly Profit</h3>
-          <p class="muted">Estimated (from monthly)</p>
-          <p class="big" id="weeklyProfitEl">$0.00</p>
+          <h3>Monthly Profit</h3>
+          <p class="muted">Estimated (16% monthly)</p>
+          <p class="big" id="monthlyProfitEl">$0.00</p>
         </div>
 
         <div class="card">
@@ -79,7 +78,7 @@
 
       <div class="card" style="margin-top:14px;">
         <h2>Profit Calculator</h2>
-        <p class="small">Enter amount to calculate weekly profit (16% monthly ÷ 4).</p>
+        <p class="small">Enter amount to calculate monthly profit (16% monthly) and weekly estimate (monthly ÷ 4).</p>
 
         <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:10px;">
           <input id="amountInput" type="number" min="0" step="1" placeholder="Enter amount in USD"
@@ -90,7 +89,7 @@
         <p class="small" id="resultEl" style="margin-top:10px; display:none;"></p>
       </div>
 
-      <!-- ✅ ONLY ONE History section (no duplicates) -->
+      <!-- ✅ ONLY ONE History section (no duplicate IDs) -->
       <div class="card" style="margin-top:14px;">
         <h2>History</h2>
         <p class="small" id="historyMsg">Loading history…</p>
@@ -139,20 +138,20 @@
     import { auth, db } from "./js/firebase.js";
     import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
     import {
-      collection, query, where, orderBy, limit, getDocs,
+      collection, query, where, limit, getDocs,
       doc, getDoc
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
     // ✅ Admin UIDs (same list as admin.html)
     const ADMIN_UIDS = ["40B1eYKROIXFAZLpelBhjjFTDm72"];
 
-    // UI
+    // Elements
     const emailEl = document.getElementById("emailEl");
     const accountStatus = document.getElementById("accountStatus");
     const payStatus = document.getElementById("payStatus");
     const planEl = document.getElementById("planEl");
     const planPctEl = document.getElementById("planPctEl");
-    const weeklyProfitEl = document.getElementById("weeklyProfitEl");
+    const monthlyProfitEl = document.getElementById("monthlyProfitEl");
     const balanceEl = document.getElementById("balanceEl");
     const balanceNote = document.getElementById("balanceNote");
 
@@ -170,62 +169,69 @@
     const withdrawBtn = document.getElementById("withdrawBtn");
 
     // Helpers
-    function esc(s) {
+    function esc(s){
       return String(s ?? "").replace(/[&<>"']/g, (c) => ({
         "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
       }[c]));
     }
 
-    function formatTime(ts) {
-      try {
-        if (!ts) return "-";
-        if (typeof ts.toDate === "function") return ts.toDate().toLocaleString();
-        return new Date(ts).toLocaleString();
-      } catch { return "-"; }
+    function tsToDate(ts){
+      try{
+        if(!ts) return null;
+        if(typeof ts.toDate === "function") return ts.toDate();
+        return new Date(ts);
+      }catch{ return null; }
     }
 
-    function money(n) {
+    function formatTime(ts){
+      try{
+        const d = tsToDate(ts);
+        return d ? d.toLocaleString() : "-";
+      }catch{ return "-"; }
+    }
+
+    function money(n){
       const x = Number(n || 0);
-      if (!Number.isFinite(x)) return "$0.00";
+      if(!Number.isFinite(x)) return "$0.00";
       return "$" + x.toFixed(2);
     }
 
-    function loadSelectedPlanRaw() {
-      let plan = "";
-      try { plan = localStorage.getItem("selectedPlan") || ""; } catch(e){}
-      if (!plan) {
-        try { plan = sessionStorage.getItem("selectedPlan") || ""; } catch(e){}
+    // Plan read from storage (supports JSON or plain text)
+    function loadSelectedPlanRaw(){
+      let raw = "";
+      try { raw = localStorage.getItem("selectedPlan") || ""; } catch(e){}
+      if(!raw){
+        try { raw = sessionStorage.getItem("selectedPlan") || ""; } catch(e){}
       }
-      return plan;
+      return raw;
     }
 
-    // ✅ Plan parsing (handles JSON or plain text)
-    function parsePlan(raw) {
-      if (!raw) return null;
+    function parsePlan(raw){
+      if(!raw) return null;
       const s = String(raw).trim();
-      if (s.startsWith("{") && s.endsWith("}")) {
-        try {
+      if(s.startsWith("{") && s.endsWith("}")){
+        try{
           const obj = JSON.parse(s);
           return obj && typeof obj === "object" ? obj : null;
-        } catch { return null; }
+        }catch{ return null; }
       }
       return { name: s };
     }
 
-    function parseAmountFromText(txt) {
+    function parseAmountFromText(txt){
       const m = String(txt || "").match(/\$?\s*([0-9]+(\.[0-9]+)?)/);
-      if (!m) return 0;
+      if(!m) return 0;
       return Number(m[1]) || 0;
     }
 
-    // ✅ You wanted: 16% MONTHLY for all plans (>=350)
-    function monthlyPercentByAmount(amount) {
+    // ✅ 16% MONTHLY for all plans >= $350
+    function monthlyPercentByAmount(amount){
       const a = Number(amount || 0);
-      if (!Number.isFinite(a) || a < 350) return 0;
+      if(!Number.isFinite(a) || a < 350) return 0;
       return 16;
     }
 
-    async function renderAccountAccess(user) {
+    async function renderAccountAccess(user){
       const rawPlan = loadSelectedPlanRaw();
       const planObj = parsePlan(rawPlan);
 
@@ -240,25 +246,22 @@
         "";
 
       planEl.textContent = planName;
-
-      // Show monthly info in plan text
       planPctEl.textContent = monthlyPct
         ? `${monthlyPct}% monthly${withdrawText ? " • " + withdrawText : ""}`
         : "";
 
-      // ✅ OPTION 2: Weekly profit from monthly (÷4)
-      const monthlyProfit = monthlyPct ? (planAmount * monthlyPct) / 100 : 0;
-      const weeklyProfit = monthlyProfit / 4;
-      weeklyProfitEl.textContent = money(weeklyProfit);
+      // Monthly + weekly estimate (monthly/4)
+      const monthly = monthlyPct ? (planAmount * monthlyPct) / 100 : 0;
+      monthlyProfitEl.textContent = money(monthly);
 
       // Balance
-      try {
+      try{
         const uRef = doc(db, "users", user.uid);
         const uSnap = await getDoc(uRef);
         const bal = uSnap.exists() ? Number(uSnap.data()?.balance || 0) : 0;
         balanceEl.textContent = money(bal);
         balanceNote.textContent = bal > 0 ? "Withdrawal available." : "No earnings yet.";
-      } catch (e) {
+      }catch(e){
         console.warn("Balance load failed:", e);
         balanceEl.textContent = "$0.00";
         balanceNote.textContent = "Could not load balance.";
@@ -267,114 +270,83 @@
       accountStatus.textContent = "Active ✅";
       payStatus.textContent = "Checking…";
 
-      try {
-        const qVerified = query(
+      // Payment verified check (index-free fallback)
+      try{
+        const q1 = query(
           collection(db, "payments"),
           where("uid", "==", user.uid),
           where("status", "==", "verified"),
-          orderBy("createdAt", "desc"),
           limit(1)
         );
-
-        let snap;
-        try { snap = await getDocs(qVerified); }
-        catch {
-          snap = await getDocs(query(
-            collection(db, "payments"),
-            where("uid", "==", user.uid),
-            where("status", "==", "verified"),
-            limit(1)
-          ));
-        }
-
+        const snap = await getDocs(q1);
         payStatus.textContent = snap.empty
           ? "⏳ Not verified — Please complete payment"
           : "✅ Payment Verified — Full access unlocked";
-      } catch (e) {
+      }catch(e){
         console.warn("Payment check failed:", e);
         payStatus.textContent = "⚠️ Could not check payment";
       }
     }
 
-    async function loadHistoryForUser(user) {
-      if (historyMsg) historyMsg.textContent = "Loading history…";
+    async function loadHistoryForUser(user){
+      if(historyMsg) historyMsg.textContent = "Loading history…";
+      if(payHistoryBody) payHistoryBody.innerHTML = "";
+      if(wdHistoryBody) wdHistoryBody.innerHTML = "";
 
-      // Payments
-      try {
-        if (payHistoryBody) payHistoryBody.innerHTML = "";
-
-        const qPay = query(
+      // Payments (no orderBy, sort locally)
+      try{
+        const pSnap = await getDocs(query(
           collection(db, "payments"),
           where("uid", "==", user.uid),
-          orderBy("createdAt", "desc"),
-          limit(20)
-        );
+          limit(50)
+        ));
 
-        let snap;
-        try { snap = await getDocs(qPay); }
-        catch {
-          snap = await getDocs(query(
-            collection(db, "payments"),
-            where("uid", "==", user.uid),
-            limit(20)
-          ));
-        }
-
-        if (snap.empty) {
+        if(pSnap.empty){
           const tr = document.createElement("tr");
           tr.innerHTML = `<td style="padding:10px;" colspan="6">No payments yet.</td>`;
-          payHistoryBody.appendChild(tr);
-        } else {
-          snap.forEach(d => {
-            const p = d.data();
+          payHistoryBody?.appendChild(tr);
+        }else{
+          const arr = pSnap.docs.map(d => ({ id:d.id, ...d.data() }));
+          arr.sort((a,b) => (tsToDate(b.createdAt)||0) - (tsToDate(a.createdAt)||0));
+
+          arr.forEach(p=>{
             const tr = document.createElement("tr");
             tr.style.borderBottom = "1px solid rgba(255,255,255,.08)";
             tr.innerHTML = `
               <td style="padding:10px;">${esc(formatTime(p.createdAt))}</td>
-              <td style="padding:10px;">${esc(p.planName || "-")}</td>
+              <td style="padding:10px;">${esc(p.planName || p.plan || "-")}</td>
               <td style="padding:10px;">$${esc(p.amount ?? "-")}</td>
               <td style="padding:10px;">${esc(p.method || "-")}</td>
               <td style="padding:10px; max-width:260px; word-break:break-all;">${esc(p.txid || "-")}</td>
               <td style="padding:10px;">${esc(p.status || "-")}</td>
             `;
-            payHistoryBody.appendChild(tr);
+            payHistoryBody?.appendChild(tr);
           });
         }
-      } catch (e) {
+      }catch(e){
         console.error("Payments history error:", e);
         const tr = document.createElement("tr");
         tr.innerHTML = `<td style="padding:10px;" colspan="6">Failed to load payments history.</td>`;
         payHistoryBody?.appendChild(tr);
       }
 
-      // Withdrawals
-      try {
-        if (wdHistoryBody) wdHistoryBody.innerHTML = "";
-
-        const qWd = query(
+      // Withdrawals (no orderBy, sort locally)
+      try{
+        const wSnap = await getDocs(query(
           collection(db, "withdrawals"),
           where("uid", "==", user.uid),
-          orderBy("createdAt", "desc"),
-          limit(20)
-        );
+          limit(50)
+        ));
 
-        let snap;
-        try { snap = await getDocs(qWd); }
-        catch {
-          snap = await getDocs(query(
-            collection(db, "withdrawals"),
-            where("uid", "==", user.uid),
-            limit(20)
-          ));
-        }
-
-        if (snap.empty) {
+        if(wSnap.empty){
           const tr = document.createElement("tr");
           tr.innerHTML = `<td style="padding:10px;" colspan="4">No withdrawals yet.</td>`;
-          wdHistoryBody.appendChild(tr);
-        } else {
-          snap.forEach(d => {
-            const w = d.data();
+          wdHistoryBody?.appendChild(tr);
+        }else{
+          const arr = wSnap.docs.map(d => ({ id:d.id, ...d.data() }));
+          arr.sort((a,b) => (tsToDate(b.createdAt)||0) - (tsToDate(a.createdAt)||0));
+
+          arr.forEach(w=>{
             const tr = document.createElement("tr");
             tr.style.borderBottom = "1px solid rgba(255,255,255,.08)";
             tr.innerHTML = `
@@ -383,40 +355,40 @@
               <td style="padding:10px; max-width:320px; word-break:break-all;">${esc(w.wallet || w.walletAddress || "-")}</td>
               <td style="padding:10px;">${esc(w.status || "-")}</td>
             `;
-            wdHistoryBody.appendChild(tr);
+            wdHistoryBody?.appendChild(tr);
           });
         }
-      } catch (e) {
+      }catch(e){
         console.error("Withdrawals history error:", e);
         const tr = document.createElement("tr");
         tr.innerHTML = `<td style="padding:10px;" colspan="4">Failed to load withdrawals history.</td>`;
         wdHistoryBody?.appendChild(tr);
       }
 
-      if (historyMsg) historyMsg.textContent = "✅ History loaded.";
+      if(historyMsg) historyMsg.textContent = "✅ History loaded.";
     }
 
-    // Calculator: weekly from monthly ÷ 4
+    // Profit calculator
     calcBtn?.addEventListener("click", () => {
       const amount = Number(amountInput?.value || 0);
-      if (!amount || amount <= 0) {
+      if(!amount || amount <= 0){
         resultEl.style.display = "block";
         resultEl.textContent = "Enter a valid amount.";
         return;
       }
+
       const monthlyPct = monthlyPercentByAmount(amount);
-      if (!monthlyPct) {
+      if(!monthlyPct){
         resultEl.style.display = "block";
         resultEl.textContent = "Amount is below minimum plan ($350).";
         return;
       }
 
-      const monthlyProfit = (amount * monthlyPct) / 100;
-      const weeklyProfit = monthlyProfit / 4;
+      const monthly = (amount * monthlyPct) / 100;
+      const weeklyEst = monthly / 4;
 
       resultEl.style.display = "block";
-      resultEl.textContent =
-        `Estimated weekly profit: $${weeklyProfit.toFixed(2)} (based on ${monthlyPct}% monthly)`;
+      resultEl.textContent = `Estimated profit: ${money(monthly)} per month (${monthlyPct}% monthly) • Weekly estimate: ${money(weeklyEst)} (monthly ÷ 4)`;
     });
 
     // Buttons
@@ -430,13 +402,13 @@
       try { sessionStorage.removeItem("selectedPlan"); } catch(e){}
       planEl.textContent = "Not selected";
       planPctEl.textContent = "";
-      weeklyProfitEl.textContent = "$0.00";
+      monthlyProfitEl.textContent = "$0.00";
       alert("Plan cleared.");
     });
 
     payNowBtn?.addEventListener("click", () => {
-      const plan = loadSelectedPlanRaw();
-      if (!plan) {
+      const raw = loadSelectedPlanRaw();
+      if(!raw){
         alert("No plan selected. Please choose a plan first.");
         window.location.href = "plans.html";
         return;
@@ -448,20 +420,20 @@
       window.location.href = "withdrawal.html";
     });
 
-    // Only ONE auth listener
+    // ✅ Only ONE auth listener
     onAuthStateChanged(auth, async (user) => {
-      if (!user) {
+      if(!user){
         window.location.replace("login.html");
         return;
       }
 
-      // admin redirect
-      if (ADMIN_UIDS.includes(user.uid)) {
+      // Admin redirect
+      if(ADMIN_UIDS.includes(user.uid)){
         window.location.replace("admin.html");
         return;
       }
 
-      if (emailEl) emailEl.textContent = user.email || user.uid;
+      if(emailEl) emailEl.textContent = user.email || user.uid;
 
       await renderAccountAccess(user);
       await loadHistoryForUser(user);
