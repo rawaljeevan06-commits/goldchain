@@ -1888,3 +1888,10 @@ footer,
   font-weight:900;
   box-shadow: 0 6px 20px rgba(240,185,11,.45);
 }
+/* Plan price styling */
+.plan-card h3 {
+  font-size: 34px;
+  font-weight: 800;
+  margin: 20px 0 10px;
+  color: #ffd700;   /* gold color */
+}
