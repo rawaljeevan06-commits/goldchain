@@ -85,11 +85,41 @@
 
       </div>
 
+      <!-- ✅ TODAY STATS (Real-time) -->
+      <div class="dash-cards" style="margin-top:18px;">
+        <div class="card glass">
+          <h3>Today Verified Deposits</h3>
+          <p class="big">$<span id="todayDepositsEl">0.00</span></p>
+          <p class="small" style="opacity:.8;">Live total for today</p>
+        </div>
+
+        <div class="card glass">
+          <h3>Today Approved Withdrawals</h3>
+          <p class="big">$<span id="todayWithdrawalsEl">0.00</span></p>
+          <p class="small" style="opacity:.8;">Live total for today</p>
+        </div>
+
+        <div class="card glass">
+          <h3>VIP Status</h3>
+          <p class="small" id="vipStatusEl" style="font-weight:800;">Checking…</p>
+          <span class="vip-badge" id="vipBadge" style="display:none;">VIP</span>
+        </div>
+      </div>
+
       <!-- ✅ REAL-TIME VERIFIED DEPOSIT TOTAL -->
       <div class="card glass" style="margin-top:18px;">
         <h2>Total Verified Deposits (Real-time)</h2>
         <p class="small" style="opacity:.9;">This updates live from verified payments.</p>
         <p class="big" style="margin-top:10px;">$<span id="totalDepositsEl">0.00</span></p>
+      </div>
+
+      <!-- ✅ LIVE DEPOSITS BOX (latest verified) -->
+      <div class="card glass" style="margin-top:18px;">
+        <h2>Live Deposits</h2>
+        <p class="small" style="opacity:.9;">Latest verified deposits (auto-updating)</p>
+        <div id="liveDepositsBox" style="margin-top:10px; display:grid; gap:10px;">
+          <p class="small" style="opacity:.7;">Loading…</p>
+        </div>
       </div>
 
       <!-- ✅ ANIMATED SUCCESS COUNTERS -->
@@ -231,6 +261,53 @@
       });
     }
 
+    // ✅ Today stats + VIP badge
+    function startTodayStats(userPlanAmount){
+      const todayDepEl = document.getElementById("todayDepositsEl");
+      const todayWdEl = document.getElementById("todayWithdrawalsEl");
+      const vipStatusEl = document.getElementById("vipStatusEl");
+      const vipBadge = document.getElementById("vipBadge");
+
+      // VIP check (based on plan amount)
+      const planAmt = Number(userPlanAmount || 0);
+      const isVip = planAmt >= 5000;
+      if (vipStatusEl) vipStatusEl.textContent = isVip ? "✅ VIP Member" : "Standard Member";
+      if (vipBadge) vipBadge.style.display = isVip ? "inline-block" : "none";
+
+      // Today range
+      const now = new Date();
+      const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+      const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+
+      // Payments: verified today
+      const qTodayPay = query(
+        collection(db, "payments"),
+        where("status", "==", "verified"),
+        where("verifiedAt", ">=", start),
+        where("verifiedAt", "<=", end)
+      );
+
+      onSnapshot(qTodayPay, (snap) => {
+        let sum = 0;
+        snap.forEach(d => sum += Number(d.data().amount || 0));
+        if (todayDepEl) todayDepEl.textContent = sum.toFixed(2);
+      });
+
+      // Withdrawals: approved today
+      const qTodayWd = query(
+        collection(db, "withdrawals"),
+        where("status", "==", "approved"),
+        where("processedAt", ">=", start),
+        where("processedAt", "<=", end)
+      );
+
+      onSnapshot(qTodayWd, (snap) => {
+        let sum = 0;
+        snap.forEach(d => sum += Number(d.data().amount || 0));
+        if (todayWdEl) todayWdEl.textContent = sum.toFixed(2);
+      });
+    }
+
     // ✅ Real-time verified deposit total + latest verified ticker
     function startRealtimeDeposits(){
       const totalEl = document.getElementById("totalDepositsEl");
@@ -262,6 +339,56 @@
         const who = p.email || "Member";
         const plan = p.planName ? ` — ${p.planName}` : "";
         if (tickerEl) tickerEl.textContent = `✅ Verified Deposit: $${amt} by ${who}${plan}`;
+      });
+    }
+
+    // ✅ Live deposits list (latest verified)
+    function startLiveDepositList(){
+      const box = document.getElementById("liveDepositsBox");
+      if (!box) return;
+
+      const qLive = query(
+        collection(db, "payments"),
+        where("status", "==", "verified"),
+        orderBy("verifiedAt", "desc"),
+        limit(6)
+      );
+
+      onSnapshot(qLive, (snap) => {
+        if (snap.empty) {
+          box.innerHTML = `<p class="small" style="opacity:.7;">No verified deposits yet.</p>`;
+          return;
+        }
+
+        let html = "";
+        snap.forEach((d) => {
+          const p = d.data();
+          const email = (p.email || "").toString();
+          const amt = Number(p.amount || 0).toFixed(2);
+
+          // hide full email a bit
+          let who = "Member";
+          if (email.includes("@")) {
+            const parts = email.split("@");
+            who = (parts[0].slice(0,3) + "***@" + parts[1]);
+          } else if (email) {
+            who = email.slice(0,3) + "***";
+          }
+
+          const plan = p.planName ? ` • ${p.planName}` : "";
+
+          html += `
+            <div style="padding:10px; border-radius:12px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.03);">
+              <div style="display:flex; justify-content:space-between; gap:10px;">
+                <span class="small" style="opacity:.9;">✅ ${who}${plan}</span>
+                <span class="small" style="font-weight:800;">$${amt}</span>
+              </div>
+              <div class="small" style="opacity:.6; margin-top:4px;">Verified deposit</div>
+            </div>
+          `;
+        });
+
+        box.innerHTML = html;
       });
     }
 
@@ -301,6 +428,7 @@
       // Start visuals + realtime
       startCounters();
       startRealtimeDeposits();
+      startLiveDepositList();
 
       // Load user profile
       try {
@@ -318,7 +446,12 @@
         if (data.createdAt?.toDate) createdEl.textContent = data.createdAt.toDate().toLocaleString();
         else createdEl.textContent = "—";
 
-        planEl.textContent = data.plan ? `Selected Plan: $${data.plan}` : "No plan selected";
+        // Use numeric plan amount if you store it as plan: 350/700/1000/5000
+        const planAmount = Number(data.plan || 0);
+        planEl.textContent = planAmount ? `Selected Plan: $${planAmount}` : "No plan selected";
+
+        // ✅ Today stats + VIP based on plan
+        startTodayStats(planAmount);
 
         if (data.paymentVerified === true) {
           payStatusEl.innerHTML = `<span style="color:#36d399; font-weight:700;">✅ Payment Verified</span>`;
