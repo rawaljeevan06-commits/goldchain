@@ -21,6 +21,9 @@
         <button id="logoutBtn" class="btn btn-logout" type="button">Logout</button>
         <button id="clearPlanBtn" class="btn btn-outline" type="button">Clear Plan</button>
         <button id="payNowBtn" class="btn btn-primary" type="button">Pay Now</button>
+        <button id="withdrawBtn" class="btn btn-primary" type="button" style="display:none;">
+  Withdrawal
+</button>
 
         <!-- ✅ NEW: Only shows after verified -->
         <a id="withdrawBtn" class="btn btn-primary" href="withdrawal.html" style="display:none; text-decoration:none;">
@@ -351,7 +354,32 @@
       // Then check verified/pending from Firestore
       await renderPaymentStatusFromFirestore(user);
     });
+// ----------------- LOCK / UNLOCK UI -----------------
 
+function lockUI() {
+  const withdrawBtn = document.getElementById("withdrawBtn");
+  if (withdrawBtn) withdrawBtn.style.display = "none";
+}
+
+function unlockUI() {
+  const withdrawBtn = document.getElementById("withdrawBtn");
+  if (withdrawBtn) withdrawBtn.style.display = "inline-block";
+}
+
+// ----------------- PROFIT CALC FROM VERIFIED PAYMENT -----------------
+
+function renderProfit(paymentDoc) {
+  if (!paymentDoc) return;
+
+  const amount = Number(paymentDoc.amount || 0);
+  const percent = percentByAmount(amount);
+
+  const weekly = (amount * percent) / 100;
+
+  if (profitEl) {
+    profitEl.textContent = `$${weekly.toFixed(2)}`;
+  }
+}
     // ----------------- INITIAL RENDER -----------------
     renderPlan();
   </script>
