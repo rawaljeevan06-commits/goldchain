@@ -2,11 +2,21 @@ import { auth, db } from "./firebase.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import {
   doc, getDoc,
-  collection, query, where, getDocs
+  collection, query, where, getDocs, orderBy
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 function money(n) {
   return Number(n || 0).toFixed(2);
+}
+
+function formatTime(ts) {
+  try {
+    if (!ts) return "-";
+    if (typeof ts.toDate === "function") return ts.toDate().toLocaleString();
+    return new Date(ts).toLocaleString();
+  } catch {
+    return "-";
+  }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -51,17 +61,24 @@ document.addEventListener("DOMContentLoaded", () => {
       let html = "";
       joinedSnap.forEach(d => {
         const u = d.data();
-        html += `• ${u.email || "user"} (Plan: $${u.plan || "-"})<br>`;
+        html += `
+          <div style="padding:6px 0; border-bottom:1px solid rgba(255,255,255,.08);">
+            • ${u.email || "user"}
+            <br>
+            <small>Plan: $${u.plan || "-"}</small>
+          </div>
+        `;
       });
       joinedList.innerHTML = html;
     }
 
     // -----------------------
-    // Commission history
+    // Commission history (NOW SHOWS LEVEL)
     // -----------------------
     const qCom = query(
       collection(db, "referral_commissions"),
-      where("refUid", "==", user.uid)
+      where("refUid", "==", user.uid),
+      orderBy("createdAt", "desc")
     );
 
     const comSnap = await getDocs(qCom);
@@ -72,7 +89,23 @@ document.addEventListener("DOMContentLoaded", () => {
       let html = "";
       comSnap.forEach(d => {
         const c = d.data();
-        html += `• +$${money(c.commission)} from $${money(c.depositAmount)} deposit (${(c.rate*100).toFixed(0)}%)<br>`;
+
+        const level = c.level || 1;
+        const percent = (Number(c.rate || 0) * 100).toFixed(2);
+
+        html += `
+          <div style="padding:8px 0; border-bottom:1px solid rgba(255,255,255,.08);">
+            <b>+$${money(c.commission)}</b>
+            <br>
+            <small>
+              Level ${level} • ${percent}%  
+              <br>
+              Deposit: $${money(c.depositAmount)}  
+              <br>
+              ${formatTime(c.createdAt)}
+            </small>
+          </div>
+        `;
       });
       commissionList.innerHTML = html;
     }
