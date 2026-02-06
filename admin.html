@@ -64,17 +64,18 @@
     import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
     import {
       collection, query, where, orderBy, limit, getDocs,
-      doc, updateDoc, serverTimestamp
+      doc, updateDoc, serverTimestamp,
+      getDoc, setDoc, addDoc, increment
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
     // ✅ PUT YOUR ADMIN UID(S) HERE
     const ADMIN_UIDS = ["40B1eYKROIXFAZLpelBhjjFTDm72"];
 
-    const adminInfo   = document.getElementById("adminInfo");
+    const adminInfo    = document.getElementById("adminInfo");
     const paymentsBody = document.getElementById("paymentsBody");
-    const msg         = document.getElementById("msg");
-    const refreshBtn  = document.getElementById("refreshBtn");
-    const logoutBtn   = document.getElementById("logoutBtn");
+    const msg          = document.getElementById("msg");
+    const refreshBtn   = document.getElementById("refreshBtn");
+    const logoutBtn    = document.getElementById("logoutBtn");
 
     // Safety check (your earlier error)
     if (!paymentsBody) {
@@ -121,7 +122,7 @@
         msg.textContent = `Found ${snap.size} pending payment(s).`;
 
         snap.forEach((docSnap) => {
-          const p = docSnap.data();
+          const p  = docSnap.data();
           const id = docSnap.id;
 
           const tr = document.createElement("tr");
@@ -150,14 +151,67 @@
       }
     }
 
+    /**
+     * ✅ setStatus (Improved)
+     * - Always updates payment status
+     * - If status becomes "verified":
+     *    1) adds amount to users/{uid}.balance
+     *    2) queues email in mail collection (Trigger Email extension)
+     */
     async function setStatus(paymentId, status) {
+      // 1) Update payment status
       await updateDoc(doc(db, "payments", paymentId), {
         status,
         verifiedAt: serverTimestamp()
       });
+
+      // Only do balance + email when approving
+      if (status !== "verified") return;
+
+      // 2) Read payment details (uid, email, amount)
+      const payRef  = doc(db, "payments", paymentId);
+      const paySnap = await getDoc(payRef);
+      if (!paySnap.exists()) return;
+
+      const p = paySnap.data();
+      const uid = p.uid;
+      const email = p.email;
+      const amount = Number(p.amount || 0);
+
+      if (!uid || !Number.isFinite(amount) || amount <= 0) {
+        console.warn("Missing uid/amount in payment, skipping balance/email", { uid, amount });
+        return;
+      }
+
+      // 3) Ensure user doc exists, then increment balance
+      const userRef  = doc(db, "users", uid);
+      const userSnap = await getDoc(userRef);
+
+      if (!userSnap.exists()) {
+        await setDoc(userRef, {
+          email: email || "",
+          balance: 0,
+          createdAt: serverTimestamp()
+        });
+      }
+
+      await updateDoc(userRef, {
+        balance: increment(amount)
+      });
+
+      // 4) Queue email via Trigger Email extension (optional but requested)
+      if (email) {
+        await addDoc(collection(db, "mail"), {
+          to: email,
+          message: {
+            subject: "Payment Approved ✅",
+            text: `Your payment of $${amount} has been approved. Your dashboard balance has been updated.`
+          }
+        });
+      }
     }
 
-    // Click handler for Approve/Reject
+    // Click handler for Approve/Reject (kept same structure)
     document.addEventListener("click", async (e) => {
       const btn = e.target.closest("button[data-act][data-id]");
       if (!btn) return;
@@ -192,7 +246,7 @@
       window.location.replace("login.html");
     });
 
-    // Admin access check
+    // Admin access check (kept same)
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
         window.location.replace("login.html");
