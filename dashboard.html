@@ -8,7 +8,6 @@
 </head>
 
 <body>
-
   <div class="dash-wrap">
     <header class="dash-top">
       <div>
@@ -17,6 +16,7 @@
         <p id="userEmail" class="dash-email"></p>
       </div>
 
+      <!-- ✅ BUTTON BAR -->
       <div style="display:flex; gap:10px; flex-wrap:wrap;">
         <button id="logoutBtn" class="btn btn-logout" type="button">Logout</button>
         <button id="clearPlanBtn" class="btn btn-outline" type="button">Clear Plan</button>
@@ -53,6 +53,14 @@
         <p class="muted">Estimated</p>
         <p class="big" id="weeklyProfitValue">$0.00</p>
       </div>
+
+      <!-- ✅ NEW: Available balance -->
+      <div class="card">
+        <h3>Available Balance</h3>
+        <p class="muted">Earned - Approved Withdrawals</p>
+        <p class="big" id="availableBalanceValue">$0.00</p>
+        <p class="muted" id="withdrawLockInfo"></p>
+      </div>
     </section>
 
     <div class="dash-box">
@@ -71,50 +79,36 @@
   <script type="module">
     import { auth, db } from "./js/firebase.js";
     import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-    import { collection, query, where, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    import {
+      collection, query, where, limit, getDocs
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-    console.log("✅ Dashboard script running");
-
-    // ✅ PUT YOUR ADMIN UID(S) HERE
+    // ✅ Admin UID
     const ADMIN_UIDS = ["40B1eYKROIXFAZLpelBhjjFTDm72"];
 
-    // ----------------- ELEMENTS -----------------
+    // Elements
     const payNowBtn   = document.getElementById("payNowBtn");
     const clearBtn    = document.getElementById("clearPlanBtn");
     const calcBtn     = document.getElementById("dashCalcBtn");
     const logoutBtn   = document.getElementById("logoutBtn");
     const withdrawBtn = document.getElementById("withdrawBtn");
 
-    const statusEl = document.getElementById("paymentStatusText");
-    const emailEl  = document.getElementById("userEmail");
+    const statusEl    = document.getElementById("paymentStatusText");
+    const emailEl     = document.getElementById("userEmail");
 
-    const nameEl   = document.getElementById("dashPlanName");
-    const infoEl   = document.getElementById("dashPlanInfo");
-    const profitEl = document.getElementById("weeklyProfitValue");
-    const resultEl = document.getElementById("dashCalcResult");
+    const nameEl      = document.getElementById("dashPlanName");
+    const infoEl      = document.getElementById("dashPlanInfo");
+    const profitEl    = document.getElementById("weeklyProfitValue");
+    const availEl     = document.getElementById("availableBalanceValue");
+    const lockInfoEl  = document.getElementById("withdrawLockInfo");
 
-    // ----------------- HELPERS -----------------
-    function setStatus(text) {
-      if (statusEl) statusEl.textContent = text;
-    }
+    const resultEl    = document.getElementById("dashCalcResult");
 
-    function money(n) {
-      const x = Number(n || 0);
-      return `$${x.toFixed(2)}`;
-    }
+    function money(n){ return `$${Number(n||0).toFixed(2)}`; }
+    function setStatus(t){ if(statusEl) statusEl.textContent = t; }
 
-    function safeDateValue(v) {
-      // Firestore Timestamp has .toMillis()
-      if (!v) return 0;
-      if (typeof v?.toMillis === "function") return v.toMillis();
-      const d = new Date(v);
-      const ms = d.getTime();
-      return Number.isFinite(ms) ? ms : 0;
-    }
-
-    // Percent rules
-    function percentByAmount(amount) {
-      const a = Number(amount) || 0;
+    function percentByAmount(amount){
+      const a = Number(amount)||0;
       if (a >= 5000) return 4;
       if (a >= 1000) return 3;
       if (a >= 700)  return 2;
@@ -122,233 +116,163 @@
       return 0;
     }
 
-    // SAFE storage helpers
-    function getStorage(key) {
-      try { return localStorage.getItem(key); } catch(e) { return null; }
-    }
-    function getSession(key) {
-      try { return sessionStorage.getItem(key); } catch(e) { return null; }
-    }
-
-    // ✅ Load plan from storage (JSON or plain string)
-    function loadPlanSafely() {
-      const raw = getSession("selectedPlan") || getStorage("selectedPlan");
-      if (!raw) return null;
-
-      // Try JSON
-      try {
-        const obj = JSON.parse(raw);
-        if (obj && typeof obj === "object") {
-          const amount = Number(obj.amount || 0);
-          return {
-            name: obj.name || "Selected Plan",
-            amount,
-            percent: Number(obj.percent || percentByAmount(amount)),
-            withdraw: obj.withdraw || ""
-          };
-        }
-      } catch (e) {}
-
-      // Try string like "Growth - $700"
-      const amtMatch = raw.match(/(\d{2,})/);
-      const amount = amtMatch ? Number(amtMatch[1]) : 0;
-      return {
-        name: raw.replace(/\s+/g, " ").trim(),
-        amount,
-        percent: percentByAmount(amount),
-        withdraw: ""
-      };
+    function lockDaysByAmount(amount){
+      const a = Number(amount)||0;
+      if (a >= 5000) return 7;   // weekly
+      if (a >= 1000) return 15;
+      if (a >= 700)  return 30;
+      if (a >= 350)  return 45;
+      return 999999;
     }
 
-    function renderPlan(plan) {
-      const p = plan || loadPlanSafely();
-
-      if (!p) {
-        nameEl.textContent = "Not selected";
-        infoEl.textContent = "";
-        profitEl.textContent = "$0.00";
-        return;
-      }
-
-      nameEl.textContent = p.name || "Selected Plan";
-      const withdrawText = p.withdraw ? ` • ${p.withdraw}` : "";
-      infoEl.textContent = `$${p.amount} • ${p.percent}% weekly${withdrawText}`;
+    function tsToDate(x){
+      try{
+        if(!x) return null;
+        if(typeof x.toDate==="function") return x.toDate();
+        return new Date(x);
+      }catch{ return null; }
     }
 
-    function lockUI() {
-      if (withdrawBtn) withdrawBtn.style.display = "none";
+    function daysBetween(d1, d2){
+      const ms = (d2 - d1);
+      return Math.floor(ms / (1000*60*60*24));
     }
 
-    function unlockUI() {
-      if (withdrawBtn) withdrawBtn.style.display = "inline-flex";
-    }
-
-    function renderProfitFromAmount(amount) {
-      const pct = percentByAmount(amount);
-      const weekly = (Number(amount || 0) * Number(pct || 0)) / 100;
-      profitEl.textContent = money(weekly);
-    }
-
-    // ----------------- FIRESTORE PAYMENT STATUS (NO orderBy = NO index issue) -----------------
-    async function getVerifiedDoc(user) {
-      const q = query(
+    // ✅ Get verified payment doc for this user
+    async function getVerifiedPayment(user){
+      const qv = query(
         collection(db, "payments"),
         where("uid", "==", user.uid),
         where("status", "==", "verified"),
         limit(1)
       );
-      const snap = await getDocs(q);
-      return snap.empty ? null : snap.docs[0].data();
-    }
-
-    async function getLatestDoc(user) {
-      // No orderBy, we fetch a few docs then pick latest in JS
-      const q = query(
-        collection(db, "payments"),
-        where("uid", "==", user.uid),
-        limit(20)
-      );
-      const snap = await getDocs(q);
+      const snap = await getDocs(qv);
       if (snap.empty) return null;
-
-      const docs = snap.docs.map(d => d.data());
-      docs.sort((a,b) => safeDateValue(b.createdAt) - safeDateValue(a.createdAt));
-      return docs[0] || null;
+      return { id: snap.docs[0].id, ...snap.docs[0].data() };
     }
 
-    async function renderPaymentStatusFromFirestore(user) {
+    // ✅ Sum of approved withdrawals
+    async function getApprovedWithdrawalSum(user){
+      const qa = query(
+        collection(db, "withdrawals"),
+        where("uid", "==", user.uid),
+        where("status", "==", "approved"),
+        limit(200)
+      );
+      const snap = await getDocs(qa);
+      let sum = 0;
+      snap.forEach(d => { sum += Number(d.data().amount || 0); });
+      return sum;
+    }
+
+    // ✅ Check if pending withdrawal exists
+    async function hasPendingWithdrawal(user){
+      const qp = query(
+        collection(db, "withdrawals"),
+        where("uid", "==", user.uid),
+        where("status", "==", "pending"),
+        limit(1)
+      );
+      const snap = await getDocs(qp);
+      return !snap.empty;
+    }
+
+    function unlockUI(){ if(withdrawBtn) withdrawBtn.style.display="inline-flex"; }
+    function lockUI(){ if(withdrawBtn) withdrawBtn.style.display="none"; }
+
+    function renderPlanFromVerified(verifiedDoc){
+      const principal = Number(verifiedDoc?.amount || 0);
+      const pct = percentByAmount(principal);
+
+      nameEl.textContent = verifiedDoc?.planName || "Verified Plan";
+      infoEl.textContent = `$${principal} • ${pct}% weekly`;
+      profitEl.textContent = money((principal * pct)/100);
+    }
+
+    async function renderAccountAccess(user){
       setStatus("Checking…");
+      lockUI();
+      availEl.textContent = "$0.00";
+      lockInfoEl.textContent = "";
 
-      try {
-        const verified = await getVerifiedDoc(user);
+      const verified = await getVerifiedPayment(user);
 
-        if (verified) {
-          setStatus("✅ Payment Verified — Full access unlocked");
-          unlockUI();
-
-          // show plan from Firestore if present
-          const amt = Number(verified.amount || 0);
-          if (verified.planName) nameEl.textContent = verified.planName;
-          if (amt) {
-            infoEl.textContent = `$${amt} • ${percentByAmount(amt)}% weekly`;
-            renderProfitFromAmount(amt);
-          } else {
-            // fallback: show local plan
-            renderPlan();
-            const p = loadPlanSafely();
-            if (p) renderProfitFromAmount(p.amount);
-          }
-          return;
-        }
-
-        // Not verified → show latest status
-        const latest = await getLatestDoc(user);
-        if (!latest) {
-          setStatus("❌ No payment submitted");
-          lockUI();
-          return;
-        }
-
-        const st = String(latest.status || "").toLowerCase();
-
-        if (st === "pending") {
-          setStatus("⏳ Payment Pending — Waiting for verification");
-          lockUI();
-          return;
-        }
-
-        if (st === "rejected") {
-          setStatus("❌ Payment Rejected — Please submit again");
-          lockUI();
-          return;
-        }
-
-        setStatus(`ℹ️ Payment Status: ${latest.status || "Unknown"}`);
-        lockUI();
-      } catch (e) {
-        console.error("Firestore status failed:", e);
-        setStatus("⚠️ Could not read payment status (rules/network)");
-        lockUI();
-      }
-    }
-
-    // ----------------- BUTTONS -----------------
-    withdrawBtn?.addEventListener("click", () => {
-      window.location.href = "withdrawal.html";
-    });
-
-    payNowBtn?.addEventListener("click", () => {
-      const plan = loadPlanSafely();
-      if (!plan) {
-        alert("No plan selected. Please choose a plan first.");
-        window.location.href = "plans.html";
+      if(!verified){
+        setStatus("⏳ Payment Pending — Waiting for verification");
         return;
       }
-      window.location.href = "payment.html";
-    });
+
+      setStatus("✅ Payment Verified — Full access unlocked");
+      unlockUI();
+      renderPlanFromVerified(verified);
+
+      const principal = Number(verified.amount||0);
+      const pct = percentByAmount(principal);
+      const lockDays = lockDaysByAmount(principal);
+
+      const vAt = tsToDate(verified.verifiedAt || verified.createdAt);
+      const now = new Date();
+      const days = vAt ? daysBetween(vAt, now) : 0;
+
+      // Earned profit since verified (daily based)
+      const earned = (principal * (pct/100)) * (days/7);
+
+      const approvedSum = await getApprovedWithdrawalSum(user);
+      const pending = await hasPendingWithdrawal(user);
+
+      const available = Math.max(0, earned - approvedSum);
+      availEl.textContent = money(available);
+
+      if(vAt){
+        if(days < lockDays){
+          lockInfoEl.textContent = `Withdrawal locked for ${lockDays - days} more day(s) (plan rule).`;
+        } else {
+          lockInfoEl.textContent = pending
+            ? "Withdrawal already submitted (pending approval)."
+            : "Withdrawal available.";
+        }
+      }
+
+      // If pending exists or still locked, we keep button visible but withdrawal page will block submission too.
+    }
+
+    // Buttons
+    payNowBtn?.addEventListener("click", () => window.location.href="payment.html");
+    withdrawBtn?.addEventListener("click", () => window.location.href="withdrawal.html");
 
     clearBtn?.addEventListener("click", () => {
-      try { localStorage.removeItem("selectedPlan"); } catch(e) {}
-      try { sessionStorage.removeItem("selectedPlan"); } catch(e) {}
-      renderPlan();
-      profitEl.textContent = "$0.00";
+      try{ localStorage.removeItem("selectedPlan"); }catch(e){}
+      try{ sessionStorage.removeItem("selectedPlan"); }catch(e){}
       alert("Plan cleared");
+      window.location.reload();
     });
 
     calcBtn?.addEventListener("click", () => {
-      const plan = loadPlanSafely();
-      if (!plan) {
-        resultEl.style.display = "block";
-        resultEl.textContent = "Please select a plan first.";
-        return;
-      }
-
       const amount = Number(document.getElementById("dashAmount").value);
-      if (!amount || amount <= 0) {
-        resultEl.style.display = "block";
-        resultEl.textContent = "Enter a valid amount.";
+      if(!amount || amount<=0){
+        resultEl.style.display="block";
+        resultEl.textContent="Enter a valid amount.";
         return;
       }
-
-      const profit = (amount * Number(plan.percent || 0)) / 100;
-      resultEl.style.display = "block";
+      const pct = percentByAmount(amount);
+      const profit = (amount * pct)/100;
+      resultEl.style.display="block";
       resultEl.textContent = `Estimated weekly profit: $${profit.toFixed(2)}`;
       profitEl.textContent = money(profit);
     });
 
     logoutBtn?.addEventListener("click", async () => {
-      try { await signOut(auth); } catch(e) {}
+      try{ await signOut(auth); }catch(e){}
       window.location.replace("login.html");
     });
 
-    // ----------------- AUTH PROTECT (ONLY ONE onAuthStateChanged ✅) -----------------
+    // ✅ Only ONE auth listener
     onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        window.location.replace("login.html");
-        return;
-      }
-
-      // Admin redirect
-      if (ADMIN_UIDS.includes(user.uid)) {
-        window.location.replace("admin.html");
-        return;
-      }
-
-      if (emailEl) emailEl.textContent = user.email || "";
-
-      // Always show local plan first
-      renderPlan();
-
-      // Default: locked until verified
-      lockUI();
-
-      // Then check Firestore
-      await renderPaymentStatusFromFirestore(user);
+      if(!user){ window.location.replace("login.html"); return; }
+      if(ADMIN_UIDS.includes(user.uid)){ window.location.replace("admin.html"); return; }
+      if(emailEl) emailEl.textContent = user.email || "";
+      await renderAccountAccess(user);
     });
-
-    // ----------------- INITIAL RENDER -----------------
-    renderPlan();
   </script>
-
 </body>
 </html>
