@@ -244,60 +244,65 @@
       let emailToNotify = "";
       let amountToNotify = 0;
 
-   await runTransaction(db, async (tx) => {
+      await runTransaction(db, async (tx) => {
+        const paySnap = await tx.get(payRef);
+        if (!paySnap.exists()) return;
 
-  const paySnap = await tx.get(payRef);
-  if (!paySnap.exists()) return;
+        const p = paySnap.data();
+        const currentStatus = String(p.status || "").toLowerCase();
 
-  const p = paySnap.data();
-  const currentStatus = String(p.status || "").toLowerCase();
+        // prevent double approve
+        if (currentStatus === "verified" && status === "verified") return;
 
-  if (currentStatus === "verified" && status === "verified") return;
+        tx.update(payRef, { status, verifiedAt: serverTimestamp() });
 
-  const uid = p.uid;
-  const email = p.email || "";
-  const amount = Number(p.amount || 0);
+        if (status !== "verified") return;
 
-  let userSnap = null;
-  let userRef = null;
+        const uid = p.uid;
+        const email = p.email || "";
+        const amount = Number(p.amount || 0);
+        if (!uid || !Number.isFinite(amount) || amount <= 0) return;
 
-  if (status === "verified" && uid && Number.isFinite(amount) && amount > 0) {
-    userRef = doc(db, "users", uid);
-    userSnap = await tx.get(userRef); // ✅ READ BEFORE WRITE
-  }
+        const userRef = doc(db, "users", uid);
+        const userSnap = await tx.get(userRef);
 
-  // ✅ NOW START WRITES
+        if (!userSnap.exists()) {
+          tx.set(userRef, { email, balance: 0, createdAt: serverTimestamp() });
+        }
 
-  tx.update(payRef, {
-    status,
-    verifiedAt: serverTimestamp()
-  });
+        tx.update(userRef, { balance: increment(amount) });
 
-  if (status === "verified" && userRef) {
+        // audit (optional)
+        tx.set(doc(collection(db, "audit")), {
+          type: "payment_approved",
+          paymentId,
+          uid,
+          email,
+          amount,
+          byAdmin: auth.currentUser?.uid || "",
+          at: serverTimestamp()
+        });
 
-    if (!userSnap.exists()) {
-      tx.set(userRef, {
-        email,
-        balance: 0,
-        createdAt: serverTimestamp()
+        emailToNotify = email;
+        amountToNotify = amount;
       });
+
+      // email queue OUTSIDE transaction
+      if (status === "verified" && emailToNotify) {
+        try {
+          await addDoc(collection(db, "mail"), {
+            to: emailToNotify,
+            message: {
+              subject: "Payment Approved ✅",
+              text: `Your payment of $${amountToNotify} has been approved. Your dashboard balance has been updated.`
+            }
+          });
+        } catch (e) {
+          console.warn("Mail queue skipped:", e);
+        }
+      }
     }
 
-    tx.update(userRef, {
-      balance: increment(amount)
-    });
-
-    tx.set(doc(collection(db, "audit")), {
-      type: "payment_approved",
-      paymentId,
-      uid,
-      email,
-      amount,
-      byAdmin: auth.currentUser?.uid || "",
-      at: serverTimestamp()
-    });
-  }
-});
     // ---------------- WITHDRAWALS ----------------
     async function loadPendingWithdrawals() {
       if (!withdrawalsBody) return;
