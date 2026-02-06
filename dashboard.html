@@ -176,7 +176,44 @@
           </div>
         </div>
       </div>
+<!-- ✅ PAYMENT HISTORY -->
+<div class="card glass" style="margin-top:18px;">
+  <h2>Payment History</h2>
+  <p class="small" style="opacity:.85;">Your last 20 deposits</p>
+  <div style="overflow:auto; margin-top:10px;">
+    <table style="width:100%; border-collapse:collapse; min-width:800px;">
+      <thead>
+        <tr style="text-align:left; border-bottom:1px solid rgba(255,255,255,.15);">
+          <th style="padding:10px;">Time</th>
+          <th style="padding:10px;">Amount</th>
+          <th style="padding:10px;">Method</th>
+          <th style="padding:10px;">TXID</th>
+          <th style="padding:10px;">Status</th>
+        </tr>
+      </thead>
+      <tbody id="payHistBody"></tbody>
+    </table>
+  </div>
+</div>
 
+<!-- ✅ WITHDRAWAL HISTORY -->
+<div class="card glass" style="margin-top:18px;">
+  <h2>Withdrawal History</h2>
+  <p class="small" style="opacity:.85;">Your last 20 withdrawals</p>
+  <div style="overflow:auto; margin-top:10px;">
+    <table style="width:100%; border-collapse:collapse; min-width:800px;">
+      <thead>
+        <tr style="text-align:left; border-bottom:1px solid rgba(255,255,255,.15);">
+          <th style="padding:10px;">Time</th>
+          <th style="padding:10px;">Amount</th>
+          <th style="padding:10px;">Wallet</th>
+          <th style="padding:10px;">Status</th>
+        </tr>
+      </thead>
+      <tbody id="wdHistBody"></tbody>
+    </table>
+  </div>
+</div>
       <!-- ✅ LEGAL SHORT (DIRECTLY IN DASHBOARD) -->
       <div class="card glass" style="margin-top:18px;">
         <h2>Legal & Risk Disclosure</h2>
