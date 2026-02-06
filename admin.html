@@ -34,7 +34,7 @@
         <h2>Pending Payments</h2>
         <p class="small" id="adminInfo">Checking admin access…</p>
 
-        <!-- ✅ D: Totals cards -->
+        <!-- Totals cards -->
         <div class="dash-cards" style="margin-top:14px;">
           <div class="card">
             <h3>Total Verified Payments</h3>
@@ -102,9 +102,8 @@
     import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
     import {
       collection, query, where, orderBy, limit, getDocs,
-      doc, updateDoc, serverTimestamp,
-      getDoc, setDoc, addDoc, increment,
-      runTransaction
+      doc, updateDoc, serverTimestamp, getDoc, setDoc, addDoc,
+      increment, runTransaction
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
     // ✅ PUT YOUR ADMIN UID(S) HERE
@@ -138,7 +137,7 @@
     }
     function money(n){ return `$${Number(n||0).toFixed(2)}`; }
 
-    // ✅ D: totals (index-free by reading limited sets)
+    // ✅ Totals (reads limited docs)
     async function loadTotals(){
       try{
         const pSnap = await getDocs(query(collection(db,"payments"), limit(500)));
@@ -175,19 +174,20 @@
     async function loadPendingPayments() {
       if (!paymentsBody) return;
       paymentsBody.innerHTML = "";
-      msg.textContent = "Loading pending payments…";
+      if (msg) msg.textContent = "Loading pending payments…";
 
       try {
-        let q1 = query(
-          collection(db, "payments"),
-          where("status", "==", "pending"),
-          orderBy("createdAt", "desc"),
-          limit(50)
-        );
-
         let snap;
-        try { snap = await getDocs(q1); }
-        catch (e) {
+        try {
+          // primary query
+          snap = await getDocs(query(
+            collection(db, "payments"),
+            where("status", "==", "pending"),
+            orderBy("createdAt", "desc"),
+            limit(50)
+          ));
+        } catch (e) {
+          // fallback (no orderBy) - avoids index issues
           console.warn("Payments fallback (no orderBy):", e?.code || e);
           snap = await getDocs(query(
             collection(db, "payments"),
@@ -196,9 +196,8 @@
           ));
         }
 
-        if (snap.empty) { msg.textContent = "✅ No pending payments."; return; }
-
-        msg.textContent = `Found ${snap.size} pending payment(s).`;
+        if (snap.empty) { if (msg) msg.textContent = "✅ No pending payments."; return; }
+        if (msg) msg.textContent = `Found ${snap.size} pending payment(s).`;
 
         snap.forEach((docSnap) => {
           const p  = docSnap.data();
@@ -224,86 +223,85 @@
         });
 
       } catch (e) {
-        console.error(e);
-        msg.textContent = "❌ Failed to load payments.";
+        console.error("Payments load error:", e);
+        if (msg) msg.textContent = `❌ Failed to load payments. (${e?.code || e?.message || "error"})`;
       }
     }
 
-    // ✅ Payment approve/reject (transaction-safe)
-async function setPaymentStatus(paymentId, status) {
-  const payRef = doc(db, "payments", paymentId);
+    // ✅ Payment approve/reject (transaction-safe)  [ONLY ONE FUNCTION]
+    async function setPaymentStatus(paymentId, status) {
+      const payRef = doc(db, "payments", paymentId);
 
-  // Save for optional email after transaction
-  let emailToNotify = "";
-  let amountToNotify = 0;
+      // for optional mail after transaction
+      let emailToNotify = "";
+      let amountToNotify = 0;
 
-  await runTransaction(db, async (tx) => {
-    const paySnap = await tx.get(payRef);
-    if (!paySnap.exists()) return;
+      await runTransaction(db, async (tx) => {
+        const paySnap = await tx.get(payRef);
+        if (!paySnap.exists()) return;
 
-    const p = paySnap.data();
-    const currentStatus = String(p.status || "").toLowerCase();
+        const p = paySnap.data();
+        const currentStatus = String(p.status || "").toLowerCase();
 
-    // 🔒 Prevent double approval
-    if (currentStatus === "verified" && status === "verified") return;
+        // prevent double approval
+        if (currentStatus === "verified" && status === "verified") return;
 
-    tx.update(payRef, {
-      status,
-      verifiedAt: serverTimestamp()
-    });
+        tx.update(payRef, {
+          status,
+          verifiedAt: serverTimestamp()
+        });
 
-    // Only on verify -> credit user
-    if (status !== "verified") return;
+        if (status !== "verified") return;
 
-    const uid = p.uid;
-    const email = p.email || "";
-    const amount = Number(p.amount || 0);
+        const uid = p.uid;
+        const email = p.email || "";
+        const amount = Number(p.amount || 0);
+        if (!uid || !Number.isFinite(amount) || amount <= 0) return;
 
-    if (!uid || !Number.isFinite(amount) || amount <= 0) return;
+        const userRef = doc(db, "users", uid);
+        const userSnap = await tx.get(userRef);
 
-    const userRef = doc(db, "users", uid);
-    const userSnap = await tx.get(userRef);
-
-    if (!userSnap.exists()) {
-      tx.set(userRef, {
-        email,
-        balance: 0,
-        createdAt: serverTimestamp()
-      });
-    }
-
-    tx.update(userRef, { balance: increment(amount) });
-
-    // Audit log (optional)
-    tx.set(doc(collection(db, "audit")), {
-      type: "payment_approved",
-      paymentId,
-      uid,
-      email,
-      amount,
-      byAdmin: auth.currentUser?.uid || "",
-      at: serverTimestamp()
-    });
-
-    emailToNotify = email;
-    amountToNotify = amount;
-  });
-
-  // ✅ Optional email queue OUTSIDE transaction
-  if (status === "verified" && emailToNotify) {
-    try {
-      await addDoc(collection(db, "mail"), {
-        to: emailToNotify,
-        message: {
-          subject: "Payment Approved ✅",
-          text: `Your payment of $${amountToNotify} has been approved. Your dashboard balance has been updated.`
+        if (!userSnap.exists()) {
+          tx.set(userRef, {
+            email,
+            balance: 0,
+            createdAt: serverTimestamp()
+          });
         }
+
+        tx.update(userRef, { balance: increment(amount) });
+
+        // optional audit (auto-id)
+        tx.set(doc(collection(db, "audit")), {
+          type: "payment_approved",
+          paymentId,
+          uid,
+          email,
+          amount,
+          byAdmin: (auth.currentUser && auth.currentUser.uid) ? auth.currentUser.uid : "",
+          at: serverTimestamp()
+        });
+
+        emailToNotify = email;
+        amountToNotify = amount;
       });
-    } catch (e) {
-      console.warn("Mail queue skipped:", e);
+
+      // optional email queue outside tx
+      if (status === "verified" && emailToNotify) {
+        try {
+          await addDoc(collection(db, "mail"), {
+            to: emailToNotify,
+            message: {
+              subject: "Payment Approved ✅",
+              text: `Your payment of $${amountToNotify} has been approved. Your dashboard balance has been updated.`
+            }
+          });
+        } catch (e) {
+          console.warn("Mail queue skipped:", e);
+        }
+      }
     }
-  }
-}
+
     // ---------------- WITHDRAWALS ----------------
     async function loadPendingWithdrawals() {
       if (!withdrawalsBody) return;
@@ -311,16 +309,15 @@ async function setPaymentStatus(paymentId, status) {
       if (wMsg) wMsg.textContent = "Loading pending withdrawals…";
 
       try {
-        let q1 = query(
-          collection(db, "withdrawals"),
-          where("status", "==", "pending"),
-          orderBy("createdAt", "desc"),
-          limit(50)
-        );
-
         let snap;
-        try { snap = await getDocs(q1); }
-        catch (e) {
+        try {
+          snap = await getDocs(query(
+            collection(db, "withdrawals"),
+            where("status", "==", "pending"),
+            orderBy("createdAt", "desc"),
+            limit(50)
+          ));
+        } catch (e) {
           console.warn("Withdrawals fallback (no orderBy):", e?.code || e);
           snap = await getDocs(query(
             collection(db, "withdrawals"),
@@ -330,7 +327,6 @@ async function setPaymentStatus(paymentId, status) {
         }
 
         if (snap.empty) { if (wMsg) wMsg.textContent = "✅ No pending withdrawals."; return; }
-
         if (wMsg) wMsg.textContent = `Found ${snap.size} pending withdrawal(s).`;
 
         snap.forEach((docSnap) => {
@@ -355,8 +351,8 @@ async function setPaymentStatus(paymentId, status) {
         });
 
       } catch (e) {
-        console.error(e);
-        if (wMsg) wMsg.textContent = "❌ Failed to load withdrawals.";
+        console.error("Withdrawals load error:", e);
+        if (wMsg) wMsg.textContent = `❌ Failed to load withdrawals. (${e?.code || e?.message || "error"})`;
       }
     }
 
@@ -395,10 +391,10 @@ async function setPaymentStatus(paymentId, status) {
 
       try {
         if (type === "pay") {
-          msg.textContent = "Updating payment…";
+          if (msg) msg.textContent = "Updating payment…";
           if (act === "approve") await setPaymentStatus(id, "verified");
           if (act === "reject")  await setPaymentStatus(id, "rejected");
-          msg.textContent = "✅ Payment updated.";
+          if (msg) msg.textContent = "✅ Payment updated.";
           await loadPendingPayments();
         }
 
@@ -414,8 +410,8 @@ async function setPaymentStatus(paymentId, status) {
 
       } catch (err) {
         console.error(err);
-        if (type === "pay") msg.textContent = "❌ Payment update failed.";
-        if (type === "wd" && wMsg) wMsg.textContent = "❌ Withdrawal update failed.";
+        if (type === "pay" && msg) msg.textContent = `❌ Payment update failed. (${err?.code || err?.message || "error"})`;
+        if (type === "wd" && wMsg) wMsg.textContent = `❌ Withdrawal update failed. (${err?.code || err?.message || "error"})`;
       } finally {
         btn.disabled = false;
       }
@@ -438,14 +434,14 @@ async function setPaymentStatus(paymentId, status) {
       if (!user) { window.location.replace("login.html"); return; }
 
       if (!ADMIN_UIDS.includes(user.uid)) {
-        adminInfo.textContent = "❌ Access denied (not admin).";
+        if (adminInfo) adminInfo.textContent = "❌ Access denied (not admin).";
         if (paymentsBody) paymentsBody.innerHTML = "";
         if (withdrawalsBody) withdrawalsBody.innerHTML = "";
         window.location.replace("dashboard.html");
         return;
       }
 
-      adminInfo.textContent = `✅ Admin: ${user.email || user.uid}`;
+      if (adminInfo) adminInfo.textContent = `✅ Admin: ${user.email || user.uid}`;
       await loadPendingPayments();
       await loadPendingWithdrawals();
       await loadTotals();
