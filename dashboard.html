@@ -62,9 +62,10 @@
           <p class="small" id="planPctEl" style="opacity:.8;"></p>
         </div>
 
+        <!-- OPTION 2: Weekly profit shown, but based on 16% MONTHLY -->
         <div class="card">
           <h3>Weekly Profit</h3>
-          <p class="muted">Estimated</p>
+          <p class="muted">Estimated (from monthly)</p>
           <p class="big" id="weeklyProfitEl">$0.00</p>
         </div>
 
@@ -78,7 +79,7 @@
 
       <div class="card" style="margin-top:14px;">
         <h2>Profit Calculator</h2>
-        <p class="small">Enter amount to calculate weekly profit.</p>
+        <p class="small">Enter amount to calculate weekly profit (16% monthly ÷ 4).</p>
 
         <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:10px;">
           <input id="amountInput" type="number" min="0" step="1" placeholder="Enter amount in USD"
@@ -89,7 +90,7 @@
         <p class="small" id="resultEl" style="margin-top:10px; display:none;"></p>
       </div>
 
-      <!-- ✅ KEEP ONLY ONE HISTORY (no duplicate IDs) -->
+      <!-- ✅ ONLY ONE History section (no duplicates) -->
       <div class="card" style="margin-top:14px;">
         <h2>History</h2>
         <p class="small" id="historyMsg">Loading history…</p>
@@ -138,14 +139,14 @@
     import { auth, db } from "./js/firebase.js";
     import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
     import {
-      collection, query, where, limit, getDocs,
+      collection, query, where, orderBy, limit, getDocs,
       doc, getDoc
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
     // ✅ Admin UIDs (same list as admin.html)
     const ADMIN_UIDS = ["40B1eYKROIXFAZLpelBhjjFTDm72"];
 
-    // Elements
+    // UI
     const emailEl = document.getElementById("emailEl");
     const accountStatus = document.getElementById("accountStatus");
     const payStatus = document.getElementById("payStatus");
@@ -175,17 +176,6 @@
       }[c]));
     }
 
-    function tsToMillis(ts){
-      try{
-        if(!ts) return 0;
-        if(typeof ts.toDate === "function") return ts.toDate().getTime(); // Firestore Timestamp
-        const d = new Date(ts);
-        return isNaN(d.getTime()) ? 0 : d.getTime();
-      }catch{
-        return 0;
-      }
-    }
-
     function formatTime(ts) {
       try {
         if (!ts) return "-";
@@ -200,8 +190,7 @@
       return "$" + x.toFixed(2);
     }
 
-    // Plan storage
-    function loadSelectedPlan() {
+    function loadSelectedPlanRaw() {
       let plan = "";
       try { plan = localStorage.getItem("selectedPlan") || ""; } catch(e){}
       if (!plan) {
@@ -210,60 +199,59 @@
       return plan;
     }
 
-    function percentByAmount(amount) {
-      const a = Number(amount || 0);
-      if (!Number.isFinite(a) || a <= 0) return 0;
-      if (a >= 5000) return 4;
-      if (a >= 1000) return 3;
-      if (a >= 700) return 2;
-      if (a >= 350) return 1.5;
-      return 0;
-    }
-
-    function parseAmountFromPlan(planText) {
-      // finds first number (supports $700, 700)
-      const m = String(planText || "").match(/([0-9]+(\.[0-9]+)?)/);
-      if (!m) return 0;
-      return Number(m[1]) || 0;
-    }
-
+    // ✅ Plan parsing (handles JSON or plain text)
     function parsePlan(raw) {
       if (!raw) return null;
       const s = String(raw).trim();
-
-      // JSON string?
       if (s.startsWith("{") && s.endsWith("}")) {
         try {
           const obj = JSON.parse(s);
           return obj && typeof obj === "object" ? obj : null;
-        } catch (e) {
-          return null;
-        }
+        } catch { return null; }
       }
-
-      // plain text
       return { name: s };
     }
 
+    function parseAmountFromText(txt) {
+      const m = String(txt || "").match(/\$?\s*([0-9]+(\.[0-9]+)?)/);
+      if (!m) return 0;
+      return Number(m[1]) || 0;
+    }
+
+    // ✅ You wanted: 16% MONTHLY for all plans (>=350)
+    function monthlyPercentByAmount(amount) {
+      const a = Number(amount || 0);
+      if (!Number.isFinite(a) || a < 350) return 0;
+      return 16;
+    }
+
     async function renderAccountAccess(user) {
-      // Plan
-      const rawPlan = loadSelectedPlan();
+      const rawPlan = loadSelectedPlanRaw();
       const planObj = parsePlan(rawPlan);
 
       const planName = planObj?.name || "Not selected";
-      const planAmount = Number(planObj?.amount || parseAmountFromPlan(rawPlan) || 0);
-      const pct = Number(planObj?.percent || percentByAmount(planAmount) || 0);
+      const planAmount = Number(planObj?.amount || parseAmountFromText(rawPlan) || 0);
+      const monthlyPct = Number(planObj?.percent || monthlyPercentByAmount(planAmount) || 0);
+
       const withdrawText =
-        planObj?.withdraw || planObj?.withdrawDays || planObj?.withdrawal || "";
+        planObj?.withdraw ||
+        planObj?.withdrawDays ||
+        planObj?.withdrawal ||
+        "";
 
       planEl.textContent = planName;
-      planPctEl.textContent = pct ? `${pct}% weekly${withdrawText ? " • " + withdrawText : ""}` : "";
 
-      // Weekly estimate
-      const weekly = pct ? (planAmount * pct) / 100 : 0;
-      weeklyProfitEl.textContent = money(weekly);
+      // Show monthly info in plan text
+      planPctEl.textContent = monthlyPct
+        ? `${monthlyPct}% monthly${withdrawText ? " • " + withdrawText : ""}`
+        : "";
 
-      // Balance from users/{uid}.balance
+      // ✅ OPTION 2: Weekly profit from monthly (÷4)
+      const monthlyProfit = monthlyPct ? (planAmount * monthlyPct) / 100 : 0;
+      const weeklyProfit = monthlyProfit / 4;
+      weeklyProfitEl.textContent = money(weeklyProfit);
+
+      // Balance
       try {
         const uRef = doc(db, "users", user.uid);
         const uSnap = await getDoc(uRef);
@@ -276,48 +264,69 @@
         balanceNote.textContent = "Could not load balance.";
       }
 
-      // Payment verified (index-free: read, then check in JS)
+      accountStatus.textContent = "Active ✅";
       payStatus.textContent = "Checking…";
+
       try {
-        const snap = await getDocs(query(
+        const qVerified = query(
           collection(db, "payments"),
           where("uid", "==", user.uid),
-          limit(50)
-        ));
-        const verified = snap.docs.some(d => String(d.data()?.status || "").toLowerCase() === "verified");
-        payStatus.textContent = verified
-          ? "✅ Payment Verified — Full access unlocked"
-          : "⏳ Not verified — Please complete payment";
+          where("status", "==", "verified"),
+          orderBy("createdAt", "desc"),
+          limit(1)
+        );
+
+        let snap;
+        try { snap = await getDocs(qVerified); }
+        catch {
+          snap = await getDocs(query(
+            collection(db, "payments"),
+            where("uid", "==", user.uid),
+            where("status", "==", "verified"),
+            limit(1)
+          ));
+        }
+
+        payStatus.textContent = snap.empty
+          ? "⏳ Not verified — Please complete payment"
+          : "✅ Payment Verified — Full access unlocked";
       } catch (e) {
         console.warn("Payment check failed:", e);
         payStatus.textContent = "⚠️ Could not check payment";
       }
-
-      accountStatus.textContent = "Active ✅";
     }
 
     async function loadHistoryForUser(user) {
       if (historyMsg) historyMsg.textContent = "Loading history…";
 
-      // Payments history (index-free, sort locally)
+      // Payments
       try {
         if (payHistoryBody) payHistoryBody.innerHTML = "";
 
-        const pSnap = await getDocs(query(
+        const qPay = query(
           collection(db, "payments"),
           where("uid", "==", user.uid),
-          limit(50)
-        ));
+          orderBy("createdAt", "desc"),
+          limit(20)
+        );
 
-        const arr = pSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-        arr.sort((a,b) => tsToMillis(b.createdAt) - tsToMillis(a.createdAt));
+        let snap;
+        try { snap = await getDocs(qPay); }
+        catch {
+          snap = await getDocs(query(
+            collection(db, "payments"),
+            where("uid", "==", user.uid),
+            limit(20)
+          ));
+        }
 
-        if (!arr.length) {
+        if (snap.empty) {
           const tr = document.createElement("tr");
           tr.innerHTML = `<td style="padding:10px;" colspan="6">No payments yet.</td>`;
-          payHistoryBody?.appendChild(tr);
+          payHistoryBody.appendChild(tr);
         } else {
-          arr.slice(0, 20).forEach(p => {
+          snap.forEach(d => {
+            const p = d.data();
             const tr = document.createElement("tr");
             tr.style.borderBottom = "1px solid rgba(255,255,255,.08)";
             tr.innerHTML = `
@@ -328,7 +337,7 @@
               <td style="padding:10px; max-width:260px; word-break:break-all;">${esc(p.txid || "-")}</td>
               <td style="padding:10px;">${esc(p.status || "-")}</td>
             `;
-            payHistoryBody?.appendChild(tr);
+            payHistoryBody.appendChild(tr);
           });
         }
       } catch (e) {
@@ -338,25 +347,34 @@
         payHistoryBody?.appendChild(tr);
       }
 
-      // Withdrawals history (index-free, sort locally)
+      // Withdrawals
       try {
         if (wdHistoryBody) wdHistoryBody.innerHTML = "";
 
-        const wSnap = await getDocs(query(
+        const qWd = query(
           collection(db, "withdrawals"),
           where("uid", "==", user.uid),
-          limit(50)
-        ));
+          orderBy("createdAt", "desc"),
+          limit(20)
+        );
 
-        const arr = wSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-        arr.sort((a,b) => tsToMillis(b.createdAt) - tsToMillis(a.createdAt));
+        let snap;
+        try { snap = await getDocs(qWd); }
+        catch {
+          snap = await getDocs(query(
+            collection(db, "withdrawals"),
+            where("uid", "==", user.uid),
+            limit(20)
+          ));
+        }
 
-        if (!arr.length) {
+        if (snap.empty) {
           const tr = document.createElement("tr");
           tr.innerHTML = `<td style="padding:10px;" colspan="4">No withdrawals yet.</td>`;
-          wdHistoryBody?.appendChild(tr);
+          wdHistoryBody.appendChild(tr);
         } else {
-          arr.slice(0, 20).forEach(w => {
+          snap.forEach(d => {
+            const w = d.data();
             const tr = document.createElement("tr");
             tr.style.borderBottom = "1px solid rgba(255,255,255,.08)";
             tr.innerHTML = `
@@ -365,7 +383,7 @@
               <td style="padding:10px; max-width:320px; word-break:break-all;">${esc(w.wallet || w.walletAddress || "-")}</td>
               <td style="padding:10px;">${esc(w.status || "-")}</td>
             `;
-            wdHistoryBody?.appendChild(tr);
+            wdHistoryBody.appendChild(tr);
           });
         }
       } catch (e) {
@@ -378,7 +396,7 @@
       if (historyMsg) historyMsg.textContent = "✅ History loaded.";
     }
 
-    // Profit calculator
+    // Calculator: weekly from monthly ÷ 4
     calcBtn?.addEventListener("click", () => {
       const amount = Number(amountInput?.value || 0);
       if (!amount || amount <= 0) {
@@ -386,21 +404,24 @@
         resultEl.textContent = "Enter a valid amount.";
         return;
       }
-      const pct = percentByAmount(amount);
-      if (!pct) {
+      const monthlyPct = monthlyPercentByAmount(amount);
+      if (!monthlyPct) {
         resultEl.style.display = "block";
         resultEl.textContent = "Amount is below minimum plan ($350).";
         return;
       }
-      const profit = (amount * pct) / 100;
+
+      const monthlyProfit = (amount * monthlyPct) / 100;
+      const weeklyProfit = monthlyProfit / 4;
+
       resultEl.style.display = "block";
-      resultEl.textContent = `Estimated weekly profit: $${profit.toFixed(2)} (${pct}% weekly)`;
+      resultEl.textContent =
+        `Estimated weekly profit: $${weeklyProfit.toFixed(2)} (based on ${monthlyPct}% monthly)`;
     });
 
     // Buttons
     logoutBtn?.addEventListener("click", async () => {
       try { await signOut(auth); } catch(e){}
-      // After logout, Firebase may still cache for a moment; this forces login page
       window.location.replace("login.html");
     });
 
@@ -414,7 +435,7 @@
     });
 
     payNowBtn?.addEventListener("click", () => {
-      const plan = loadSelectedPlan();
+      const plan = loadSelectedPlanRaw();
       if (!plan) {
         alert("No plan selected. Please choose a plan first.");
         window.location.href = "plans.html";
@@ -427,7 +448,7 @@
       window.location.href = "withdrawal.html";
     });
 
-    // ✅ ONLY ONE auth listener
+    // Only ONE auth listener
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
         window.location.replace("login.html");
