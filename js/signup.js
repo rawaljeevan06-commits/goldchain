@@ -6,7 +6,13 @@ import { createUserWithEmailAndPassword, updateProfile
 
 console.log("✅ signup.js loaded");
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+       // If someone is already logged in, log them out so signup can create a new account
+try {
+  if (auth.currentUser) {
+    await auth.signOut();
+  }
+} catch (e) {}
   const form = document.getElementById("signupForm");
   const msg = document.getElementById("signupMsg");
   if (!form || !msg) return;
