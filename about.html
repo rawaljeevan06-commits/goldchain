@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Our Impact | GoldChain Investment</title>
+
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
@@ -39,7 +40,6 @@
   <section class="hero bg" style="background-image:url('images/bg2.jpg')">
     <div class="container hero-grid">
 
-      <!-- Left -->
       <div>
         <h1>Our Impact</h1>
         <p>We focus on a clear, user-friendly experience so people understand plans and timelines easily.</p>
@@ -51,61 +51,57 @@
         </div>
       </div>
 
-      <!-- Right -->
-      <div>
+      <!-- ✅ Keep ONLY ONE card here (no nesting inside) -->
+      <div class="card glass" style="padding:18px;">
+        <h3 style="margin-bottom:8px;">Our Philosophy</h3>
 
-        <!-- Philosophy -->
-        <div class="card glass" style="text-align:center;">
-          <h3>Our Philosophy</h3>
-          <p class="small" style="line-height:1.9; letter-spacing:0;">
-            Simple structure. Clear information. Responsible investing mindset.
-          </p>
-          <a class="btn btn-ghost" href="contact.html" style="margin-top:12px;">Talk With Us</a>
-        </div>
+        <!-- ✅ FIX: no weird letter mixing, remove letter-spacing -->
+        <p class="small" style="line-height:1.85; margin:0;">
+          Simple structure. Clear information. Responsible participation mindset.
+        </p>
 
-        <!-- Commitment -->
-        <div class="card glass" style="margin-top:16px; text-align:center;">
-          <h3>Our Commitment</h3>
-          <p class="small" style="line-height:1.9;">
-            GoldChain Investment operates with structured workflows,
-            manual verification procedures, and a transparency-first mindset.
-            We prioritize clarity and responsible participation.
-          </p>
-        </div>
-
+        <a class="btn btn-ghost" href="contact.html" style="margin-top:12px;">Talk With Us</a>
       </div>
+
     </div>
   </section>
 
-  <!-- IMPACT NUMBERS -->
-  <section style="margin-top:60px;">
-    <div class="container" style="text-align:center;">
-      <h2>Impact in Numbers</h2>
-
-      <div style="display:flex; justify-content:center; gap:60px; flex-wrap:wrap; margin-top:30px;">
-        <div>
-          <h3 style="color:#facc15;">1,200+</h3>
-          <p class="small">Registered Members</p>
-        </div>
-
-        <div>
-          <h3 style="color:#facc15;">$250K+</h3>
-          <p class="small">Deposits Processed</p>
-        </div>
-
-        <div>
-          <h3 style="color:#facc15;">98%</h3>
-          <p class="small">Approval Rate</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Mission / Vision / Values -->
+  <!-- ✅ Our Commitment (SEPARATE section - not inside hero card) -->
   <section class="section">
     <div class="container">
 
-      <div class="grid" style="grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px;">
+      <div class="card glass" style="text-align:center; max-width:900px; margin:0 auto;">
+        <h3>Our Commitment</h3>
+        <p class="small" style="line-height:1.8; margin-top:10px;">
+          GoldChain Investment operates with structured workflows, manual verification procedures,
+          and a transparency-first mindset. We prioritize clarity and responsible participation.
+        </p>
+      </div>
+
+      <!-- Impact Numbers -->
+      <div class="card glass" style="margin-top:18px; text-align:center;">
+        <h2 style="margin:0;">Impact in Numbers</h2>
+
+        <div style="display:flex; justify-content:center; gap:60px; flex-wrap:wrap; margin-top:18px;">
+          <div>
+            <h3 style="color:#facc15; margin:0;">1,200+</h3>
+            <p class="small" style="margin-top:6px;">Registered Members</p>
+          </div>
+
+          <div>
+            <h3 style="color:#facc15; margin:0;">$250K+</h3>
+            <p class="small" style="margin-top:6px;">Deposits Processed</p>
+          </div>
+
+          <div>
+            <h3 style="color:#facc15; margin:0;">98%</h3>
+            <p class="small" style="margin-top:6px;">Approval Rate</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mission / Vision / Values -->
+      <div class="grid" style="grid-template-columns:repeat(3,1fr); gap:16px; margin-top:18px;">
         <div class="card glass">
           <h3>Mission</h3>
           <p class="small">Present plans clearly and help users make informed decisions.</p>
@@ -123,7 +119,9 @@
       </div>
 
       <div class="chart-box" style="margin-top:18px;">
-        <p class="small"><strong>Notice:</strong> Investment involves risk. Always read terms and invest responsibly.</p>
+        <p class="small">
+          <strong>Notice:</strong> Participation involves risk. Always read terms and participate responsibly.
+        </p>
       </div>
 
     </div>
@@ -132,6 +130,7 @@
   <footer class="footer">
     <div class="container footer-in">
       <p class="small">©️ 2026 GoldChain Investment. All rights reserved.</p>
+
       <div class="social">
         <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
         <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
