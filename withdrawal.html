@@ -74,7 +74,7 @@
     import { auth, db } from "./js/firebase.js";
     import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
     import {
-      collection, query, where, limit, getDocs,
+      collection, query, where, limit, getDocs, orderBy,
       addDoc, serverTimestamp,
       doc, getDoc
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
@@ -101,9 +101,9 @@
     function money(n){ return `$${Number(n||0).toFixed(2)}`; }
     function setMsg(t){ msgEl.textContent = t || ""; }
 
-    // ✅ FINAL RULES (MONTHLY)
+    // ✅ FINAL RULES
     // 350/700/1000 => 16% monthly
-    // 5000+        => 18% monthly
+    // 5000+        => 18% monthly, profit withdraw after 7 days, capital + full 18% after 30 days (B)
     function monthlyPercentByPlanAmount(planAmount){
       const a = Number(planAmount)||0;
       if (a >= 5000) return 18;
@@ -111,14 +111,14 @@
       return 0;
     }
 
-    // ✅ Lock days by plan (same timeline you wanted)
+    // ✅ Lock days by plan (for non-VIP this is capital lock; for VIP this is profit lock)
     function lockDaysByPlanAmount(planAmount){
       const a = Number(planAmount)||0;
-      if (a >= 5000) return 7;   // VIP weekly withdrawal
+      if (a >= 5000) return 7;   // VIP profit unlock after 7 days
       if (a >= 1000) return 15;  // Pro
       if (a >= 700)  return 30;  // Growth
       if (a >= 350)  return 45;  // Starter
-      return 999999;
+      return null;               // ✅ FIX: no more 999999 fallback
     }
 
     function tsToDate(x){
@@ -140,10 +140,12 @@
     }
 
     async function getLatestVerifiedPayment(user){
+      // ✅ FIX: ensure we get the latest verified payment (not random)
       const qv = query(
         collection(db, "payments"),
         where("uid", "==", user.uid),
         where("status", "==", "verified"),
+        orderBy("createdAt", "desc"),
         limit(1)
       );
       const snap = await getDocs(qv);
@@ -162,6 +164,12 @@
       return !snap.empty;
     }
 
+    function resolvePlanAmount(profile, verified){
+      const fromProfile = Number(profile?.planAmount ?? profile?.plan ?? 0);
+      const fromPayment = Number(verified?.planAmount ?? verified?.amount ?? 0);
+      return fromProfile || fromPayment || 0;
+    }
+
     let STATE = {
       user: null,
       profile: null,
@@ -169,7 +177,8 @@
       locked: true,
       pending: false,
       available: 0,
-      planAmount: 0
+      planAmount: 0,
+      daysSinceVerify: 0
     };
 
     function renderUI(){
@@ -185,12 +194,10 @@
 
       const planAmt = Number(STATE.planAmount || 0);
       const pctMonthly = monthlyPercentByPlanAmount(planAmt);
-      const lockDays = lockDaysByPlanAmount(planAmt);
 
       statusText.textContent = "✅ Verified — You can request withdrawal";
       planText.textContent = `${STATE.verified.planName || "Selected Plan"} ($${planAmt} • ${pctMonthly}% monthly)`;
 
-      // Monthly estimate (informational)
       const monthlyProfit = (planAmt * pctMonthly) / 100;
       profitText.textContent = `Estimated monthly profit: ${money(monthlyProfit)} (informational)`;
 
@@ -203,7 +210,13 @@
       }
 
       if(STATE.locked){
-        lockInfoEl.textContent = `🔒 Withdrawal locked. Available after ${lockDays} days from verification.`;
+        const lockDays = lockDaysByPlanAmount(planAmt);
+        if(lockDays === null){
+          lockInfoEl.textContent = "🔒 Plan not detected. Please choose a plan again.";
+        } else {
+          const remaining = Math.max(0, lockDays - STATE.daysSinceVerify);
+          lockInfoEl.textContent = `🔒 Withdrawal locked. Available after ${remaining} day(s).`;
+        }
         submitBtn.disabled = true;
         return;
       }
@@ -216,14 +229,9 @@
       setMsg("");
       const user = STATE.user;
 
-      // ✅ user profile (balance + plan)
       const profile = await getUserProfile(user.uid);
       STATE.profile = profile;
 
-      const planAmt = Number(profile?.plan || profile?.planAmount || 0);
-      STATE.planAmount = planAmt;
-
-      // ✅ must have at least one verified payment
       const verified = await getLatestVerifiedPayment(user);
       STATE.verified = verified;
 
@@ -231,26 +239,59 @@
         STATE.available = 0;
         STATE.locked = true;
         STATE.pending = false;
+        STATE.planAmount = 0;
+        STATE.daysSinceVerify = 0;
         renderUI();
         return;
       }
 
-      // ✅ available = balance (admin updates this when payment verified / withdrawal approved)
+      STATE.planAmount = resolvePlanAmount(profile, verified);
+
+      STATE.pending = await hasPendingWithdrawal(user);
+
+      const vAt = tsToDate(verified.verifiedAt || verified.createdAt);
+      const now = new Date();
+      STATE.daysSinceVerify = vAt ? Math.max(0, daysBetween(vAt, now)) : 0;
+
+      const planAmt = Number(STATE.planAmount || 0);
+
+      // ✅ VIP PLAN (5000+) — option B
+      if(planAmt >= 5000){
+        const weeklyRate = 0.18 / 4; // 4.5% weekly (18% monthly divided into 4 weeks)
+        const weeksPassed = Math.floor(STATE.daysSinceVerify / 7);
+        const profitAvailable = (planAmt * weeklyRate) * weeksPassed;
+
+        if(STATE.daysSinceVerify >= 30){
+          // capital + full 18% after 30 days
+          STATE.available = planAmt + (planAmt * 0.18);
+          STATE.locked = false;
+        } else if(STATE.daysSinceVerify >= 7){
+          // profit only after 7 days
+          STATE.available = profitAvailable;
+          STATE.locked = false;
+        } else {
+          STATE.available = 0;
+          STATE.locked = true;
+        }
+
+        renderUI();
+        return;
+      }
+
+      // ✅ other plans: show admin balance but lock by plan days
+      const lockDays = lockDaysByPlanAmount(planAmt);
+      if(lockDays === null){
+        STATE.available = 0;
+        STATE.locked = true;
+        renderUI();
+        return;
+      }
+
       const balance = Number(profile?.balance || 0);
       STATE.available = Math.max(0, balance);
 
-      // ✅ pending?
-      STATE.pending = await hasPendingWithdrawal(user);
+      STATE.locked = (STATE.daysSinceVerify < lockDays);
 
-      // ✅ lock check from verified time
-      const lockDays = lockDaysByPlanAmount(planAmt);
-      const vAt = tsToDate(verified.verifiedAt || verified.createdAt);
-      const now = new Date();
-      const days = vAt ? daysBetween(vAt, now) : 0;
-
-      STATE.locked = (days < lockDays);
-
-      // If locked, you can still SHOW balance but disable request
       renderUI();
     }
 
@@ -330,5 +371,6 @@
       await loadState();
     });
   </script>
+
 </body>
 </html>
