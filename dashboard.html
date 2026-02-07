@@ -267,10 +267,10 @@
       onSnapshot
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-    // ✅ If you want admin redirect, put UID(s) here
-    const ADMIN_UIDS = [
-      // "YOUR_ADMIN_UID_HERE"
-    ];
+    // ✅ Admin UIDs
+const ADMIN_UIDS = [
+  "PASTE_YOUR_ADMIN_UID_HERE"
+];
 
     const emailEl = document.getElementById("emailEl");
     const balanceEl = document.getElementById("balanceEl");
@@ -583,7 +583,11 @@
         }
 
         const data = snap.data();
-
+// ✅ Admin redirect check
+if (data.role === "admin") {
+  window.location.replace("admin.html");
+  return;
+}
         balanceEl.textContent = money(data.balance || 0);
 
         createdEl.textContent = data.createdAt?.toDate ? data.createdAt.toDate().toLocaleString() : "—";
