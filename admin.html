@@ -490,7 +490,8 @@
         return;
       }
 
-      adminInfo.textContent = `✅ Admin: ${user.email || user.uid}`;
+     adminInfo.textContent = ⁠ ✅ Admin: ${user.email || "-"} | UID: ${user.uid} ⁠;
+console.log("✅ ADMIN UID =", user.uid);
       await loadPendingPayments();
       await loadPendingWithdrawals();
       await loadTotals();
