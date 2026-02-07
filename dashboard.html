@@ -11,7 +11,7 @@
 
 <body class="page-bottom-space">
 
-  <!-- optional glow layer (if your CSS uses it) -->
+  <!-- ✅ Premium glow layer (required for your background effect) -->
   <div class="glow-layer"></div>
 
   <div class="topbar">Dashboard — GoldChain Investment</div>
@@ -64,7 +64,6 @@
         <div class="card glass">
           <h3>Plan</h3>
           <p class="small" id="planEl">Loading...</p>
-          <p class="small" id="rateEl" style="opacity:.85;"></p>
           <a class="btn btn-ghost full" href="index.html#plans" style="margin-top:10px;">View Plans</a>
         </div>
 
@@ -86,7 +85,7 @@
 
       </div>
 
-      <!-- ✅ TODAY STATS -->
+      <!-- ✅ TODAY STATS (Real-time) -->
       <div class="dash-cards" style="margin-top:18px;">
         <div class="card glass">
           <h3>Today Verified Deposits</h3>
@@ -114,45 +113,16 @@
         <p class="big" style="margin-top:10px;">$<span id="totalDepositsEl">0.00</span></p>
       </div>
 
-      <!-- ✅ PAYMENT + WITHDRAWAL HISTORY -->
+      <!-- ✅ LIVE DEPOSITS BOX (latest verified) -->
       <div class="card glass" style="margin-top:18px;">
-        <h2>Payment History</h2>
-        <p class="small" style="opacity:.85;" id="payHistMsg">Loading…</p>
-        <div style="overflow:auto; margin-top:10px;">
-          <table style="width:100%; border-collapse:collapse; min-width:820px;">
-            <thead>
-              <tr style="text-align:left; border-bottom:1px solid rgba(255,255,255,.15);">
-                <th style="padding:10px;">Time</th>
-                <th style="padding:10px;">Amount</th>
-                <th style="padding:10px;">Method</th>
-                <th style="padding:10px;">TXID</th>
-                <th style="padding:10px;">Status</th>
-              </tr>
-            </thead>
-            <tbody id="paymentsHistBody"></tbody>
-          </table>
+        <h2>Live Deposits</h2>
+        <p class="small" style="opacity:.9;">Latest verified deposits (auto-updating)</p>
+        <div id="liveDepositsBox" style="margin-top:10px; display:grid; gap:10px;">
+          <p class="small" style="opacity:.7;">Loading…</p>
         </div>
       </div>
 
-      <div class="card glass" style="margin-top:18px;">
-        <h2>Withdrawal History</h2>
-        <p class="small" style="opacity:.85;" id="wdHistMsg">Loading…</p>
-        <div style="overflow:auto; margin-top:10px;">
-          <table style="width:100%; border-collapse:collapse; min-width:820px;">
-            <thead>
-              <tr style="text-align:left; border-bottom:1px solid rgba(255,255,255,.15);">
-                <th style="padding:10px;">Time</th>
-                <th style="padding:10px;">Amount</th>
-                <th style="padding:10px;">Wallet</th>
-                <th style="padding:10px;">Status</th>
-              </tr>
-            </thead>
-            <tbody id="withdrawalsHistBody"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- ✅ OUR SUCCESS -->
+      <!-- ✅ ANIMATED SUCCESS COUNTERS -->
       <div class="card glass" style="margin-top:18px;">
         <h2>Our Success</h2>
         <p class="small" style="opacity:.9;">Live growth feeling + premium UI</p>
@@ -188,32 +158,63 @@
             <p class="small" style="line-height:1.8;">
               “Deposit verification gives confidence. The workflow feels structured and clean.”
             </p>
-            <p class="small" style="opacity:.7; margin-top:10px;">
-              <b>Rajesh Sharma</b><br><span style="font-size:12px;">Doha, Qatar</span>
-            </p>
+            <p class="small" style="opacity:.7; margin-top:10px;"><b>Rajesh Sharma</b><br><span style="font-size:12px;">Doha, Qatar</span></p>
           </div>
 
           <div class="card glass">
             <p class="small" style="line-height:1.8;">
               “The dashboard is professional. Tracking plan and referral earnings is very easy.”
             </p>
-            <p class="small" style="opacity:.7; margin-top:10px;">
-              <b>Aamir Khan</b><br><span style="font-size:12px;">Dubai, UAE</span>
-            </p>
+            <p class="small" style="opacity:.7; margin-top:10px;"><b>Aamir Khan</b><br><span style="font-size:12px;">Dubai, UAE</span></p>
           </div>
 
           <div class="card glass">
             <p class="small" style="line-height:1.8;">
               “Withdrawal requests and approvals are clear. I like the transparency.”
             </p>
-            <p class="small" style="opacity:.7; margin-top:10px;">
-              <b>Michael D.</b><br><span style="font-size:12px;">London, UK</span>
-            </p>
+            <p class="small" style="opacity:.7; margin-top:10px;"><b>Michael D.</b><br><span style="font-size:12px;">London, UK</span></p>
           </div>
         </div>
       </div>
+<!-- ✅ PAYMENT HISTORY -->
+<div class="card glass" style="margin-top:18px;">
+  <h2>Payment History</h2>
+  <p class="small" style="opacity:.85;">Your last 20 deposits</p>
+  <div style="overflow:auto; margin-top:10px;">
+    <table style="width:100%; border-collapse:collapse; min-width:800px;">
+      <thead>
+        <tr style="text-align:left; border-bottom:1px solid rgba(255,255,255,.15);">
+          <th style="padding:10px;">Time</th>
+          <th style="padding:10px;">Amount</th>
+          <th style="padding:10px;">Method</th>
+          <th style="padding:10px;">TXID</th>
+          <th style="padding:10px;">Status</th>
+        </tr>
+      </thead>
+      <tbody id="payHistBody"></tbody>
+    </table>
+  </div>
+</div>
 
-      <!-- ✅ LEGAL BOX -->
+<!-- ✅ WITHDRAWAL HISTORY -->
+<div class="card glass" style="margin-top:18px;">
+  <h2>Withdrawal History</h2>
+  <p class="small" style="opacity:.85;">Your last 20 withdrawals</p>
+  <div style="overflow:auto; margin-top:10px;">
+    <table style="width:100%; border-collapse:collapse; min-width:800px;">
+      <thead>
+        <tr style="text-align:left; border-bottom:1px solid rgba(255,255,255,.15);">
+          <th style="padding:10px;">Time</th>
+          <th style="padding:10px;">Amount</th>
+          <th style="padding:10px;">Wallet</th>
+          <th style="padding:10px;">Status</th>
+        </tr>
+      </thead>
+      <tbody id="wdHistBody"></tbody>
+    </table>
+  </div>
+</div>
+      <!-- ✅ LEGAL SHORT (DIRECTLY IN DASHBOARD) -->
       <div class="card glass" style="margin-top:18px;">
         <h2>Legal & Risk Disclosure</h2>
         <p class="small" style="opacity:.9; line-height:1.9;">
@@ -245,13 +246,266 @@
     </div>
   </footer>
 
-  <!-- ✅ LIVE TICKER -->
+  <!-- ✅ REAL-TIME LIVE TICKER (Firestore latest verified deposit) -->
   <div style="position:fixed; bottom:0; left:0; right:0; background:#111; color:#facc15; padding:8px; text-align:center; z-index:50;">
     <span id="liveTicker">Loading latest verified deposit...</span>
   </div>
 
-  <!-- ✅ IMPORTANT: only ONE dashboard script -->
-  <script type="module" src="js/dashboard.js"></script>
+  <!-- ✅ ONE script only (module). Do NOT load firebase.js separately. -->
+  <script type="module">
+    import { auth, db } from "./js/firebase.js";
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import {
+      doc, getDoc,
+      collection, query, where, orderBy, limit,
+      onSnapshot
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    // OPTIONAL: Admin UIDs
+    const ADMIN_UIDS = [
+      // "YOUR_ADMIN_UID_HERE"
+    ];
+
+    const emailEl = document.getElementById("emailEl");
+    const balanceEl = document.getElementById("balanceEl");
+    const createdEl = document.getElementById("createdEl");
+    const planEl = document.getElementById("planEl");
+    const payStatusEl = document.getElementById("payStatusEl");
+
+    const myRefCodeEl = document.getElementById("myRefCode");
+    const refEarnEl = document.getElementById("refEarn");
+    const copyRefBtn = document.getElementById("copyRefBtn");
+
+    const withdrawBtn = document.getElementById("withdrawBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    // ✅ Animated counters
+    function startCounters(){
+      const counters = document.querySelectorAll(".counter");
+      counters.forEach(counter => {
+        const target = Number(counter.getAttribute("data-target") || "0");
+        const inc = target / 160;
+        const step = () => {
+          const cur = Number(counter.innerText || "0");
+          if (cur < target) {
+            counter.innerText = String(Math.ceil(cur + inc));
+            setTimeout(step, 12);
+          } else {
+            counter.innerText = String(target.toLocaleString());
+          }
+        };
+        step();
+      });
+    }
+
+    // ✅ Today stats + VIP badge
+    function startTodayStats(userPlanAmount){
+      const todayDepEl = document.getElementById("todayDepositsEl");
+      const todayWdEl = document.getElementById("todayWithdrawalsEl");
+      const vipStatusEl = document.getElementById("vipStatusEl");
+      const vipBadge = document.getElementById("vipBadge");
+
+      // VIP check (based on plan amount)
+      const planAmt = Number(userPlanAmount || 0);
+      const isVip = planAmt >= 5000;
+      if (vipStatusEl) vipStatusEl.textContent = isVip ? "✅ VIP Member" : "Standard Member";
+      if (vipBadge) vipBadge.style.display = isVip ? "inline-block" : "none";
+
+      // Today range
+      const now = new Date();
+      const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+      const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+
+      // Payments: verified today
+      const qTodayPay = query(
+        collection(db, "payments"),
+        where("status", "==", "verified"),
+        where("verifiedAt", ">=", start),
+        where("verifiedAt", "<=", end)
+      );
+
+      onSnapshot(qTodayPay, (snap) => {
+        let sum = 0;
+        snap.forEach(d => sum += Number(d.data().amount || 0));
+        if (todayDepEl) todayDepEl.textContent = sum.toFixed(2);
+      });
+
+      // Withdrawals: approved today
+      const qTodayWd = query(
+        collection(db, "withdrawals"),
+        where("status", "==", "approved"),
+        where("processedAt", ">=", start),
+        where("processedAt", "<=", end)
+      );
+
+      onSnapshot(qTodayWd, (snap) => {
+        let sum = 0;
+        snap.forEach(d => sum += Number(d.data().amount || 0));
+        if (todayWdEl) todayWdEl.textContent = sum.toFixed(2);
+      });
+    }
+
+    // ✅ Real-time verified deposit total + latest verified ticker
+    function startRealtimeDeposits(){
+      const totalEl = document.getElementById("totalDepositsEl");
+      const tickerEl = document.getElementById("liveTicker");
+
+      // Total verified deposits (live)
+      const qTotal = query(collection(db, "payments"), where("status", "==", "verified"));
+      onSnapshot(qTotal, (snap) => {
+        let sum = 0;
+        snap.forEach(d => sum += Number(d.data().amount || 0));
+        if (totalEl) totalEl.textContent = sum.toFixed(2);
+      });
+
+      // Latest verified deposit (live)
+      const qLatest = query(
+        collection(db, "payments"),
+        where("status", "==", "verified"),
+        orderBy("verifiedAt", "desc"),
+        limit(1)
+      );
+
+      onSnapshot(qLatest, (snap) => {
+        if (snap.empty) {
+          if (tickerEl) tickerEl.textContent = "No verified deposits yet.";
+          return;
+        }
+        const p = snap.docs[0].data();
+        const amt = Number(p.amount || 0).toFixed(2);
+        const who = p.email || "Member";
+        const plan = p.planName ? ` — ${p.planName}` : "";
+        if (tickerEl) tickerEl.textContent = `✅ Verified Deposit: $${amt} by ${who}${plan}`;
+      });
+    }
+
+    // ✅ Live deposits list (latest verified)
+    function startLiveDepositList(){
+      const box = document.getElementById("liveDepositsBox");
+      if (!box) return;
+
+      const qLive = query(
+        collection(db, "payments"),
+        where("status", "==", "verified"),
+        orderBy("verifiedAt", "desc"),
+        limit(6)
+      );
+
+      onSnapshot(qLive, (snap) => {
+        if (snap.empty) {
+          box.innerHTML = `<p class="small" style="opacity:.7;">No verified deposits yet.</p>`;
+          return;
+        }
+
+        let html = "";
+        snap.forEach((d) => {
+          const p = d.data();
+          const email = (p.email || "").toString();
+          const amt = Number(p.amount || 0).toFixed(2);
+
+          // hide full email a bit
+          let who = "Member";
+          if (email.includes("@")) {
+            const parts = email.split("@");
+            who = (parts[0].slice(0,3) + "***@" + parts[1]);
+          } else if (email) {
+            who = email.slice(0,3) + "***";
+          }
+
+          const plan = p.planName ? ` • ${p.planName}` : "";
+
+          html += `
+            <div style="padding:10px; border-radius:12px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.03);">
+              <div style="display:flex; justify-content:space-between; gap:10px;">
+                <span class="small" style="opacity:.9;">✅ ${who}${plan}</span>
+                <span class="small" style="font-weight:800;">$${amt}</span>
+              </div>
+              <div class="small" style="opacity:.6; margin-top:4px;">Verified deposit</div>
+            </div>
+          `;
+        });
+
+        box.innerHTML = html;
+      });
+    }
+
+    withdrawBtn?.addEventListener("click", () => {
+      window.location.href = "withdrawal.html";
+    });
+
+    logoutBtn?.addEventListener("click", async () => {
+      try { await signOut(auth); } catch (e) {}
+      window.location.href = "login.html";
+    });
+
+    copyRefBtn?.addEventListener("click", async () => {
+      const code = myRefCodeEl?.value || "";
+      if (!code) return;
+      try {
+        await navigator.clipboard.writeText(code);
+        alert("✅ Copied referral code!");
+      } catch (e) {
+        alert("Copy failed. Please copy manually.");
+      }
+    });
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.replace("login.html");
+        return;
+      }
+
+      if (ADMIN_UIDS.includes(user.uid)) {
+        window.location.replace("admin.html");
+        return;
+      }
+
+      emailEl.textContent = user.email || user.uid;
+
+      // Start visuals + realtime
+      startCounters();
+      startRealtimeDeposits();
+      startLiveDepositList();
+
+      // Load user profile
+      try {
+        const snap = await getDoc(doc(db, "users", user.uid));
+        if (!snap.exists()) {
+          planEl.textContent = "No profile found.";
+          payStatusEl.textContent = "No profile found.";
+          return;
+        }
+
+        const data = snap.data();
+
+        balanceEl.textContent = Number(data.balance || 0).toFixed(2);
+
+        if (data.createdAt?.toDate) createdEl.textContent = data.createdAt.toDate().toLocaleString();
+        else createdEl.textContent = "—";
+
+        // Use numeric plan amount if you store it as plan: 350/700/1000/5000
+        const planAmount = Number(data.plan || 0);
+        planEl.textContent = planAmount ? `Selected Plan: $${planAmount}` : "No plan selected";
+
+        // ✅ Today stats + VIP based on plan
+        startTodayStats(planAmount);
+
+        if (data.paymentVerified === true) {
+          payStatusEl.innerHTML = `<span style="color:#36d399; font-weight:700;">✅ Payment Verified</span>`;
+        } else {
+          payStatusEl.innerHTML = `<span style="color:#f59e0b; font-weight:700;">Pending / Not Verified</span>`;
+        }
+
+        if (myRefCodeEl) myRefCodeEl.value = data.referralCode || "";
+        if (refEarnEl) refEarnEl.textContent = Number(data.referralEarnings || 0).toFixed(2);
+
+      } catch (e) {
+        console.log("Dashboard load error:", e);
+        planEl.textContent = "Error loading profile.";
+        payStatusEl.textContent = "Error loading profile.";
+      }
+    });
+  </script>
 
   <script>
     // mobile menu toggle
