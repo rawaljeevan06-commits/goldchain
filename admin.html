@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Admin | GoldChain</title>
+  <title>Admin | Payments</title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
 
-  <div class="topbar">Admin Panel — Payment & Withdrawal Verification</div>
+  <div class="topbar">Admin Panel — Payment Verification</div>
 
   <header class="header">
     <div class="container header-in">
@@ -19,7 +19,6 @@
 
       <nav class="nav">
         <a href="admin.html" class="active">Admin Dashboard</a>
-        <a href="dashboard.html">User Dashboard</a>
       </nav>
 
       <div class="actions">
@@ -31,34 +30,27 @@
 
   <section class="section">
     <div class="container">
-
       <div class="card">
-        <h2>Admin Status</h2>
-        <p class="small" id="adminInfo">Checking…</p>
-        <p class="small" id="sysMsg" style="margin-top:8px;"></p>
-      </div>
-
-      <div class="dash-cards" style="margin-top:14px;">
-        <div class="card">
-          <h3>Total Verified Payments</h3>
-          <p class="big" id="tVerified">0</p>
-        </div>
-
-        <div class="card">
-          <h3>Total Approved Withdrawals</h3>
-          <p class="big" id="tApprovedWd">0</p>
-        </div>
-
-        <div class="card">
-          <h3>Totals</h3>
-          <p class="muted">Deposits / Withdrawals</p>
-          <p class="big" id="tMoney">$0.00 / $0.00</p>
-        </div>
-      </div>
-
-      <div class="card" style="margin-top:14px;">
         <h2>Pending Payments</h2>
-        <p class="small" id="msg" style="margin-top:8px;"></p>
+        <p class="small" id="adminInfo">Checking admin access…</p>
+
+        <div class="dash-cards" style="margin-top:14px;">
+          <div class="card">
+            <h3>Total Verified Payments</h3>
+            <p class="big" id="tVerified">0</p>
+          </div>
+
+          <div class="card">
+            <h3>Total Approved Withdrawals</h3>
+            <p class="big" id="tApprovedWd">0</p>
+          </div>
+
+          <div class="card">
+            <h3>Totals</h3>
+            <p class="muted">Deposits / Withdrawals</p>
+            <p class="big" id="tMoney">$0.00 / $0.00</p>
+          </div>
+        </div>
 
         <div style="overflow:auto; margin-top:12px;">
           <table style="width:100%; border-collapse:collapse; min-width:900px;">
@@ -77,9 +69,10 @@
             <tbody id="paymentsBody"></tbody>
           </table>
         </div>
-      </div>
 
-      <div class="card" style="margin-top:14px;">
+        <p class="small" id="msg" style="margin-top:10px;"></p>
+
+        <hr style="margin:30px 0; opacity:.25;">
         <h2>Pending Withdrawals</h2>
         <p class="small" id="wMsg" style="margin-top:8px;"></p>
 
@@ -98,8 +91,8 @@
             <tbody id="withdrawalsBody"></tbody>
           </table>
         </div>
-      </div>
 
+      </div>
     </div>
   </section>
 
@@ -108,24 +101,20 @@
     import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
     import {
       collection, query, where, orderBy, limit, getDocs,
-      doc, serverTimestamp, runTransaction, increment
+      doc, serverTimestamp,
+      runTransaction, increment
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-    // ✅ Put YOUR admin UID here
+    // ✅ YOUR ADMIN UID HERE
     const ADMIN_UIDS = ["40B1eYKROIXFAZLpelBhjjFTDm72"];
 
     const adminInfo = document.getElementById("adminInfo");
-    const sysMsg = document.getElementById("sysMsg");
-
     const paymentsBody = document.getElementById("paymentsBody");
     const withdrawalsBody = document.getElementById("withdrawalsBody");
-
     const msg = document.getElementById("msg");
     const wMsg = document.getElementById("wMsg");
-
     const refreshBtn = document.getElementById("refreshBtn");
     const logoutBtn = document.getElementById("logoutBtn");
-
     const tVerified = document.getElementById("tVerified");
     const tApprovedWd = document.getElementById("tApprovedWd");
     const tMoney = document.getElementById("tMoney");
@@ -152,7 +141,8 @@
     async function loadTotals(){
       try{
         const pSnap = await getDocs(query(collection(db,"payments"), limit(500)));
-        let verifiedCount = 0, depositSum = 0;
+        let verifiedCount = 0;
+        let depositSum = 0;
 
         pSnap.forEach(d=>{
           const p = d.data();
@@ -163,7 +153,8 @@
         });
 
         const wSnap = await getDocs(query(collection(db,"withdrawals"), limit(500)));
-        let approvedCount = 0, withdrawSum = 0;
+        let approvedCount = 0;
+        let withdrawSum = 0;
 
         wSnap.forEach(d=>{
           const w = d.data();
@@ -177,38 +168,38 @@
         tApprovedWd.textContent = String(approvedCount);
         tMoney.textContent = `${money(depositSum)} / ${money(withdrawSum)}`;
       }catch(e){
-        sysMsg.textContent = "Totals failed: " + errText(e);
+        console.warn("Totals failed:", e);
       }
     }
 
-    async function loadPendingPayments(){
+    async function loadPendingPayments() {
       paymentsBody.innerHTML = "";
       msg.textContent = "Loading pending payments…";
 
-      try{
+      try {
         const q1 = query(
-          collection(db,"payments"),
-          where("status","==","pending"),
-          orderBy("createdAt","desc"),
+          collection(db, "payments"),
+          where("status", "==", "pending"),
+          orderBy("createdAt", "desc"),
           limit(50)
         );
 
         let snap;
         try { snap = await getDocs(q1); }
         catch {
-          snap = await getDocs(query(collection(db,"payments"), where("status","==","pending"), limit(50)));
+          snap = await getDocs(query(
+            collection(db, "payments"),
+            where("status", "==", "pending"),
+            limit(50)
+          ));
         }
 
-        if(snap.empty){
-          msg.textContent = "✅ No pending payments.";
-          return;
-        }
-
+        if (snap.empty) { msg.textContent = "✅ No pending payments."; return; }
         msg.textContent = `Found ${snap.size} pending payment(s).`;
 
-        snap.forEach((d)=>{
-          const p = d.data();
-          const id = d.id;
+        snap.forEach((docSnap) => {
+          const p  = docSnap.data();
+          const id = docSnap.id;
 
           const tr = document.createElement("tr");
           tr.style.borderBottom = "1px solid rgba(255,255,255,.08)";
@@ -228,39 +219,40 @@
           paymentsBody.appendChild(tr);
         });
 
-      }catch(e){
+      } catch (e) {
+        console.error(e);
         msg.textContent = "❌ Failed to load payments: " + errText(e);
       }
     }
 
-    async function loadPendingWithdrawals(){
+    async function loadPendingWithdrawals() {
       withdrawalsBody.innerHTML = "";
       wMsg.textContent = "Loading pending withdrawals…";
 
-      try{
+      try {
         const q1 = query(
-          collection(db,"withdrawals"),
-          where("status","==","pending"),
-          orderBy("createdAt","desc"),
+          collection(db, "withdrawals"),
+          where("status", "==", "pending"),
+          orderBy("createdAt", "desc"),
           limit(50)
         );
 
         let snap;
         try { snap = await getDocs(q1); }
         catch {
-          snap = await getDocs(query(collection(db,"withdrawals"), where("status","==","pending"), limit(50)));
+          snap = await getDocs(query(
+            collection(db, "withdrawals"),
+            where("status", "==", "pending"),
+            limit(50)
+          ));
         }
 
-        if(snap.empty){
-          wMsg.textContent = "✅ No pending withdrawals.";
-          return;
-        }
-
+        if (snap.empty) { wMsg.textContent = "✅ No pending withdrawals."; return; }
         wMsg.textContent = `Found ${snap.size} pending withdrawal(s).`;
 
-        snap.forEach((d)=>{
-          const w = d.data();
-          const id = d.id;
+        snap.forEach((docSnap) => {
+          const w  = docSnap.data();
+          const id = docSnap.id;
 
           const tr = document.createElement("tr");
           tr.style.borderBottom = "1px solid rgba(255,255,255,.08)";
@@ -278,142 +270,148 @@
           withdrawalsBody.appendChild(tr);
         });
 
-      }catch(e){
+      } catch (e) {
+        console.error(e);
         wMsg.textContent = "❌ Failed to load withdrawals: " + errText(e);
       }
     }
 
-    // ✅ Reads first then writes (no invalid-argument)
-    async function setPaymentStatus(paymentId, newStatus){
-      const payRef = doc(db,"payments",paymentId);
+    // ✅ reads first, then writes (no invalid-argument)
+    async function setPaymentStatus(paymentId, status) {
+      const payRef = doc(db, "payments", paymentId);
 
       await runTransaction(db, async (tx) => {
         const paySnap = await tx.get(payRef);
-        if(!paySnap.exists()) return;
+        if (!paySnap.exists()) return;
 
         const p = paySnap.data();
-        const current = String(p.status||"").toLowerCase();
-        const ns = String(newStatus||"").toLowerCase();
-        if(current === ns) return;
+        const currentStatus = String(p.status || "").toLowerCase();
+        if (currentStatus === "verified" && status === "verified") return;
 
-        const uid = p.uid || "";
+        const uid = p.uid;
         const email = p.email || "";
-        const amount = Number(p.amount||0);
+        const amount = Number(p.amount || 0);
+        const planName = p.planName || "";
 
-        const userRef = uid ? doc(db,"users",uid) : null;
+        const userRef = uid ? doc(db, "users", uid) : null;
         const userSnap = userRef ? await tx.get(userRef) : null;
 
-        tx.update(payRef, {
-          status: ns,
-          verifiedAt: ns === "verified" ? serverTimestamp() : null
-        });
+        // write payment
+        tx.update(payRef, { status, verifiedAt: serverTimestamp() });
 
-        if(ns !== "verified") return;
-        if(!uid || !Number.isFinite(amount) || amount <= 0) return;
+        if (status !== "verified") return;
+        if (!uid || !Number.isFinite(amount) || amount <= 0) return;
 
-        if(!userSnap || !userSnap.exists()){
-          tx.set(userRef, { email, balance: 0, createdAt: serverTimestamp() }, { merge:true });
+        // ensure user doc exists
+        if (!userSnap || !userSnap.exists()) {
+          tx.set(userRef, {
+            email,
+            balance: 0,
+            referralEarnings: 0,
+            createdAt: serverTimestamp()
+          });
         }
 
-        tx.set(userRef, { balance: increment(amount), paymentVerified: true }, { merge:true });
+        // update user balance + also store plan info for dashboard
+        tx.set(userRef, {
+          email,
+          balance: increment(amount),
+          paymentVerified: true,
+          planName,
+          principal: amount,
+          lastVerifiedAt: serverTimestamp()
+        }, { merge: true });
       });
     }
 
-    async function setWithdrawalStatus(withdrawalId, newStatus){
-      const wRef = doc(db,"withdrawals",withdrawalId);
+    async function setWithdrawalStatus(withdrawalId, status) {
+      const wRef = doc(db, "withdrawals", withdrawalId);
 
       await runTransaction(db, async (tx) => {
         const wSnap = await tx.get(wRef);
-        if(!wSnap.exists()) return;
+        if (!wSnap.exists()) return;
 
         const w = wSnap.data();
-        const current = String(w.status||"").toLowerCase();
-        const ns = String(newStatus||"").toLowerCase();
-        if(current === ns) return;
+        const currentStatus = String(w.status || "").toLowerCase();
+        if (currentStatus === "approved" && status === "approved") return;
 
-        const uid = w.uid || "";
-        const amount = Number(w.amount||0);
-        const userRef = uid ? doc(db,"users",uid) : null;
+        const uid = w.uid;
+        const amount = Number(w.amount || 0);
+        const userRef = uid ? doc(db, "users", uid) : null;
+        if (userRef) await tx.get(userRef);
 
-        if(userRef) await tx.get(userRef);
+        tx.update(wRef, { status, processedAt: serverTimestamp() });
 
-        const upd = { status: ns };
-        if(ns === "approved") upd.processedAt = serverTimestamp();
-        tx.update(wRef, upd);
+        if (status !== "approved") return;
+        if (!uid || !Number.isFinite(amount) || amount <= 0) return;
 
-        if(ns !== "approved") return;
-        if(!uid || !Number.isFinite(amount) || amount <= 0) return;
-
-        tx.set(userRef, { balance: increment(-amount) }, { merge:true });
+        tx.set(userRef, { balance: increment(-amount) }, { merge: true });
       });
     }
 
     document.addEventListener("click", async (e) => {
       const btn = e.target.closest("button[data-type][data-act][data-id]");
-      if(!btn) return;
+      if (!btn) return;
 
       const type = btn.getAttribute("data-type");
       const act  = btn.getAttribute("data-act");
       const id   = btn.getAttribute("data-id");
+      if (!id) return;
 
       btn.disabled = true;
 
-      try{
-        if(type === "pay"){
+      try {
+        if (type === "pay") {
           msg.textContent = "Updating payment…";
-          if(act === "approve") await setPaymentStatus(id, "verified");
-          if(act === "reject")  await setPaymentStatus(id, "rejected");
+          if (act === "approve") await setPaymentStatus(id, "verified");
+          if (act === "reject")  await setPaymentStatus(id, "rejected");
           msg.textContent = "✅ Payment updated.";
           await loadPendingPayments();
         }
 
-        if(type === "wd"){
+        if (type === "wd") {
           wMsg.textContent = "Updating withdrawal…";
-          if(act === "approve") await setWithdrawalStatus(id, "approved");
-          if(act === "reject")  await setWithdrawalStatus(id, "rejected");
+          if (act === "approve") await setWithdrawalStatus(id, "approved");
+          if (act === "reject")  await setWithdrawalStatus(id, "rejected");
           wMsg.textContent = "✅ Withdrawal updated.";
           await loadPendingWithdrawals();
         }
 
         await loadTotals();
-      }catch(err){
-        const t = errText(err);
-        if(type === "pay") msg.textContent = "❌ Payment update failed: " + t;
-        if(type === "wd")  wMsg.textContent = "❌ Withdrawal update failed: " + t;
-      }finally{
+
+      } catch (err) {
+        console.error(err);
+        if (type === "pay") msg.textContent = "❌ Payment update failed: " + errText(err);
+        if (type === "wd")  wMsg.textContent = "❌ Withdrawal update failed: " + errText(err);
+      } finally {
         btn.disabled = false;
       }
     });
 
     refreshBtn.addEventListener("click", async () => {
-      sysMsg.textContent = "";
       await loadPendingPayments();
       await loadPendingWithdrawals();
       await loadTotals();
     });
 
     logoutBtn.addEventListener("click", async () => {
-      try{ await signOut(auth); }catch(e){}
+      try { await signOut(auth); } catch {}
       window.location.replace("login.html");
     });
 
     onAuthStateChanged(auth, async (user) => {
-      if(!user){
-        window.location.replace("login.html");
+      if (!user) { window.location.replace("login.html"); return; }
+
+      // show UID always (so you can copy it)
+      adminInfo.textContent = `Checking… email: ${user.email || "-"} | UID: ${user.uid}`;
+
+      if (!ADMIN_UIDS.includes(user.uid)) {
+        adminInfo.textContent = "❌ Access denied (not admin).";
+        window.location.replace("dashboard.html");
         return;
       }
 
-      // ✅ Always show UID (so you can copy)
-      adminInfo.textContent = `✅ Signed in: ${user.email || "-"} | UID: ${user.uid}`;
-      console.log("ADMIN UID =", user.uid);
-
-      // If not admin, DON'T redirect (so you can still see UID)
-      if(!ADMIN_UIDS.includes(user.uid)){
-        sysMsg.textContent = "❌ Not admin. Add this UID to ADMIN_UIDS and Firestore Rules.";
-        return;
-      }
-
-      sysMsg.textContent = "✅ Admin access granted.";
+      adminInfo.textContent = `✅ Admin: ${user.email || "-"} | UID: ${user.uid}`;
       await loadPendingPayments();
       await loadPendingWithdrawals();
       await loadTotals();
