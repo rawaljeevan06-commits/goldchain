@@ -1961,3 +1961,26 @@ body::before{
 .page-bottom-space{
   padding-bottom: 55px;
 }
+/* ===== Plans Grid Layout Fix ===== */
+
+.plan-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 25px;
+  margin-top: 40px;
+}
+
+/* Plan Card Look Upgrade */
+.plan-card{
+  padding: 30px 20px;
+  border-radius: 18px;
+  backdrop-filter: blur(12px);
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  transition: 0.3s ease;
+}
+
+.plan-card:hover{
+  transform: translateY(-6px);
+  box-shadow: 0 0 30px rgba(250,204,21,0.25);
+}
