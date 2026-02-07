@@ -75,7 +75,8 @@
     import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
     import {
       collection, query, where, limit, getDocs,
-      addDoc, serverTimestamp
+      addDoc, serverTimestamp,
+      doc, getDoc
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
     const userEmailEl = document.getElementById("userEmail");
@@ -93,29 +94,33 @@
 
     document.getElementById("backBtn").onclick = () => window.location.href="dashboard.html";
     document.getElementById("logoutBtn").onclick = async () => {
-      try{ await signOut(auth); }catch(e){}
+      try { await signOut(auth); } catch(e) {}
       window.location.replace("login.html");
     };
 
     function money(n){ return `$${Number(n||0).toFixed(2)}`; }
     function setMsg(t){ msgEl.textContent = t || ""; }
 
-    function percentByAmount(amount){
-      const a = Number(amount)||0;
-      if (a >= 5000) return 4;
-      if (a >= 1000) return 3;
-      if (a >= 700)  return 2;
-      if (a >= 350)  return 1.5;
+    // ✅ FINAL RULES (MONTHLY)
+    // 350/700/1000 => 16% monthly
+    // 5000+        => 18% monthly
+    function monthlyPercentByPlanAmount(planAmount){
+      const a = Number(planAmount)||0;
+      if (a >= 5000) return 18;
+      if (a >= 350)  return 16;
       return 0;
     }
-    function lockDaysByAmount(amount){
-      const a = Number(amount)||0;
-      if (a >= 5000) return 7;
-      if (a >= 1000) return 15;
-      if (a >= 700)  return 30;
-      if (a >= 350)  return 45;
+
+    // ✅ Lock days by plan (same timeline you wanted)
+    function lockDaysByPlanAmount(planAmount){
+      const a = Number(planAmount)||0;
+      if (a >= 5000) return 7;   // VIP weekly withdrawal
+      if (a >= 1000) return 15;  // Pro
+      if (a >= 700)  return 30;  // Growth
+      if (a >= 350)  return 45;  // Starter
       return 999999;
     }
+
     function tsToDate(x){
       try{
         if(!x) return null;
@@ -123,11 +128,18 @@
         return new Date(x);
       }catch{ return null; }
     }
+
     function daysBetween(d1, d2){
       return Math.floor((d2-d1)/(1000*60*60*24));
     }
 
-    async function getVerifiedPayment(user){
+    async function getUserProfile(uid){
+      const snap = await getDoc(doc(db, "users", uid));
+      if (!snap.exists()) return null;
+      return snap.data();
+    }
+
+    async function getLatestVerifiedPayment(user){
       const qv = query(
         collection(db, "payments"),
         where("uid", "==", user.uid),
@@ -139,20 +151,7 @@
       return { id: snap.docs[0].id, ...snap.docs[0].data() };
     }
 
-    async function getApprovedSum(user){
-      const qa = query(
-        collection(db, "withdrawals"),
-        where("uid", "==", user.uid),
-        where("status", "==", "approved"),
-        limit(200)
-      );
-      const snap = await getDocs(qa);
-      let sum=0;
-      snap.forEach(d => sum += Number(d.data().amount||0));
-      return sum;
-    }
-
-    async function hasPending(user){
+    async function hasPendingWithdrawal(user){
       const qp = query(
         collection(db, "withdrawals"),
         where("uid", "==", user.uid),
@@ -164,11 +163,13 @@
     }
 
     let STATE = {
-      user:null,
-      verified:null,
-      available:0,
-      locked:true,
-      pending:false
+      user: null,
+      profile: null,
+      verified: null,
+      locked: true,
+      pending: false,
+      available: 0,
+      planAmount: 0
     };
 
     function renderUI(){
@@ -177,29 +178,32 @@
         planText.textContent = "—";
         profitText.textContent = "—";
         availableEl.textContent = "$0.00";
-        lockInfoEl.textContent = "You must be verified to withdraw.";
+        lockInfoEl.textContent = "You must have a verified deposit to withdraw.";
         submitBtn.disabled = true;
         return;
       }
 
-      const principal = Number(STATE.verified.amount||0);
-      const pct = percentByAmount(principal);
-      const lockDays = lockDaysByAmount(principal);
+      const planAmt = Number(STATE.planAmount || 0);
+      const pctMonthly = monthlyPercentByPlanAmount(planAmt);
+      const lockDays = lockDaysByPlanAmount(planAmt);
 
       statusText.textContent = "✅ Verified — You can request withdrawal";
-      planText.textContent = `${STATE.verified.planName || "Verified Plan"} ($${principal} • ${pct}% weekly)`;
-      profitText.textContent = `Weekly profit estimate: ${money((principal*pct)/100)}`;
+      planText.textContent = `${STATE.verified.planName || "Selected Plan"} ($${planAmt} • ${pctMonthly}% monthly)`;
+
+      // Monthly estimate (informational)
+      const monthlyProfit = (planAmt * pctMonthly) / 100;
+      profitText.textContent = `Estimated monthly profit: ${money(monthlyProfit)} (informational)`;
 
       availableEl.textContent = money(STATE.available);
 
       if(STATE.pending){
-        lockInfoEl.textContent = "Withdrawal request already submitted (pending).";
+        lockInfoEl.textContent = "⏳ You already have a pending withdrawal request.";
         submitBtn.disabled = true;
         return;
       }
 
       if(STATE.locked){
-        lockInfoEl.textContent = `Withdrawal locked by plan rule.`;
+        lockInfoEl.textContent = `🔒 Withdrawal locked. Available after ${lockDays} days from verification.`;
         submitBtn.disabled = true;
         return;
       }
@@ -210,9 +214,17 @@
 
     async function loadState(){
       setMsg("");
-
       const user = STATE.user;
-      const verified = await getVerifiedPayment(user);
+
+      // ✅ user profile (balance + plan)
+      const profile = await getUserProfile(user.uid);
+      STATE.profile = profile;
+
+      const planAmt = Number(profile?.plan || profile?.planAmount || 0);
+      STATE.planAmount = planAmt;
+
+      // ✅ must have at least one verified payment
+      const verified = await getLatestVerifiedPayment(user);
       STATE.verified = verified;
 
       if(!verified){
@@ -223,22 +235,22 @@
         return;
       }
 
-      const principal = Number(verified.amount||0);
-      const pct = percentByAmount(principal);
-      const lockDays = lockDaysByAmount(principal);
+      // ✅ available = balance (admin updates this when payment verified / withdrawal approved)
+      const balance = Number(profile?.balance || 0);
+      STATE.available = Math.max(0, balance);
 
+      // ✅ pending?
+      STATE.pending = await hasPendingWithdrawal(user);
+
+      // ✅ lock check from verified time
+      const lockDays = lockDaysByPlanAmount(planAmt);
       const vAt = tsToDate(verified.verifiedAt || verified.createdAt);
       const now = new Date();
       const days = vAt ? daysBetween(vAt, now) : 0;
 
-      const earned = (principal * (pct/100)) * (days/7);
-      const approved = await getApprovedSum(user);
-      const available = Math.max(0, earned - approved);
-
-      STATE.available = available;
-      STATE.pending = await hasPending(user);
       STATE.locked = (days < lockDays);
 
+      // If locked, you can still SHOW balance but disable request
       renderUI();
     }
 
@@ -274,9 +286,8 @@
         return;
       }
 
-      // Create withdrawal request
-      const principal = Number(STATE.verified.amount||0);
-      const pct = percentByAmount(principal);
+      const planAmt = Number(STATE.planAmount || 0);
+      const pctMonthly = monthlyPercentByPlanAmount(planAmt);
 
       submitBtn.disabled = true;
       setMsg("Submitting…");
@@ -293,11 +304,10 @@
           createdAt: serverTimestamp(),
 
           planName: STATE.verified.planName || "",
-          principal,
-          weeklyPercent: pct,
+          planAmount: planAmt,
+          monthlyPercent: pctMonthly,
 
-          availableAtRequest: STATE.available,
-          earnedAtRequest: STATE.available + 0 // just info snapshot
+          balanceAtRequest: STATE.available
         });
 
         setMsg("✅ Withdrawal request submitted (pending).");
@@ -311,7 +321,10 @@
     });
 
     onAuthStateChanged(auth, async (user) => {
-      if(!user){ window.location.replace("login.html"); return; }
+      if(!user){
+        window.location.replace("login.html");
+        return;
+      }
       STATE.user = user;
       userEmailEl.textContent = user.email || "";
       await loadState();
