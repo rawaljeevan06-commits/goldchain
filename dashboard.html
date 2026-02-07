@@ -176,44 +176,50 @@
           </div>
         </div>
       </div>
-<!-- ✅ PAYMENT HISTORY -->
-<div class="card glass" style="margin-top:18px;">
-  <h2>Payment History</h2>
-  <p class="small" style="opacity:.85;">Your last 20 deposits</p>
-  <div style="overflow:auto; margin-top:10px;">
-    <table style="width:100%; border-collapse:collapse; min-width:800px;">
-      <thead>
-        <tr style="text-align:left; border-bottom:1px solid rgba(255,255,255,.15);">
-          <th style="padding:10px;">Time</th>
-          <th style="padding:10px;">Amount</th>
-          <th style="padding:10px;">Method</th>
-          <th style="padding:10px;">TXID</th>
-          <th style="padding:10px;">Status</th>
-        </tr>
-      </thead>
-      <tbody id="payHistBody"></tbody>
-    </table>
-  </div>
-</div>
 
-<!-- ✅ WITHDRAWAL HISTORY -->
-<div class="card glass" style="margin-top:18px;">
-  <h2>Withdrawal History</h2>
-  <p class="small" style="opacity:.85;">Your last 20 withdrawals</p>
-  <div style="overflow:auto; margin-top:10px;">
-    <table style="width:100%; border-collapse:collapse; min-width:800px;">
-      <thead>
-        <tr style="text-align:left; border-bottom:1px solid rgba(255,255,255,.15);">
-          <th style="padding:10px;">Time</th>
-          <th style="padding:10px;">Amount</th>
-          <th style="padding:10px;">Wallet</th>
-          <th style="padding:10px;">Status</th>
-        </tr>
-      </thead>
-      <tbody id="wdHistBody"></tbody>
-    </table>
-  </div>
-</div>
+      <!-- ✅ PAYMENT HISTORY -->
+      <div class="card glass" style="margin-top:18px;">
+        <h2>Payment History</h2>
+        <p class="small" style="opacity:.85;">Your last 20 deposits</p>
+        <div style="overflow:auto; margin-top:10px;">
+          <table style="width:100%; border-collapse:collapse; min-width:800px;">
+            <thead>
+              <tr style="text-align:left; border-bottom:1px solid rgba(255,255,255,.15);">
+                <th style="padding:10px;">Time</th>
+                <th style="padding:10px;">Amount</th>
+                <th style="padding:10px;">Method</th>
+                <th style="padding:10px;">TXID</th>
+                <th style="padding:10px;">Status</th>
+              </tr>
+            </thead>
+            <tbody id="payHistBody">
+              <tr><td colspan="5" class="small" style="padding:10px;">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ✅ WITHDRAWAL HISTORY -->
+      <div class="card glass" style="margin-top:18px;">
+        <h2>Withdrawal History</h2>
+        <p class="small" style="opacity:.85;">Your last 20 withdrawals</p>
+        <div style="overflow:auto; margin-top:10px;">
+          <table style="width:100%; border-collapse:collapse; min-width:800px;">
+            <thead>
+              <tr style="text-align:left; border-bottom:1px solid rgba(255,255,255,.15);">
+                <th style="padding:10px;">Time</th>
+                <th style="padding:10px;">Amount</th>
+                <th style="padding:10px;">Wallet</th>
+                <th style="padding:10px;">Status</th>
+              </tr>
+            </thead>
+            <tbody id="wdHistBody">
+              <tr><td colspan="4" class="small" style="padding:10px;">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <!-- ✅ LEGAL SHORT (DIRECTLY IN DASHBOARD) -->
       <div class="card glass" style="margin-top:18px;">
         <h2>Legal & Risk Disclosure</h2>
@@ -246,12 +252,12 @@
     </div>
   </footer>
 
-  <!-- ✅ REAL-TIME LIVE TICKER (Firestore latest verified deposit) -->
+  <!-- ✅ REAL-TIME LIVE TICKER (latest verified deposit) -->
   <div style="position:fixed; bottom:0; left:0; right:0; background:#111; color:#facc15; padding:8px; text-align:center; z-index:50;">
     <span id="liveTicker">Loading latest verified deposit...</span>
   </div>
 
-  <!-- ✅ ONE script only (module). Do NOT load firebase.js separately. -->
+  <!-- ✅ ONE script only (module). -->
   <script type="module">
     import { auth, db } from "./js/firebase.js";
     import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
@@ -261,7 +267,7 @@
       onSnapshot
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-    // OPTIONAL: Admin UIDs
+    // ✅ If you want admin redirect, put UID(s) here
     const ADMIN_UIDS = [
       // "YOUR_ADMIN_UID_HERE"
     ];
@@ -278,6 +284,27 @@
 
     const withdrawBtn = document.getElementById("withdrawBtn");
     const logoutBtn = document.getElementById("logoutBtn");
+
+    const payHistBody = document.getElementById("payHistBody");
+    const wdHistBody = document.getElementById("wdHistBody");
+
+    function money(n){
+      return Number(n || 0).toFixed(2);
+    }
+
+    function esc(s){
+      return String(s ?? "").replace(/[&<>"']/g, (c) => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+      }[c]));
+    }
+
+    // ✅ Monthly plan rate (Final)
+    function monthlyRate(planAmount){
+      const amt = Number(planAmount || 0);
+      if (amt >= 5000) return 18;
+      if (amt >= 350) return 16;
+      return 0;
+    }
 
     // ✅ Animated counters
     function startCounters(){
@@ -305,18 +332,15 @@
       const vipStatusEl = document.getElementById("vipStatusEl");
       const vipBadge = document.getElementById("vipBadge");
 
-      // VIP check (based on plan amount)
       const planAmt = Number(userPlanAmount || 0);
       const isVip = planAmt >= 5000;
       if (vipStatusEl) vipStatusEl.textContent = isVip ? "✅ VIP Member" : "Standard Member";
       if (vipBadge) vipBadge.style.display = isVip ? "inline-block" : "none";
 
-      // Today range
       const now = new Date();
       const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
       const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
 
-      // Payments: verified today
       const qTodayPay = query(
         collection(db, "payments"),
         where("status", "==", "verified"),
@@ -327,10 +351,9 @@
       onSnapshot(qTodayPay, (snap) => {
         let sum = 0;
         snap.forEach(d => sum += Number(d.data().amount || 0));
-        if (todayDepEl) todayDepEl.textContent = sum.toFixed(2);
+        if (todayDepEl) todayDepEl.textContent = money(sum);
       });
 
-      // Withdrawals: approved today
       const qTodayWd = query(
         collection(db, "withdrawals"),
         where("status", "==", "approved"),
@@ -341,7 +364,7 @@
       onSnapshot(qTodayWd, (snap) => {
         let sum = 0;
         snap.forEach(d => sum += Number(d.data().amount || 0));
-        if (todayWdEl) todayWdEl.textContent = sum.toFixed(2);
+        if (todayWdEl) todayWdEl.textContent = money(sum);
       });
     }
 
@@ -350,15 +373,13 @@
       const totalEl = document.getElementById("totalDepositsEl");
       const tickerEl = document.getElementById("liveTicker");
 
-      // Total verified deposits (live)
       const qTotal = query(collection(db, "payments"), where("status", "==", "verified"));
       onSnapshot(qTotal, (snap) => {
         let sum = 0;
         snap.forEach(d => sum += Number(d.data().amount || 0));
-        if (totalEl) totalEl.textContent = sum.toFixed(2);
+        if (totalEl) totalEl.textContent = money(sum);
       });
 
-      // Latest verified deposit (live)
       const qLatest = query(
         collection(db, "payments"),
         where("status", "==", "verified"),
@@ -367,15 +388,16 @@
       );
 
       onSnapshot(qLatest, (snap) => {
+        if (!tickerEl) return;
         if (snap.empty) {
-          if (tickerEl) tickerEl.textContent = "No verified deposits yet.";
+          tickerEl.textContent = "No verified deposits yet.";
           return;
         }
         const p = snap.docs[0].data();
-        const amt = Number(p.amount || 0).toFixed(2);
+        const amt = money(p.amount);
         const who = p.email || "Member";
         const plan = p.planName ? ` — ${p.planName}` : "";
-        if (tickerEl) tickerEl.textContent = `✅ Verified Deposit: $${amt} by ${who}${plan}`;
+        tickerEl.textContent = `✅ Verified Deposit: $${amt} by ${who}${plan}`;
       });
     }
 
@@ -401,9 +423,8 @@
         snap.forEach((d) => {
           const p = d.data();
           const email = (p.email || "").toString();
-          const amt = Number(p.amount || 0).toFixed(2);
+          const amt = money(p.amount);
 
-          // hide full email a bit
           let who = "Member";
           if (email.includes("@")) {
             const parts = email.split("@");
@@ -417,8 +438,8 @@
           html += `
             <div style="padding:10px; border-radius:12px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.03);">
               <div style="display:flex; justify-content:space-between; gap:10px;">
-                <span class="small" style="opacity:.9;">✅ ${who}${plan}</span>
-                <span class="small" style="font-weight:800;">$${amt}</span>
+                <span class="small" style="opacity:.9;">✅ ${esc(who)}${esc(plan)}</span>
+                <span class="small" style="font-weight:800;">$${esc(amt)}</span>
               </div>
               <div class="small" style="opacity:.6; margin-top:4px;">Verified deposit</div>
             </div>
@@ -426,6 +447,87 @@
         });
 
         box.innerHTML = html;
+      });
+    }
+
+    // ✅ Payment history (last 20 for this user)
+    function startPaymentHistory(uid){
+      if (!payHistBody) return;
+
+      const qPay = query(
+        collection(db, "payments"),
+        where("uid", "==", uid),
+        orderBy("createdAt", "desc"),
+        limit(20)
+      );
+
+      onSnapshot(qPay, (snap) => {
+        payHistBody.innerHTML = "";
+
+        if (snap.empty) {
+          payHistBody.innerHTML = `<tr><td colspan="5" class="small" style="padding:10px;">No payments yet.</td></tr>`;
+          return;
+        }
+
+        snap.forEach(docu => {
+          const p = docu.data();
+          const time = p.createdAt?.toDate ? p.createdAt.toDate().toLocaleString() : "—";
+          const amount = "$" + money(p.amount);
+          const method = p.method || "—";
+          const txid = (p.txid || "—").toString().slice(0, 18) + ((p.txid && p.txid.length > 18) ? "..." : "");
+          const status = p.status || "pending";
+
+          const tr = document.createElement("tr");
+          tr.style.borderBottom = "1px solid rgba(255,255,255,.08)";
+          tr.innerHTML = `
+            <td style="padding:10px;">${esc(time)}</td>
+            <td style="padding:10px;">${esc(amount)}</td>
+            <td style="padding:10px;">${esc(method)}</td>
+            <td style="padding:10px; word-break:break-all;">${esc(txid)}</td>
+            <td style="padding:10px;">${esc(status)}</td>
+          `;
+          payHistBody.appendChild(tr);
+        });
+      });
+    }
+
+    // ✅ Withdrawal history (last 20 for this user)
+    function startWithdrawalHistory(uid){
+      if (!wdHistBody) return;
+
+      const qWd = query(
+        collection(db, "withdrawals"),
+        where("uid", "==", uid),
+        orderBy("createdAt", "desc"),
+        limit(20)
+      );
+
+      onSnapshot(qWd, (snap) => {
+        wdHistBody.innerHTML = "";
+
+        if (snap.empty) {
+          wdHistBody.innerHTML = `<tr><td colspan="4" class="small" style="padding:10px;">No withdrawals yet.</td></tr>`;
+          return;
+        }
+
+        snap.forEach(docu => {
+          const w = docu.data();
+          const time = w.createdAt?.toDate ? w.createdAt.toDate().toLocaleString() : "—";
+          const amount = "$" + money(w.amount);
+          const walletRaw = (w.wallet || w.walletAddress || "—").toString();
+          const wallet = walletRaw.length > 16 ? walletRaw.slice(0, 10) + "..." + walletRaw.slice(-4) : walletRaw;
+          const status = w.status || "pending";
+
+          const tr = document.createElement("tr");
+          tr.style.borderBottom = "1px solid rgba(255,255,255,.08)";
+          tr.innerHTML = `
+            <td style="padding:10px;">${esc(time)}</td>
+            <td style="padding:10px;">${esc(amount)}</td>
+            <td style="padding:10px; word-break:break-all;">${esc(wallet)}</td>
+            <td style="padding:10px;">${esc(status)}</td>
+          `;
+          wdHistBody.appendChild(tr);
+        });
       });
     }
 
@@ -462,10 +564,14 @@
 
       emailEl.textContent = user.email || user.uid;
 
-      // Start visuals + realtime
+      // visuals + realtime
       startCounters();
       startRealtimeDeposits();
       startLiveDepositList();
+
+      // ✅ histories
+      startPaymentHistory(user.uid);
+      startWithdrawalHistory(user.uid);
 
       // Load user profile
       try {
@@ -478,14 +584,20 @@
 
         const data = snap.data();
 
-        balanceEl.textContent = Number(data.balance || 0).toFixed(2);
+        balanceEl.textContent = money(data.balance || 0);
 
-        if (data.createdAt?.toDate) createdEl.textContent = data.createdAt.toDate().toLocaleString();
-        else createdEl.textContent = "—";
+        createdEl.textContent = data.createdAt?.toDate ? data.createdAt.toDate().toLocaleString() : "—";
 
-        // Use numeric plan amount if you store it as plan: 350/700/1000/5000
+        // ✅ plan stored as number: 350/700/1000/5000
         const planAmount = Number(data.plan || 0);
-        planEl.textContent = planAmount ? `Selected Plan: $${planAmount}` : "No plan selected";
+        const rate = monthlyRate(planAmount);
+
+        // ✅ show plan + monthly percent (fix inconsistency)
+        if (planAmount > 0) {
+          planEl.textContent = `Selected Plan: $${planAmount} — ${rate}% monthly`;
+        } else {
+          planEl.textContent = "No plan selected";
+        }
 
         // ✅ Today stats + VIP based on plan
         startTodayStats(planAmount);
@@ -497,7 +609,7 @@
         }
 
         if (myRefCodeEl) myRefCodeEl.value = data.referralCode || "";
-        if (refEarnEl) refEarnEl.textContent = Number(data.referralEarnings || 0).toFixed(2);
+        if (refEarnEl) refEarnEl.textContent = money(data.referralEarnings || 0);
 
       } catch (e) {
         console.log("Dashboard load error:", e);
