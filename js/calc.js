@@ -1,28 +1,37 @@
-// GoldChain Calculator FINAL (v8)
+// GoldChain Calculator FINAL (v9) - Force Override
 
 document.addEventListener("DOMContentLoaded", function () {
   const input  = document.getElementById("amountInput");
-  const btn    = document.getElementById("calcBtn");
   const result = document.getElementById("resultEl");
+  let btn      = document.getElementById("calcBtn");
 
-  console.log("✅ CALC V8 LOADED");
+  console.log("✅ CALC V9 LOADED");
 
   if (!input || !btn || !result) {
-    console.log("❌ Calculator elements missing");
+    console.log("❌ Calculator elements missing", { input: !!input, btn: !!btn, result: !!result });
     return;
   }
 
+  // 🔥 Remove ANY previous click listeners by cloning the button
+  const newBtn = btn.cloneNode(true);
+  btn.parentNode.replaceChild(newBtn, btn);
+  btn = newBtn;
+
   function toNumber(val) {
-    // remove $ commas spaces and any non-number except dot
     const cleaned = String(val || "").replace(/[^0-9.]/g, "");
     return Number(cleaned);
   }
 
   function calculate(e) {
-    if (e) e.preventDefault();
+    // 🔥 Stop other scripts from running on this click
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (typeof e.stopImmediatePropagation === "function") e.stopImmediatePropagation();
+    }
 
     const amount = toNumber(input.value);
-    console.log("calc amount raw =", input.value, "parsed =", amount);
+    console.log("calc raw =", input.value, "parsed =", amount);
 
     if (!amount || amount <= 0) {
       result.innerHTML = "❌ Enter valid amount.";
@@ -54,7 +63,7 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    const monthlyProfit = amount * monthlyRate;
+    const monthlyProfit  = amount * monthlyRate;
     const weeklyEstimate = amount * (monthlyRate / 4);
 
     result.innerHTML =
@@ -64,10 +73,10 @@ document.addEventListener("DOMContentLoaded", function () {
       "<span class='small'><b>Withdraw Policy:</b> " + withdrawText + "</span>";
   }
 
-  // Make sure it triggers
-  btn.addEventListener("click", calculate);
+  // 🔥 Capture mode so we run FIRST, and stop others
+  btn.addEventListener("click", calculate, true);
 
-  // Also allow Enter key
+  // Enter key
   input.addEventListener("keydown", (ev) => {
     if (ev.key === "Enter") calculate(ev);
   });
