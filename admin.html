@@ -102,11 +102,11 @@
     import {
       collection, query, where, orderBy, limit, getDocs,
       doc, serverTimestamp,
-      runTransaction, increment,
-      addDoc
+      runTransaction, increment
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-    const ADMIN_UIDS = ["40B1eYKROIXFAZLpelBhjjFTDm72"]; // your admin uid
+    // ✅ Your admin UID
+    const ADMIN_UIDS = ["40B1eYKROIXFAZLpelBhjjFTDm72"];
 
     const adminInfo = document.getElementById("adminInfo");
     const paymentsBody = document.getElementById("paymentsBody");
@@ -231,93 +231,6 @@
       }
     }
 
-    // ✅ Payment approve/reject + referral commissions (2 levels)
-    async function setPaymentStatus(paymentId, status) {
-      const payRef = doc(db, "payments", paymentId);
-
-      await runTransaction(db, async (tx) => {
-        const paySnap = await tx.get(payRef);
-        if (!paySnap.exists()) return;
-
-        const p = paySnap.data();
-        const currentStatus = String(p.status || "").toLowerCase();
-
-        // prevent double verify
-        if (currentStatus === "verified" && status === "verified") return;
-
-        const uid = p.uid;
-        const email = p.email || "";
-        const amount = Number(p.amount || 0);
-
-        // ✅ Update payment status
-        tx.update(payRef, { status, verifiedAt: serverTimestamp() });
-
-        // only do balance/commission when verified
-        if (status !== "verified") return;
-        if (!uid || !Number.isFinite(amount) || amount <= 0) return;
-
-        const userRef = doc(db, "users", uid);
-        const userSnap = await tx.get(userRef);
-
-        // create user doc if missing
-        if (!userSnap.exists()) {
-          tx.set(userRef, {
-            email,
-            balance: 0,
-            referralEarnings: 0,
-            createdAt: serverTimestamp()
-          });
-        }
-
-        // ✅ add payer balance
-        tx.update(userRef, { balance: increment(amount), paymentVerified: true });
-
-        // ✅ REFERRAL COMMISSION (ONLY ONCE PER PAYMENT)
-        if (!p.refPaid) {
-          const data = userSnap.exists() ? userSnap.data() : {};
-          const ref1 = data?.referredByUid || null;
-          const ref2 = data?.referredByUid2 || null;
-
-          const L1_RATE = 0.05; // 5%
-          const L2_RATE = 0.02; // 2%
-
-          const writeCommission = (toUid, level, rate) => {
-            const commissionAmount = Number((amount * rate).toFixed(2));
-            tx.set(doc(collection(db, "referral_commissions")), {
-              toUid,
-              fromUid: uid,
-              paymentId,
-              level,
-              rate,
-              depositAmount: amount,
-              commissionAmount,
-              at: serverTimestamp()
-            });
-            tx.update(doc(db, "users", toUid), {
-              referralEarnings: increment(commissionAmount)
-            });
-          };
-
-          if (ref1) writeCommission(ref1, 1, L1_RATE);
-          if (ref2) writeCommission(ref2, 2, L2_RATE);
-
-          // mark as paid so never repeats
-          tx.update(payRef, { refPaid: true });
-        }
-
-        // audit log
-        tx.set(doc(collection(db, "audit")), {
-          type: "payment_verified",
-          paymentId,
-          uid,
-          email,
-          amount,
-          byAdmin: auth.currentUser?.uid || "",
-          at: serverTimestamp()
-        });
-      });
-    }
-
     async function loadPendingWithdrawals() {
       if (!withdrawalsBody) return;
       withdrawalsBody.innerHTML = "";
@@ -372,28 +285,140 @@
       }
     }
 
+    // ✅ FIXED: transaction reads first, then writes (no invalid-argument)
+    async function setPaymentStatus(paymentId, status) {
+      const payRef = doc(db, "payments", paymentId);
+
+      await runTransaction(db, async (tx) => {
+        // ---------- READS FIRST ----------
+        const paySnap = await tx.get(payRef);
+        if (!paySnap.exists()) return;
+        const p = paySnap.data();
+
+        const currentStatus = String(p.status || "").toLowerCase();
+        if (currentStatus === "verified" && status === "verified") return;
+
+        const uid = p.uid;
+        const email = p.email || "";
+        const amount = Number(p.amount || 0);
+
+        const userRef = uid ? doc(db, "users", uid) : null;
+        const userSnap = userRef ? await tx.get(userRef) : null;
+
+        // referral users (optional)
+        let ref1Ref = null, ref2Ref = null;
+        let ref1Uid = null, ref2Uid = null;
+
+        if (status === "verified" && userSnap && userSnap.exists()) {
+          const uData = userSnap.data();
+          ref1Uid = uData?.referredByUid || null;
+          ref2Uid = uData?.referredByUid2 || null;
+          if (ref1Uid) ref1Ref = doc(db, "users", ref1Uid);
+          if (ref2Uid) ref2Ref = doc(db, "users", ref2Uid);
+        }
+
+        if (ref1Ref) await tx.get(ref1Ref);
+        if (ref2Ref) await tx.get(ref2Ref);
+
+        // ---------- WRITES AFTER READS ----------
+        const updateObj = { status };
+        if (status === "verified") updateObj.verifiedAt = serverTimestamp();
+        tx.update(payRef, updateObj);
+
+        if (status !== "verified") return;
+        if (!uid || !Number.isFinite(amount) || amount <= 0) return;
+
+        // ensure user doc exists
+        if (!userSnap || !userSnap.exists()) {
+          tx.set(userRef, {
+            email,
+            balance: 0,
+            referralEarnings: 0,
+            createdAt: serverTimestamp(),
+            paymentVerified: true
+          }, { merge: true });
+        }
+
+        // add payer balance + verified flag
+        tx.set(userRef, {
+          balance: increment(amount),
+          paymentVerified: true
+        }, { merge: true });
+
+        // referral commission ONLY ONCE
+        const alreadyPaid = !!p.refPaid;
+        if (!alreadyPaid) {
+          const L1_RATE = 0.05; // 5%
+          const L2_RATE = 0.02; // 2%
+
+          const writeCommission = (toUid, level, rate) => {
+            const commissionAmount = Number((amount * rate).toFixed(2));
+            const commRef = doc(collection(db, "referral_commissions"));
+
+            tx.set(commRef, {
+              toUid,
+              fromUid: uid,
+              paymentId,
+              level,
+              rate,
+              depositAmount: amount,
+              commissionAmount,
+              at: serverTimestamp()
+            });
+
+            // merge so it won't fail if doc doesn't exist
+            tx.set(doc(db, "users", toUid), {
+              referralEarnings: increment(commissionAmount)
+            }, { merge: true });
+          };
+
+          if (ref1Uid) writeCommission(ref1Uid, 1, L1_RATE);
+          if (ref2Uid) writeCommission(ref2Uid, 2, L2_RATE);
+
+          tx.set(payRef, { refPaid: true }, { merge: true });
+        }
+
+        // audit
+        tx.set(doc(collection(db, "audit")), {
+          type: "payment_verified",
+          paymentId,
+          uid,
+          email,
+          amount,
+          byAdmin: auth.currentUser?.uid || "",
+          at: serverTimestamp()
+        });
+      });
+    }
+
+    // ✅ FIXED: also reads user doc before updating balance
     async function setWithdrawalStatus(withdrawalId, status) {
       const wRef = doc(db, "withdrawals", withdrawalId);
 
       await runTransaction(db, async (tx) => {
+        // READS FIRST
         const wSnap = await tx.get(wRef);
         if (!wSnap.exists()) return;
-
         const w = wSnap.data();
+
         const currentStatus = String(w.status || "").toLowerCase();
-
         if (currentStatus === "approved" && status === "approved") return;
-
-        tx.update(wRef, { status, processedAt: serverTimestamp() });
-
-        if (status !== "approved") return;
 
         const uid = w.uid;
         const amount = Number(w.amount || 0);
+        const userRef = uid ? doc(db, "users", uid) : null;
+
+        if (userRef) await tx.get(userRef);
+
+        // WRITES
+        const upd = { status };
+        if (status === "approved") upd.processedAt = serverTimestamp();
+        tx.update(wRef, upd);
+
+        if (status !== "approved") return;
         if (!uid || !Number.isFinite(amount) || amount <= 0) return;
 
-        const userRef = doc(db, "users", uid);
-        tx.update(userRef, { balance: increment(-amount) });
+        tx.set(userRef, { balance: increment(-amount) }, { merge: true });
 
         tx.set(doc(collection(db, "audit")), {
           type: "withdrawal_approved",
@@ -461,8 +486,6 @@
 
       if (!ADMIN_UIDS.includes(user.uid)) {
         adminInfo.textContent = "❌ Access denied (not admin).";
-        if (paymentsBody) paymentsBody.innerHTML = "";
-        if (withdrawalsBody) withdrawalsBody.innerHTML = "";
         window.location.replace("dashboard.html");
         return;
       }
