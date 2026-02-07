@@ -485,33 +485,64 @@
   </script>
 
   <!-- Calculator -->
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const calcBtn = document.getElementById("calcBtn");
-      const amountInput = document.getElementById("amountInput");
-      const resultEl = document.getElementById("resultEl");
+ <!-- Calculator -->
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const calcBtn = document.getElementById("calcBtn");
+    const amountInput = document.getElementById("amountInput");
+    const resultEl = document.getElementById("resultEl");
 
-      if (!calcBtn || !amountInput || !resultEl) return;
+    if (!calcBtn || !amountInput || !resultEl) return;
 
-      calcBtn.addEventListener("click", () => {
-        const amount = parseFloat(amountInput.value);
+    function cleanNumber(v) {
+      return Number(String(v || "").replace(/[^0-9.]/g, ""));
+    }
 
-        if (!amount || amount <= 0) {
-          alert("Please enter a valid amount");
-          return;
-        }
+    calcBtn.addEventListener("click", () => {
+      const amount = cleanNumber(amountInput.value);
 
-        // default 16% monthly calculator (simple estimate)
-        const monthlyProfit = amount * 0.16;
-        const weeklyEstimate = monthlyProfit / 4;
+      if (!amount || amount <= 0) {
+        alert("Please enter a valid amount");
+        return;
+      }
 
-        resultEl.style.display = "block";
-        resultEl.innerHTML =
-          "Monthly Profit (16%): $ " + monthlyProfit.toFixed(2) +
-          "<br>Weekly Estimate: $ " + weeklyEstimate.toFixed(2);
-      });
+      // ✅ Your 4 plans logic
+      let rate = 0;
+      let planName = "";
+      let withdrawText = "";
+
+      if (amount >= 5000) {
+        rate = 0.18;
+        planName = "Premium";
+        withdrawText = "Profit withdraw after 7 days, capital + full 18% after 30 days";
+      } else if (amount >= 1000) {
+        rate = 0.16;
+        planName = "Pro";
+        withdrawText = "Withdraw after 15 days";
+      } else if (amount >= 700) {
+        rate = 0.16;
+        planName = "Growth";
+        withdrawText = "Withdraw after 1 month";
+      } else if (amount >= 350) {
+        rate = 0.16;
+        planName = "Starter";
+        withdrawText = "Withdraw after 45 days";
+      } else {
+        alert("Minimum investment is $350");
+        return;
+      }
+
+      const monthlyProfit = amount * rate;
+      const weeklyEstimate = monthlyProfit / 4;
+
+      resultEl.style.display = "block";
+      resultEl.innerHTML =
+        "<b>Plan:</b> " + planName +
+        "<br><b>Monthly Profit (" + (rate * 100) + "%):</b> $ " + monthlyProfit.toFixed(2) +
+        "<br><b>Weekly Estimate:</b> $ " + weeklyEstimate.toFixed(2) +
+        "<br><span class='small'><b>Withdraw Policy:</b> " + withdrawText + "</span>";
     });
-  </script>
-
+  });
+</script>
 </body>
 </html>
