@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Admin | Payments</title>
+  <title>Admin | GoldChain</title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
 
-  <div class="topbar">Admin Panel — Payment Verification</div>
+  <div class="topbar">Admin Panel — Payment & Withdrawal Verification</div>
 
   <header class="header">
     <div class="container header-in">
@@ -19,6 +19,7 @@
 
       <nav class="nav">
         <a href="admin.html" class="active">Admin Dashboard</a>
+        <a href="dashboard.html">User Dashboard</a>
       </nav>
 
       <div class="actions">
@@ -30,27 +31,34 @@
 
   <section class="section">
     <div class="container">
+
       <div class="card">
-        <h2>Pending Payments</h2>
-        <p class="small" id="adminInfo">Checking admin access…</p>
+        <h2>Admin Status</h2>
+        <p class="small" id="adminInfo">Checking…</p>
+        <p class="small" id="sysMsg" style="margin-top:8px;"></p>
+      </div>
 
-        <div class="dash-cards" style="margin-top:14px;">
-          <div class="card">
-            <h3>Total Verified Payments</h3>
-            <p class="big" id="tVerified">0</p>
-          </div>
-
-          <div class="card">
-            <h3>Total Approved Withdrawals</h3>
-            <p class="big" id="tApprovedWd">0</p>
-          </div>
-
-          <div class="card">
-            <h3>Totals</h3>
-            <p class="muted">Deposits / Withdrawals</p>
-            <p class="big" id="tMoney">$0.00 / $0.00</p>
-          </div>
+      <div class="dash-cards" style="margin-top:14px;">
+        <div class="card">
+          <h3>Total Verified Payments</h3>
+          <p class="big" id="tVerified">0</p>
         </div>
+
+        <div class="card">
+          <h3>Total Approved Withdrawals</h3>
+          <p class="big" id="tApprovedWd">0</p>
+        </div>
+
+        <div class="card">
+          <h3>Totals</h3>
+          <p class="muted">Deposits / Withdrawals</p>
+          <p class="big" id="tMoney">$0.00 / $0.00</p>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:14px;">
+        <h2>Pending Payments</h2>
+        <p class="small" id="msg" style="margin-top:8px;"></p>
 
         <div style="overflow:auto; margin-top:12px;">
           <table style="width:100%; border-collapse:collapse; min-width:900px;">
@@ -69,10 +77,9 @@
             <tbody id="paymentsBody"></tbody>
           </table>
         </div>
+      </div>
 
-        <p class="small" id="msg" style="margin-top:10px;"></p>
-
-        <hr style="margin:30px 0; opacity:.25;">
+      <div class="card" style="margin-top:14px;">
         <h2>Pending Withdrawals</h2>
         <p class="small" id="wMsg" style="margin-top:8px;"></p>
 
@@ -91,8 +98,8 @@
             <tbody id="withdrawalsBody"></tbody>
           </table>
         </div>
-
       </div>
+
     </div>
   </section>
 
@@ -101,14 +108,15 @@
     import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
     import {
       collection, query, where, orderBy, limit, getDocs,
-      doc, serverTimestamp,
-      runTransaction, increment
+      doc, serverTimestamp, runTransaction, increment
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-    // ✅ Your admin UID
+    // ✅ Put YOUR admin UID here
     const ADMIN_UIDS = ["40B1eYKROIXFAZLpelBhjjFTDm72"];
 
     const adminInfo = document.getElementById("adminInfo");
+    const sysMsg = document.getElementById("sysMsg");
+
     const paymentsBody = document.getElementById("paymentsBody");
     const withdrawalsBody = document.getElementById("withdrawalsBody");
 
@@ -144,8 +152,7 @@
     async function loadTotals(){
       try{
         const pSnap = await getDocs(query(collection(db,"payments"), limit(500)));
-        let verifiedCount = 0;
-        let depositSum = 0;
+        let verifiedCount = 0, depositSum = 0;
 
         pSnap.forEach(d=>{
           const p = d.data();
@@ -156,8 +163,7 @@
         });
 
         const wSnap = await getDocs(query(collection(db,"withdrawals"), limit(500)));
-        let approvedCount = 0;
-        let withdrawSum = 0;
+        let approvedCount = 0, withdrawSum = 0;
 
         wSnap.forEach(d=>{
           const w = d.data();
@@ -167,48 +173,45 @@
           }
         });
 
-        if(tVerified) tVerified.textContent = String(verifiedCount);
-        if(tApprovedWd) tApprovedWd.textContent = String(approvedCount);
-        if(tMoney) tMoney.textContent = `${money(depositSum)} / ${money(withdrawSum)}`;
+        tVerified.textContent = String(verifiedCount);
+        tApprovedWd.textContent = String(approvedCount);
+        tMoney.textContent = `${money(depositSum)} / ${money(withdrawSum)}`;
       }catch(e){
-        console.warn("Totals failed:", e);
+        sysMsg.textContent = "Totals failed: " + errText(e);
       }
     }
 
-    async function loadPendingPayments() {
-      if (!paymentsBody) return;
+    async function loadPendingPayments(){
       paymentsBody.innerHTML = "";
       msg.textContent = "Loading pending payments…";
 
-      try {
-        let q1 = query(
-          collection(db, "payments"),
-          where("status", "==", "pending"),
-          orderBy("createdAt", "desc"),
+      try{
+        const q1 = query(
+          collection(db,"payments"),
+          where("status","==","pending"),
+          orderBy("createdAt","desc"),
           limit(50)
         );
 
         let snap;
         try { snap = await getDocs(q1); }
-        catch (e) {
-          snap = await getDocs(query(
-            collection(db, "payments"),
-            where("status", "==", "pending"),
-            limit(50)
-          ));
+        catch {
+          snap = await getDocs(query(collection(db,"payments"), where("status","==","pending"), limit(50)));
         }
 
-        if (snap.empty) { msg.textContent = "✅ No pending payments."; return; }
+        if(snap.empty){
+          msg.textContent = "✅ No pending payments.";
+          return;
+        }
 
         msg.textContent = `Found ${snap.size} pending payment(s).`;
 
-        snap.forEach((docSnap) => {
-          const p  = docSnap.data();
-          const id = docSnap.id;
+        snap.forEach((d)=>{
+          const p = d.data();
+          const id = d.id;
 
           const tr = document.createElement("tr");
           tr.style.borderBottom = "1px solid rgba(255,255,255,.08)";
-
           tr.innerHTML = `
             <td style="padding:10px;">${esc(formatTime(p.createdAt))}</td>
             <td style="padding:10px;">${esc(p.email || p.uid || "-")}</td>
@@ -225,46 +228,42 @@
           paymentsBody.appendChild(tr);
         });
 
-      } catch (e) {
-        console.error(e);
+      }catch(e){
         msg.textContent = "❌ Failed to load payments: " + errText(e);
       }
     }
 
-    async function loadPendingWithdrawals() {
-      if (!withdrawalsBody) return;
+    async function loadPendingWithdrawals(){
       withdrawalsBody.innerHTML = "";
-      if (wMsg) wMsg.textContent = "Loading pending withdrawals…";
+      wMsg.textContent = "Loading pending withdrawals…";
 
-      try {
-        let q1 = query(
-          collection(db, "withdrawals"),
-          where("status", "==", "pending"),
-          orderBy("createdAt", "desc"),
+      try{
+        const q1 = query(
+          collection(db,"withdrawals"),
+          where("status","==","pending"),
+          orderBy("createdAt","desc"),
           limit(50)
         );
 
         let snap;
         try { snap = await getDocs(q1); }
-        catch (e) {
-          snap = await getDocs(query(
-            collection(db, "withdrawals"),
-            where("status", "==", "pending"),
-            limit(50)
-          ));
+        catch {
+          snap = await getDocs(query(collection(db,"withdrawals"), where("status","==","pending"), limit(50)));
         }
 
-        if (snap.empty) { if (wMsg) wMsg.textContent = "✅ No pending withdrawals."; return; }
+        if(snap.empty){
+          wMsg.textContent = "✅ No pending withdrawals.";
+          return;
+        }
 
-        if (wMsg) wMsg.textContent = `Found ${snap.size} pending withdrawal(s).`;
+        wMsg.textContent = `Found ${snap.size} pending withdrawal(s).`;
 
-        snap.forEach((docSnap) => {
-          const w  = docSnap.data();
-          const id = docSnap.id;
+        snap.forEach((d)=>{
+          const w = d.data();
+          const id = d.id;
 
           const tr = document.createElement("tr");
           tr.style.borderBottom = "1px solid rgba(255,255,255,.08)";
-
           tr.innerHTML = `
             <td style="padding:10px;">${esc(formatTime(w.createdAt))}</td>
             <td style="padding:10px;">${esc(w.email || w.uid || "-")}</td>
@@ -279,196 +278,142 @@
           withdrawalsBody.appendChild(tr);
         });
 
-      } catch (e) {
-        console.error(e);
-        if (wMsg) wMsg.textContent = "❌ Failed to load withdrawals: " + errText(e);
+      }catch(e){
+        wMsg.textContent = "❌ Failed to load withdrawals: " + errText(e);
       }
     }
 
-    // ✅ FIXED: transaction reads first, then writes (no invalid-argument)
-   async function setPaymentStatus(paymentId, status) {
-  const payRef = doc(db, "payments", paymentId);
+    // ✅ Reads first then writes (no invalid-argument)
+    async function setPaymentStatus(paymentId, newStatus){
+      const payRef = doc(db,"payments",paymentId);
 
-  await runTransaction(db, async (tx) => {
-    // ✅ READS FIRST
-    const paySnap = await tx.get(payRef);
-    if (!paySnap.exists()) return;
+      await runTransaction(db, async (tx) => {
+        const paySnap = await tx.get(payRef);
+        if(!paySnap.exists()) return;
 
-    const p = paySnap.data();
-    const currentStatus = String(p.status || "").toLowerCase();
-    if (currentStatus === "verified" && status === "verified") return;
+        const p = paySnap.data();
+        const current = String(p.status||"").toLowerCase();
+        const ns = String(newStatus||"").toLowerCase();
+        if(current === ns) return;
 
-    const uid = p.uid;
-    const email = p.email || "";
-    const amount = Number(p.amount || 0);
+        const uid = p.uid || "";
+        const email = p.email || "";
+        const amount = Number(p.amount||0);
 
-    const userRef = uid ? doc(db, "users", uid) : null;
-    const userSnap = userRef ? await tx.get(userRef) : null;
+        const userRef = uid ? doc(db,"users",uid) : null;
+        const userSnap = userRef ? await tx.get(userRef) : null;
 
-    // ✅ NOW WRITES
-    tx.update(payRef, { status, verifiedAt: serverTimestamp() });
+        tx.update(payRef, {
+          status: ns,
+          verifiedAt: ns === "verified" ? serverTimestamp() : null
+        });
 
-    if (status !== "verified") return;
-    if (!uid || !Number.isFinite(amount) || amount <= 0) return;
+        if(ns !== "verified") return;
+        if(!uid || !Number.isFinite(amount) || amount <= 0) return;
 
-    // create user doc if missing
-    if (!userSnap || !userSnap.exists()) {
-      tx.set(userRef, {
-        email,
-        balance: 0,
-        referralEarnings: 0,
-        createdAt: serverTimestamp()
+        if(!userSnap || !userSnap.exists()){
+          tx.set(userRef, { email, balance: 0, createdAt: serverTimestamp() }, { merge:true });
+        }
+
+        tx.set(userRef, { balance: increment(amount), paymentVerified: true }, { merge:true });
       });
     }
 
-    // add payer balance
-    tx.update(userRef, { balance: increment(amount), paymentVerified: true });
-
-    // referral commission only once
-    const userData = (userSnap && userSnap.exists()) ? userSnap.data() : {};
-    if (!p.refPaid) {
-      const ref1 = userData?.referredByUid || null;
-      const ref2 = userData?.referredByUid2 || null;
-
-      const L1_RATE = 0.05;
-      const L2_RATE = 0.02;
-
-      const writeCommission = (toUid, level, rate) => {
-        const commissionAmount = Number((amount * rate).toFixed(2));
-        tx.set(doc(collection(db, "referral_commissions")), {
-          toUid,
-          fromUid: uid,
-          paymentId,
-          level,
-          rate,
-          depositAmount: amount,
-          commissionAmount,
-          at: serverTimestamp()
-        });
-        tx.update(doc(db, "users", toUid), {
-          referralEarnings: increment(commissionAmount)
-        });
-      };
-
-      if (ref1) writeCommission(ref1, 1, L1_RATE);
-      if (ref2) writeCommission(ref2, 2, L2_RATE);
-
-      tx.update(payRef, { refPaid: true });
-    }
-
-    tx.set(doc(collection(db, "audit")), {
-      type: "payment_verified",
-      paymentId,
-      uid,
-      email,
-      amount,
-      byAdmin: auth.currentUser?.uid || "",
-      at: serverTimestamp()
-    });
-  });
-}
-
-    // ✅ FIXED: also reads user doc before updating balance
-    async function setWithdrawalStatus(withdrawalId, status) {
-      const wRef = doc(db, "withdrawals", withdrawalId);
+    async function setWithdrawalStatus(withdrawalId, newStatus){
+      const wRef = doc(db,"withdrawals",withdrawalId);
 
       await runTransaction(db, async (tx) => {
-        // READS FIRST
         const wSnap = await tx.get(wRef);
-        if (!wSnap.exists()) return;
+        if(!wSnap.exists()) return;
+
         const w = wSnap.data();
+        const current = String(w.status||"").toLowerCase();
+        const ns = String(newStatus||"").toLowerCase();
+        if(current === ns) return;
 
-        const currentStatus = String(w.status || "").toLowerCase();
-        if (currentStatus === "approved" && status === "approved") return;
+        const uid = w.uid || "";
+        const amount = Number(w.amount||0);
+        const userRef = uid ? doc(db,"users",uid) : null;
 
-        const uid = w.uid;
-        const amount = Number(w.amount || 0);
-        const userRef = uid ? doc(db, "users", uid) : null;
+        if(userRef) await tx.get(userRef);
 
-        if (userRef) await tx.get(userRef);
-
-        // WRITES
-        const upd = { status };
-        if (status === "approved") upd.processedAt = serverTimestamp();
+        const upd = { status: ns };
+        if(ns === "approved") upd.processedAt = serverTimestamp();
         tx.update(wRef, upd);
 
-        if (status !== "approved") return;
-        if (!uid || !Number.isFinite(amount) || amount <= 0) return;
+        if(ns !== "approved") return;
+        if(!uid || !Number.isFinite(amount) || amount <= 0) return;
 
-        tx.set(userRef, { balance: increment(-amount) }, { merge: true });
-
-        tx.set(doc(collection(db, "audit")), {
-          type: "withdrawal_approved",
-          withdrawalId,
-          uid,
-          amount,
-          byAdmin: auth.currentUser?.uid || "",
-          at: serverTimestamp()
-        });
+        tx.set(userRef, { balance: increment(-amount) }, { merge:true });
       });
     }
 
     document.addEventListener("click", async (e) => {
       const btn = e.target.closest("button[data-type][data-act][data-id]");
-      if (!btn) return;
+      if(!btn) return;
 
       const type = btn.getAttribute("data-type");
       const act  = btn.getAttribute("data-act");
       const id   = btn.getAttribute("data-id");
-      if (!id) return;
 
       btn.disabled = true;
 
-      try {
-        if (type === "pay") {
+      try{
+        if(type === "pay"){
           msg.textContent = "Updating payment…";
-          if (act === "approve") await setPaymentStatus(id, "verified");
-          if (act === "reject")  await setPaymentStatus(id, "rejected");
+          if(act === "approve") await setPaymentStatus(id, "verified");
+          if(act === "reject")  await setPaymentStatus(id, "rejected");
           msg.textContent = "✅ Payment updated.";
           await loadPendingPayments();
         }
 
-        if (type === "wd") {
-          if (wMsg) wMsg.textContent = "Updating withdrawal…";
-          if (act === "approve") await setWithdrawalStatus(id, "approved");
-          if (act === "reject")  await setWithdrawalStatus(id, "rejected");
-          if (wMsg) wMsg.textContent = "✅ Withdrawal updated.";
+        if(type === "wd"){
+          wMsg.textContent = "Updating withdrawal…";
+          if(act === "approve") await setWithdrawalStatus(id, "approved");
+          if(act === "reject")  await setWithdrawalStatus(id, "rejected");
+          wMsg.textContent = "✅ Withdrawal updated.";
           await loadPendingWithdrawals();
         }
 
         await loadTotals();
-
-      } catch (err) {
-        console.error(err);
-        if (type === "pay") msg.textContent = "❌ Payment update failed: " + errText(err);
-        if (type === "wd" && wMsg) wMsg.textContent = "❌ Withdrawal update failed: " + errText(err);
-      } finally {
+      }catch(err){
+        const t = errText(err);
+        if(type === "pay") msg.textContent = "❌ Payment update failed: " + t;
+        if(type === "wd")  wMsg.textContent = "❌ Withdrawal update failed: " + t;
+      }finally{
         btn.disabled = false;
       }
     });
 
-    refreshBtn?.addEventListener("click", async () => {
+    refreshBtn.addEventListener("click", async () => {
+      sysMsg.textContent = "";
       await loadPendingPayments();
       await loadPendingWithdrawals();
       await loadTotals();
     });
 
-    logoutBtn?.addEventListener("click", async () => {
-      try { await signOut(auth); } catch (e) {}
+    logoutBtn.addEventListener("click", async () => {
+      try{ await signOut(auth); }catch(e){}
       window.location.replace("login.html");
     });
 
     onAuthStateChanged(auth, async (user) => {
-      if (!user) { window.location.replace("login.html"); return; }
-
-      if (!ADMIN_UIDS.includes(user.uid)) {
-        adminInfo.textContent = "❌ Access denied (not admin).";
-        window.location.replace("dashboard.html");
+      if(!user){
+        window.location.replace("login.html");
         return;
       }
 
-     adminInfo.textContent = ⁠ ✅ Admin: ${user.email || "-"} | UID: ${user.uid} ⁠;
-console.log("✅ ADMIN UID =", user.uid);
+      // ✅ Always show UID (so you can copy)
+      adminInfo.textContent = `✅ Signed in: ${user.email || "-"} | UID: ${user.uid}`;
+      console.log("ADMIN UID =", user.uid);
+
+      // If not admin, DON'T redirect (so you can still see UID)
+      if(!ADMIN_UIDS.includes(user.uid)){
+        sysMsg.textContent = "❌ Not admin. Add this UID to ADMIN_UIDS and Firestore Rules.";
+        return;
+      }
+
+      sysMsg.textContent = "✅ Admin access granted.";
       await loadPendingPayments();
       await loadPendingWithdrawals();
       await loadTotals();
