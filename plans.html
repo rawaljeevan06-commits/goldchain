@@ -3,160 +3,147 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Plans | GoldChain</title>
+  <title>Our Impact | GoldChain Investment</title>
+
   <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
-
 <body>
-  <div class="topbar">GoldChain Investment Plans — Choose what fits you.</div>
 
-  <main class="container" style="padding:24px 0;">
-    <h1>All Plans</h1>
-    <div style="display:flex; justify-content:flex-end; margin-top:15px;">
-  <a href="dashboard.html" class="btn btn-ghost">← Back to Dashboard</a>
-</div>
-    <p class="muted">Select a plan to continue to dashboard.</p>
+  <div class="topbar">Our Impact — Transparency • Simplicity • Support</div>
 
-    <div class="grid plans">
+  <header class="header">
+    <div class="container header-in">
+      <a class="brand" href="index.html">
+        <img src="images/logo.png" alt="GoldChain Logo">
+        <span>GoldChain</span>
+      </a>
 
-      <div class="plan-card">
-        <h3>Starter Plan</h3>
-        <p><b>$350</b> — <b>16%</b> monthly</p>
-        <p class="muted">Withdraw after 45 days</p>
+      <button class="nav-toggle" type="button" aria-label="Menu">☰</button>
 
-        <!-- ONLY ONE BUTTON -->
-        <button class="btn btn-primary pay-btn"
-          data-name="Starter Plan"
-          data-amount="350"
-          data-percent="16"
-          data-withdraw="After 45 days">
-          Choose Plan
-        </button>
+      <nav class="nav">
+        <a href="index.html">Home</a>
+        <a href="plans.html">Plans</a>
+        <a href="about.html" class="active">Our Impact</a>
+        <a href="faq.html">FAQ</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+
+      <div class="actions">
+        <a class="btn btn-ghost" href="login.html">Login</a>
+        <a class="btn btn-primary" href="signup.html">Sign Up</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero bg" style="background-image:url('images/bg2.jpg')">
+    <div class="container hero-grid">
+
+      <div>
+        <h1>Our Impact</h1>
+        <p>We focus on a clear, user-friendly experience so people understand plans and timelines easily.</p>
+
+        <div class="badges">
+          <span class="badge">Transparency</span>
+          <span class="badge">User Respect</span>
+          <span class="badge">Long-Term Vision</span>
+        </div>
       </div>
 
-      <div class="plan-card">
-        <h3>Growth Plan</h3>
-        <p><b>$700</b> — <b>16%</b> monthly</p>
-        <p class="muted">Withdraw after 1 month</p>
+      <!-- ✅ Keep ONLY ONE card here (no nesting inside) -->
+      <div class="card glass" style="padding:18px;">
+        <h3 style="margin-bottom:8px;">Our Philosophy</h3>
 
-        <!-- ONLY ONE BUTTON -->
-        <button class="btn btn-primary pay-btn"
-          data-name="Growth Plan"
-          data-amount="700"
-          data-percent="16"
-          data-withdraw="After 1 month">
-          Choose Plan
-        </button>
-      </div>
+        <!-- ✅ FIX: no weird letter mixing, remove letter-spacing -->
+        <p class="small" style="line-height:1.85; margin:0;">
+          Simple structure. Clear information. Responsible participation mindset.
+        </p>
 
-      <div class="plan-card">
-        <h3>Gold Plan</h3>
-        <p><b>$1000</b> — <b>16%</b> monthly</p>
-        <p class="muted">Withdraw after 15 days</p>
-
-        <!-- ONLY ONE BUTTON -->
-        <button class="btn btn-primary pay-btn"
-          data-name="Gold Plan"
-          data-amount="1000"
-          data-percent="16"
-          data-withdraw="After 15 days">
-          Choose Plan
-        </button>
-      </div>
-
-      <div class="plan-card">
-        <h3>VIP Plan</h3>
-        <p><b>$5000+</b> — <b>18%</b> monthly</p>
-        <p class="muted">Withdraw weekly</p>
-
-        <!-- ONLY ONE BUTTON -->
-        <button class="btn btn-primary pay-btn"
-          data-name="VIP Plan"
-          data-amount="5000"
-          data-percent="18"
-          data-withdraw="Weekly">
-          Choose Plan
-        </button>
+        <a class="btn btn-ghost" href="contact.html" style="margin-top:12px;">Talk With Us</a>
       </div>
 
     </div>
+  </section>
 
-    <div style="margin-top:16px;">
-      <button id="resetPlanBtn" class="btn btn-outline" type="button">
-        Clear Selected Plan
-      </button>
+  <!-- ✅ Our Commitment (SEPARATE section - not inside hero card) -->
+  <section class="section">
+    <div class="container">
+
+      <div class="card glass" style="text-align:center; max-width:900px; margin:0 auto;">
+        <h3>Our Commitment</h3>
+        <p class="small" style="line-height:1.8; margin-top:10px;">
+          GoldChain Investment operates with structured workflows, manual verification procedures,
+          and a transparency-first mindset. We prioritize clarity and responsible participation.
+        </p>
+      </div>
+
+      <!-- Impact Numbers -->
+      <div class="card glass" style="margin-top:18px; text-align:center;">
+        <h2 style="margin:0;">Impact in Numbers</h2>
+
+        <div style="display:flex; justify-content:center; gap:60px; flex-wrap:wrap; margin-top:18px;">
+          <div>
+            <h3 style="color:#facc15; margin:0;">1,200+</h3>
+            <p class="small" style="margin-top:6px;">Registered Members</p>
+          </div>
+
+          <div>
+            <h3 style="color:#facc15; margin:0;">$250K+</h3>
+            <p class="small" style="margin-top:6px;">Deposits Processed</p>
+          </div>
+
+          <div>
+            <h3 style="color:#facc15; margin:0;">98%</h3>
+            <p class="small" style="margin-top:6px;">Approval Rate</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mission / Vision / Values -->
+      <div class="grid" style="grid-template-columns:repeat(3,1fr); gap:16px; margin-top:18px;">
+        <div class="card glass">
+          <h3>Mission</h3>
+          <p class="small">Present plans clearly and help users make informed decisions.</p>
+        </div>
+
+        <div class="card glass">
+          <h3>Vision</h3>
+          <p class="small">Build a trusted platform focused on clarity, education, and support.</p>
+        </div>
+
+        <div class="card glass">
+          <h3>Values</h3>
+          <p class="small">Transparency, simplicity, and respect for users.</p>
+        </div>
+      </div>
+
+      <div class="chart-box" style="margin-top:18px;">
+        <p class="small">
+          <strong>Notice:</strong> Participation involves risk. Always read terms and participate responsibly.
+        </p>
+      </div>
+
     </div>
-  </main>
+  </section>
 
-  <!-- ONE SINGLE SCRIPT (no other plan scripts on this page) -->
-  <script type="module">
-    // Try to use your storage helper if it exists, otherwise fallback to localStorage
-    let setStoredSafe = null;
+  <footer class="footer">
+    <div class="container footer-in">
+      <p class="small">©️ 2026 GoldChain Investment. All rights reserved.</p>
 
-    try {
-      const mod = await import("./js/storage.js");
-      setStoredSafe = mod.setStored;
-    } catch (e) {
-      setStoredSafe = null;
-    }
+      <div class="social">
+        <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+      </div>
+    </div>
+  </footer>
 
-    function setKey(key, value) {
-      // value must be string in storage
-      if (setStoredSafe) {
-        return setStoredSafe(key, value);
-      }
-      try {
-        localStorage.setItem(key, value);
-        return true;
-      } catch (e) {
-        return false;
-      }
-    }
+  <a class="whatsapp-float" href="https://wa.me/9779851406537" target="_blank" aria-label="WhatsApp Chat">
+    <i class="fab fa-whatsapp"></i>
+  </a>
 
-    function removeKey(key) {
-      try { localStorage.removeItem(key); } catch (e) {}
-    }
-
-    const PLAN_KEY = "selectedPlan";
-
-    function savePlan(planObj) {
-      const ok = setKey(PLAN_KEY, JSON.stringify(planObj));
-      if (!ok) {
-        alert("Storage blocked in this browser. Turn off Private Mode or allow site data.");
-        return;
-      }
-
-      // Optional: store a simple name too (helps if old dashboard code expects string)
-      setKey("selectedPlanName", planObj.name);
-
-      alert("✅ Plan selected: " + planObj.name);
-      window.location.href = "dashboard.html";
-    }
-
-    // Click handler for all plan buttons
-    document.querySelectorAll(".pay-btn").forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        e.preventDefault();
-        const planObj = {
-          name: btn.dataset.name,
-          amount: Number(btn.dataset.amount || 0),
-          percent: Number(btn.dataset.percent || 0),
-          withdraw: btn.dataset.withdraw || ""
-        };
-        savePlan(planObj);
-      });
-    });
-
-    // Clear plan
-    const resetBtn = document.getElementById("resetPlanBtn");
-    if (resetBtn) {
-      resetBtn.addEventListener("click", () => {
-        removeKey(PLAN_KEY);
-        removeKey("selectedPlanName");
-        alert("Selected plan cleared.");
-      });
-    }
-  </script>
-
+  <script src="js/main.js"></script>
 </body>
 </html>
