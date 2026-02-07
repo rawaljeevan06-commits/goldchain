@@ -1,116 +1,84 @@
-import { auth, db } from "./firebase.js";
-import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-import {
-  collection, query, where, orderBy, limit, getDocs,
-  addDoc, serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+// js/withdrawal.js
 
-const statusMsg = document.getElementById("statusMsg");
-const withdrawForm = document.getElementById("withdrawForm");
-const logoutBtn = document.getElementById("logoutBtn");
+document.addEventListener("DOMContentLoaded", () => {
+  const planData = JSON.parse(localStorage.getItem("activePlan"));
 
-function planWithdrawDays(planName = "") {
-  const p = planName.toLowerCase();
-  if (p.includes("basic") || p.includes("350")) return 45;
-  if (p.includes("growth") || p.includes("700")) return 30;
-  if (p.includes("pro") || p.includes("1000")) return 15;
-  if (p.includes("vip") || p.includes("5000") || p.includes("above")) return 7;
-  return 45;
-}
+  const statusEl = document.getElementById("withdrawStatus");
+  const balanceEl = document.getElementById("availableBalance");
 
-function toDateSafe(ts) {
-  if (!ts) return null;
-  if (typeof ts.toDate === "function") return ts.toDate();
-  const d = new Date(ts);
-  return isNaN(d.getTime()) ? null : d;
-}
-
-function daysBetween(a, b) {
-  return Math.floor((b.getTime() - a.getTime()) / (1000 * 60 * 60 * 24));
-}
-
-logoutBtn.addEventListener("click", async () => {
-  try { await signOut(auth); } catch(e) {}
-  window.location.replace("login.html");
-});
-
-onAuthStateChanged(auth, async (user) => {
-  if (!user) {
-    window.location.replace("login.html");
+  if (!planData) {
+    statusEl.textContent = "No active investment found.";
     return;
   }
 
-  statusMsg.textContent = "Checking payment status…";
+  const now = new Date().getTime();
+  const startDate = new Date(planData.startDate).getTime();
 
-  try {
-    // Get the latest payment for this user
-    const q = query(
-      collection(db, "payments"),
-      where("uid", "==", user.uid),
-      orderBy("createdAt", "desc"),
-      limit(1)
-    );
+  if (!startDate || isNaN(startDate)) {
+    statusEl.textContent = "Investment date missing.";
+    return;
+  }
 
-    const snap = await getDocs(q);
+  const daysPassed = Math.floor((now - startDate) / (1000 * 60 * 60 * 24));
 
-    if (snap.empty) {
-      statusMsg.textContent = "❌ No payment found. Please complete payment first.";
-      return;
-    }
+  let lockDays = 0;
+  let availableBalance = 0;
 
-    const pay = snap.docs[0].data();
-    const st = (pay.status || "").toLowerCase();
+  switch (planData.amount) {
+    case 350:
+      lockDays = 45;
+      availableBalance = daysPassed >= 45 ? 350 : 0;
+      break;
 
-    if (st !== "verified") {
-      statusMsg.textContent = "⏳ Payment not verified yet. Please wait for admin verification.";
-      return;
-    }
+    case 700:
+      lockDays = 30;
+      availableBalance = daysPassed >= 30 ? 700 : 0;
+      break;
 
-    const planName = pay.planName || "";
-    const createdAt = toDateSafe(pay.createdAt) || new Date();
-    const days = Math.max(0, daysBetween(createdAt, new Date()));
-    const needDays = planWithdrawDays(planName);
-    const remaining = Math.max(0, needDays - days);
+    case 1000:
+      lockDays = 15;
+      availableBalance = daysPassed >= 15 ? 1000 : 0;
+      break;
 
-    if (remaining > 0) {
-      statusMsg.textContent = `✅ Verified, but withdrawal locked for ${remaining} more day(s) (plan rule).`;
-      return;
-    }
+    case 5000:
+      // PREMIUM PLAN
+      const weeklyRate = 0.045; // 4.5% weekly
+      const monthlyDays = 30;
 
-    statusMsg.textContent = "✅ Verified + Eligible. You can request a withdrawal now.";
-    withdrawForm.style.display = "";
+      const weeksPassed = Math.floor(daysPassed / 7);
+      const weeklyProfit = planData.amount * weeklyRate;
 
-    withdrawForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
+      const totalProfit = weeklyProfit * weeksPassed;
 
-      const wallet = document.getElementById("wallet").value.trim();
-      const amount = Number(document.getElementById("amount").value);
-      const note = document.getElementById("note").value.trim();
-
-      if (!wallet || !amount || amount <= 0) {
-        statusMsg.textContent = "❌ Please fill wallet and a valid amount.";
-        return;
+      if (daysPassed >= monthlyDays) {
+        // After 30 days → capital + profit available
+        availableBalance = planData.amount + (planData.amount * 0.18);
+        statusEl.textContent = "Capital + full 18% profit unlocked ✅";
+      } else if (daysPassed >= 7) {
+        // After 7 days → profit only
+        availableBalance = totalProfit;
+        statusEl.textContent = "Weekly profit unlocked ✅";
+      } else {
+        const remaining = 7 - daysPassed;
+        statusEl.textContent = `Withdrawal locked. Available after ${remaining} days.`;
+        availableBalance = 0;
       }
 
-      statusMsg.textContent = "Submitting request…";
+      balanceEl.textContent = `$${availableBalance.toFixed(2)}`;
+      return;
 
-      await addDoc(collection(db, "withdrawals"), {
-        uid: user.uid,
-        email: user.email || "",
-        wallet,
-        amount,
-        note,
-        planName: planName || "",
-        status: "pending",
-        createdAt: serverTimestamp()
-      });
-
-      statusMsg.textContent = "✅ Withdrawal request submitted (pending).";
-      withdrawForm.reset();
-    });
-
-  } catch (e) {
-    console.error(e);
-    statusMsg.textContent = "❌ Error checking payment/eligibility. (Check rules + index).";
+    default:
+      statusEl.textContent = "Unknown plan.";
+      return;
   }
+
+  const daysRemaining = lockDays - daysPassed;
+
+  if (daysRemaining > 0) {
+    statusEl.textContent = `Withdrawal locked. Available after ${daysRemaining} days.`;
+  } else {
+    statusEl.textContent = "Capital unlocked ✅";
+  }
+
+  balanceEl.textContent = `$${availableBalance.toFixed(2)}`;
 });
