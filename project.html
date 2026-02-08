@@ -30,9 +30,11 @@
         <a href="contact.html">Contact</a>
       </nav>
 
+      <!-- ✅ FIXED: IDs + Dashboard button -->
       <div class="actions">
-        <a class="btn btn-ghost" href="login.html">Login</a>
-        <a class="btn btn-primary" href="signup.html">Sign Up</a>
+        <a id="loginLink" class="btn btn-ghost" href="login.html">Login</a>
+        <a id="signupLink" class="btn btn-primary" href="signup.html">Sign Up</a>
+        <a id="dashLink" class="btn btn-ghost" href="dashboard.html" style="display:none;">Go to Dashboard</a>
       </div>
     </div>
   </header>
@@ -50,7 +52,10 @@
 
         <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;">
           <a class="btn btn-primary" href="signup.html">Create Account</a>
-          <a class="btn btn-outline" href="login.html">Go to Dashboard</a>
+
+          <!-- ✅ FIXED: give it an id so header-auth can switch it -->
+          <a id="heroDashBtn" class="btn btn-outline" href="login.html">Go to Dashboard</a>
+
           <a class="btn btn-ghost" href="legal.html">Read Legal & Risk</a>
         </div>
       </div>
@@ -231,7 +236,7 @@
     <i class="fab fa-whatsapp"></i>
   </a>
 
-  <!-- Small script for mobile nav toggle (safe even if your CSS already handles it) -->
+  <!-- Small script for mobile nav toggle -->
   <script>
     const navToggle = document.querySelector(".nav-toggle");
     const nav = document.querySelector(".nav");
@@ -239,5 +244,8 @@
       navToggle.addEventListener("click", () => nav.classList.toggle("open"));
     }
   </script>
+
+  <!-- ✅ IMPORTANT: this makes Login/SignUp switch to Dashboard when logged in -->
+  <script type="module" src="js/header-auth.js"></script>
 </body>
 </html>
