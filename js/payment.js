@@ -70,13 +70,21 @@ document.addEventListener("DOMContentLoaded", () => {
   const submitProofBtn = document.getElementById("submitProofBtn");
   const payMsg = document.getElementById("payMsg");
 
-  // ---------- Auth protect ----------
-  onAuthStateChanged(auth, (user) => {
-    if (!user) {
-      window.location.replace("login.html");
-    }
-  });
+  // ---------- Auth protect (FIXED) ----------
+let checked = false;
 
+onAuthStateChanged(auth, (user) => {
+  if (checked) return;
+  checked = true;
+
+  if (!user) {
+    // Small delay to avoid false logout on page load (Safari/iOS fix)
+    setTimeout(() => {
+      const u = auth.currentUser;
+      if (!u) window.location.replace("login.html");
+    }, 800);
+  }
+});
   // ---------- Load plan ----------
   const raw = loadPlanSafely();
   if (!raw) {
