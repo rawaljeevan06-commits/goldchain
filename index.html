@@ -253,7 +253,25 @@
 
     </div>
   </section>
+<!-- =========================
+     LIVE MARKET CHART
+========================= -->
+<section id="live-chart" class="gc-section">
+  <div class="gc-container">
 
+    <div class="gc-section-head">
+      <h2 class="gc-gradient-title">Live Market Chart</h2>
+      <p class="gc-muted">
+        Real-time gold market movement powered by TradingView.
+      </p>
+    </div>
+
+    <div class="gc-chart-card">
+      <div id="tradingview_chart"></div>
+    </div>
+
+  </div>
+</section>
   <!-- CONTACT -->
   <section id="contact" class="gc-section">
     <div class="gc-container">
@@ -418,6 +436,30 @@
       });
     }
   </script>
+<!-- TradingView Library -->
+<script src="https://s3.tradingview.com/tv.js"></script>
 
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+
+  if (typeof TradingView !== "undefined") {
+    new TradingView.widget({
+      autosize: true,
+      symbol: "XAUUSD",  // Gold live price
+      interval: "15",
+      timezone: "Etc/UTC",
+      theme: "dark",
+      style: "1",
+      locale: "en",
+      toolbar_bg: "#111",
+      enable_publishing: false,
+      hide_top_toolbar: false,
+      hide_legend: false,
+      container_id: "tradingview_chart"
+    });
+  }
+
+});
+</script>
 </body>
 </html>
