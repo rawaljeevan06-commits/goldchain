@@ -2198,3 +2198,63 @@ body::before{
   transform: translateY(-6px);
   transition: transform .18s ease;
 }
+/* =========================
+   LIVE ACTIVITY TICKER
+========================= */
+
+.ticker-wrap{
+  overflow:hidden;
+  position:relative;
+  background:rgba(255,255,255,0.03);
+  border-top:1px solid rgba(255,255,255,0.08);
+  border-bottom:1px solid rgba(255,255,255,0.08);
+  padding:8px 0;
+}
+
+.ticker-track{
+  display:flex;
+  gap:40px;
+  white-space:nowrap;
+  animation: tickerMove 25s linear infinite;
+}
+
+.ticker-item{
+  color:#facc15;
+  font-weight:600;
+  font-size:14px;
+  opacity:0.9;
+  text-shadow:0 0 8px rgba(250,204,21,0.4);
+}
+
+/* Smooth scroll animation */
+@keyframes tickerMove{
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* Pause on hover */
+.ticker-track:hover{
+  animation-play-state: paused;
+}
+
+/* Fade edges */
+.ticker-wrap::before,
+.ticker-wrap::after{
+  content:"";
+  position:absolute;
+  top:0;
+  width:80px;
+  height:100%;
+  z-index:2;
+  pointer-events:none;
+}
+
+.ticker-wrap::before{
+  left:0;
+  background:linear-gradient(to right, #0e0f12, transparent);
+}
+
+.ticker-wrap::after{
+  right:0;
+  background:linear-gradient(to left, #0e0f12, transparent);
+}
