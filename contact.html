@@ -28,9 +28,11 @@
         <a href="contact.html" class="active">Contact</a>
       </nav>
 
+      <!-- ✅ FIXED HEADER ACTIONS -->
       <div class="actions">
-        <a class="btn btn-ghost" href="login.html">Login</a>
-        <a class="btn btn-primary" href="signup.html">Sign Up</a>
+        <a id="loginLink" class="btn btn-ghost" href="login.html">Login</a>
+        <a id="signupLink" class="btn btn-primary" href="signup.html">Sign Up</a>
+        <a id="dashLink" class="btn btn-ghost" href="dashboard.html" style="display:none;">Go to Dashboard</a>
       </div>
     </div>
   </header>
@@ -131,5 +133,9 @@
   </script>
 
   <script src="js/main.js"></script>
+
+  <!-- ✅ IMPORTANT: Auth Header Control -->
+  <script type="module" src="js/header-auth.js"></script>
+
 </body>
 </html>
