@@ -26,9 +26,11 @@
         <a href="contact.html">Contact</a>
       </nav>
 
+      <!-- ✅ FIXED HEADER ACTIONS -->
       <div class="actions">
-        <a class="btn btn-ghost" href="login.html">Login</a>
-        <a class="btn btn-primary" href="signup.html">Sign Up</a>
+        <a id="loginLink" class="btn btn-ghost" href="login.html">Login</a>
+        <a id="signupLink" class="btn btn-primary" href="signup.html">Sign Up</a>
+        <a id="dashLink" class="btn btn-ghost" href="dashboard.html" style="display:none;">Go to Dashboard</a>
       </div>
     </div>
   </header>
@@ -84,66 +86,20 @@
           Deposits are not automatically credited. Deposit requests may require manual verification before your balance is updated.
           Verification may be delayed due to incomplete details, network issues, suspected fraud, or administrative review.
         </p>
-        <p class="small" style="line-height:1.9; opacity:.9;">
-          The platform may reject or reverse a request if information is incorrect or violates policies.
-        </p>
 
         <h3 style="margin-top:16px;">6) Withdrawals & Processing</h3>
         <ul class="small" style="margin-top:10px; line-height:1.9;">
           <li>Withdrawals are <b>requests</b> and may require approval.</li>
           <li>Processing time can vary depending on review checks and network conditions.</li>
           <li>You are responsible for entering correct wallet details. Incorrect details may result in loss of funds.</li>
-          <li>The platform may pause withdrawals during maintenance, security checks, or if required by law.</li>
         </ul>
 
-        <h3 style="margin-top:16px;">7) Referral Program (If Enabled)</h3>
-        <ul class="small" style="margin-top:10px; line-height:1.9;">
-          <li>Referral rewards are optional features and may change, pause, or be removed at any time.</li>
-          <li>Referral rewards are credited only after a qualifying deposit is verified and eligibility checks pass.</li>
-          <li>Referral abuse (fake accounts, self-referrals, manipulation) can result in reward removal or account suspension.</li>
-        </ul>
-
-        <h3 style="margin-top:16px;">8) Fees & Taxes</h3>
-        <ul class="small" style="margin-top:10px; line-height:1.9;">
-          <li>Network fees (example: blockchain fees) may apply and are outside the platform’s control.</li>
-          <li>You are responsible for any taxes, reporting, or legal obligations in your country.</li>
-        </ul>
-
-        <h3 style="margin-top:16px;">9) Limitation of Liability</h3>
+        <h3 style="margin-top:16px;">7) Limitation of Liability</h3>
         <p class="small" style="line-height:1.9; opacity:.9;">
-          To the maximum extent permitted by law, GoldChain Investment is not liable for indirect, incidental, or consequential losses
-          (including loss of profits, loss of data, or losses caused by third-party services). Use of the platform is at your own risk.
-          No warranty is provided regarding uninterrupted or error-free operation.
-        </p>
-
-        <h3 style="margin-top:16px;">10) Account Suspension / Termination</h3>
-        <p class="small" style="line-height:1.9; opacity:.9;">
-          The platform may suspend or terminate accounts for suspected fraud, policy violations, security risk, or legal requirements.
-          In such cases, access to features may be limited while reviews are performed.
-        </p>
-
-        <h3 style="margin-top:16px;">11) Privacy & Data</h3>
-        <p class="small" style="line-height:1.9; opacity:.9;">
-          Basic account data (such as email, plan selection, and transaction history) may be stored to operate the service.
-          Do not share passwords or one-time codes. If you suspect unauthorized access, change your password immediately.
-        </p>
-
-        <h3 style="margin-top:16px;">12) Updates to this Document</h3>
-        <p class="small" style="line-height:1.9; opacity:.9;">
-          This Legal & Risk Disclosure may be updated at any time. The latest version posted on the website applies once published.
-          By continuing to use the website after an update, you accept the revised terms.
-        </p>
-
-        <h3 style="margin-top:16px;">13) Contact</h3>
-        <p class="small" style="line-height:1.9; opacity:.9;">
-          For questions, please use the official support channels listed on the Contact page.
+          Use of the platform is at your own risk. No warranty is provided regarding uninterrupted or error-free operation.
         </p>
 
         <hr style="margin:18px 0; opacity:.2;">
-        <p class="small" style="opacity:.85;">
-          Tip: You can also keep a PDF copy for your records.
-        </p>
-
         <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
           <a class="btn btn-outline" href="project.html">Back to Our Project</a>
           <a class="btn btn-primary" href="index.html#plans">View Plans</a>
@@ -159,6 +115,9 @@
       <p class="small">©️ 2026 GoldChain Investment. All rights reserved.</p>
     </div>
   </footer>
+
+  <!-- ✅ IMPORTANT: Auth Header Control -->
+  <script type="module" src="js/header-auth.js"></script>
 
 </body>
 </html>
