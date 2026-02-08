@@ -2161,10 +2161,8 @@ body::before{
   display:inline-flex;
   gap:18px;
   white-space:nowrap;
-  animation: tickerMove 18s linear infinite;
-  padding-left: 100%;
+  animation: tickerMove 25s linear infinite;
 }
-
 .tick{
   display:inline-flex;
   align-items:center;
@@ -2180,10 +2178,9 @@ body::before{
 }
 
 @keyframes tickerMove{
-  0% { transform: translateX(0); }
+  0% { transform: translateX(100%); }
   100% { transform: translateX(-100%); }
 }
-
 /* =========================
    CRYPTO AGGRESSIVE HERO GLOW
 ========================= */
