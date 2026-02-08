@@ -696,13 +696,16 @@ document.addEventListener("DOMContentLoaded", () => {
   setInterval(updateStats, 6000);
 });
 </script>
-  <script>
+ <script>
   const gcMenuBtn = document.getElementById("gcMenuBtn");
   const gcNavLinks = document.getElementById("gcNavLinks");
 
-  gcMenuBtn.addEventListener("click", () => {
-    gcNavLinks.classList.toggle("active");
-  });
+  if (gcMenuBtn && gcNavLinks) {
+    gcMenuBtn.addEventListener("click", () => {
+      gcNavLinks.classList.toggle("active");
+      gcMenuBtn.classList.toggle("active");
+    });
+  }
 </script>
 </body>
 </html>
