@@ -2591,3 +2591,50 @@ body {
     background:rgba(255,215,0,0.05);
   }
 }
+/* =========================
+   MOBILE FIX: Our Impact / Hero overlap
+   ========================= */
+@media (max-width: 600px) {
+
+  /* Make hero layout stack properly */
+  .hero-grid{
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+  }
+
+  /* Prevent badge/button rows from overlapping text */
+  .badges,
+  .cta{
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 10px !important;
+    align-items: flex-start !important;
+  }
+
+  /* Badges should not sit on top of paragraphs */
+  .badge{
+    max-width: 100% !important;
+    white-space: normal !important;   /* allow wrap */
+    line-height: 1.25 !important;
+  }
+
+  /* If you have long pill buttons inside hero */
+  .cta .btn{
+    width: 100% !important;          /* full width on mobile */
+    text-align: center !important;
+  }
+
+  /* Make hero text readable and avoid tight stacking */
+  .hero h1{
+    line-height: 1.15 !important;
+  }
+  .hero p{
+    line-height: 1.6 !important;
+  }
+
+  /* Ensure cards don't clip or overlap inner content */
+  .card{
+    overflow: hidden !important;
+  }
+}
