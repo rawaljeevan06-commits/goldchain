@@ -2258,3 +2258,101 @@ body::before{
   right:0;
   background:linear-gradient(to left, #0e0f12, transparent);
 }
+/* =========================
+   FULL MOBILE OPTIMIZATION
+========================= */
+
+@media (max-width: 768px){
+
+  /* HERO */
+  .gc-hero{
+    padding: 60px 16px;
+  }
+
+  .gc-hero h1{
+    font-size: 24px;
+    line-height: 1.3;
+    text-align:center;
+  }
+
+  .gc-hero p{
+    font-size:14px;
+    text-align:center;
+  }
+
+  .hero-btns{
+    flex-direction:column;
+    gap:12px;
+  }
+
+  .btn{
+    width:100%;
+    justify-content:center;
+  }
+
+  .hero-badges{
+    justify-content:center;
+  }
+
+  .pill{
+    font-size:12px;
+    padding:8px 10px;
+  }
+
+  /* STATS */
+  .stats-grid{
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+
+  .statx{
+    padding:14px 8px;
+  }
+
+  .statx-num{
+    font-size:22px;
+  }
+
+  /* TICKER */
+  .ticker-item{
+    font-size:12px;
+    padding:8px 10px;
+  }
+
+  /* PLANS */
+  .plan-grid{
+    grid-template-columns:1fr;
+    gap:14px;
+  }
+
+  .plan-card{
+    padding:18px;
+  }
+
+  /* NAV */
+  .gc-links{
+    display:none;
+  }
+
+  .gc-nav-inner{
+    flex-wrap:wrap;
+  }
+
+}
+
+/* Extra small devices */
+@media (max-width: 480px){
+
+  .stats-grid{
+    grid-template-columns:1fr;
+  }
+
+  .statx-num{
+    font-size:20px;
+  }
+
+  .gc-hero h1{
+    font-size:22px;
+  }
+
+}
