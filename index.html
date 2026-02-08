@@ -39,7 +39,7 @@
 
       <div class="hero-btns">
         <a class="btn btn-primary" href="#plans">View Plans</a>
-        <a class="btn btn-outline" href="login.html">Go to Dashboard</a>
+        <a id="heroDashBtn" class="btn btn-outline" href="login.html">Go to Dashboard</a>
       </div>
 
       <div class="gc-stats">
@@ -411,82 +411,27 @@
   </footer>
 
 <script>
-  // GoldChain Profit Calculator (INLINE FINAL)
-  document.addEventListener("DOMContentLoaded", function () {
-    const input  = document.getElementById("amountInput");
-    const btn    = document.getElementById("calcBtn");
-    const result = document.getElementById("resultEl");
+ <!-- Choose Plan -->
+<script>
+  document.addEventListener("click", (e) => {
+    const btn = e.target.closest(".choose-plan");
+    if (!btn) return;
 
-    console.log("✅ INLINE CALC LOADED");
+    const planObj = {
+      name: btn.dataset.plan || "Plan",
+      amount: Number(btn.dataset.amount || 0),
+      percent: Number(btn.dataset.percent || 0),
+      withdraw: btn.dataset.withdraw || ""
+    };
 
-    if (!input || !btn || !result) return;
+    try { localStorage.setItem("selectedPlan", JSON.stringify(planObj)); } catch (e) {}
+    try { sessionStorage.setItem("selectedPlan", JSON.stringify(planObj)); } catch (e) {}
 
-    btn.addEventListener("click", function () {
-      const amount = Number(input.value);
-
-      if (!amount || amount <= 0) {
-        result.innerHTML = "❌ Enter valid amount.";
-        return;
-      }
-
-      let monthlyRate = 0;
-      let planName = "";
-      let withdrawText = "";
-
-      if (amount >= 5000) {
-        monthlyRate = 0.18;
-        planName = "Premium";
-        withdrawText = "Profit withdraw after 7 days, capital + full 18% after 30 days";
-      } else if (amount >= 1000) {
-        monthlyRate = 0.16;
-        planName = "Pro";
-        withdrawText = "Withdraw after 15 days";
-      } else if (amount >= 700) {
-        monthlyRate = 0.16;
-        planName = "Growth";
-        withdrawText = "Withdraw after 1 month";
-      } else if (amount >= 350) {
-        monthlyRate = 0.16;
-        planName = "Starter";
-        withdrawText = "Withdraw after 45 days";
-      } else {
-        result.innerHTML = "❌ Minimum investment is $350.";
-        return;
-      }
-
-      const monthlyProfit = amount * monthlyRate;
-      const weeklyEstimate = amount * (monthlyRate / 4);
-
-      result.innerHTML =
-        "<b>Plan:</b> " + planName + "<br>" +
-        "<b>Monthly Profit (" + (monthlyRate * 100) + "%):</b> $" + monthlyProfit.toFixed(2) + "<br>" +
-        "<b>Weekly Estimate:</b> $" + weeklyEstimate.toFixed(2) + "<br>" +
-        "<span class='small'><b>Withdraw Policy:</b> " + withdrawText + "</span>";
-    });
+    window.location.href = "dashboard.html";
   });
 </script>
-  <!-- Choose Plan (fixed: uses data-amount + data-percent everywhere) -->
-  <script>
-    document.addEventListener("click", (e) => {
-      const btn = e.target.closest(".choose-plan");
-      if (!btn) return;
 
-      const planObj = {
-        name: btn.dataset.plan || "Plan",
-        amount: Number(btn.dataset.amount || 0),
-        percent: Number(btn.dataset.percent || 0),
-        withdraw: btn.dataset.withdraw || ""
-      };
-
-      try { localStorage.setItem("selectedPlan", JSON.stringify(planObj)); } catch (e) {}
-      try { sessionStorage.setItem("selectedPlan", JSON.stringify(planObj)); } catch (e) {}
-
-      window.location.href = "dashboard.html";
-    });
-  </script>
-
-  <!-- Calculator -->
- <!-- Calculator -->
+<!-- Calculator (FINAL CLEAN VERSION) -->
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     const calcBtn = document.getElementById("calcBtn");
@@ -507,7 +452,6 @@
         return;
       }
 
-      // ✅ Your 4 plans logic
       let rate = 0;
       let planName = "";
       let withdrawText = "";
@@ -545,23 +489,34 @@
     });
   });
 </script>
-  <script type="module">
+
+<!-- Header Auth Control -->
+<script type="module">
   import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
   import { auth } from "./js/firebase.js";
 
   const loginLink = document.getElementById("loginLink");
   const signupLink = document.getElementById("signupLink");
   const dashLink = document.getElementById("dashLink");
+  const heroDashBtn = document.getElementById("heroDashBtn");
 
   onAuthStateChanged(auth, (user) => {
     if (user) {
       if (loginLink) loginLink.style.display = "none";
       if (signupLink) signupLink.style.display = "none";
       if (dashLink) dashLink.style.display = "inline-flex";
+
+      if (heroDashBtn) {
+        heroDashBtn.href = "dashboard.html";
+      }
     } else {
       if (loginLink) loginLink.style.display = "inline-flex";
       if (signupLink) signupLink.style.display = "inline-flex";
       if (dashLink) dashLink.style.display = "none";
+
+      if (heroDashBtn) {
+        heroDashBtn.href = "login.html";
+      }
     }
   });
 </script>
