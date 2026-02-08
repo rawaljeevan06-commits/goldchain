@@ -21,10 +21,11 @@
         <a href="#contact">Contact</a>
       </nav>
 
-      <div class="gc-actions">
-        <a class="btn btn-outline" href="login.html">Login</a>
-        <a class="btn btn-primary" href="signup.html">Sign Up</a>
-      </div>
+     <div class="gc-actions">
+  <a id="loginLink" class="btn btn-outline" href="login.html">Login</a>
+  <a id="signupLink" class="btn btn-primary" href="signup.html">Sign Up</a>
+  <a id="dashLink" class="btn btn-primary" href="dashboard.html" style="display:none;">Dashboard</a>
+</div>
     </div>
   </header>
 
@@ -542,6 +543,26 @@
         "<br><b>Weekly Estimate:</b> $ " + weeklyEstimate.toFixed(2) +
         "<br><span class='small'><b>Withdraw Policy:</b> " + withdrawText + "</span>";
     });
+  });
+</script>
+  <script type="module">
+  import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+  import { auth } from "./js/firebase.js";
+
+  const loginLink = document.getElementById("loginLink");
+  const signupLink = document.getElementById("signupLink");
+  const dashLink = document.getElementById("dashLink");
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      if (loginLink) loginLink.style.display = "none";
+      if (signupLink) signupLink.style.display = "none";
+      if (dashLink) dashLink.style.display = "inline-flex";
+    } else {
+      if (loginLink) loginLink.style.display = "inline-flex";
+      if (signupLink) signupLink.style.display = "inline-flex";
+      if (dashLink) dashLink.style.display = "none";
+    }
   });
 </script>
 </body>
