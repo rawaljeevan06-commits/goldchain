@@ -2356,3 +2356,174 @@ body::before{
   }
 
 }
+/* =========================
+   MOBILE FIX PACK (iPhone)
+   Paste at END of style.css
+   ========================= */
+
+/* Stop horizontal scrolling on mobile */
+html, body { max-width: 100%; overflow-x: hidden; }
+
+/* iPhone safe-area (notch) support */
+body {
+  padding-top: env(safe-area-inset-top);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* ---------- HOME navbar (gc-nav) ---------- */
+@media (max-width: 768px) {
+  .gc-nav-inner{
+    padding: 12px 14px;
+    gap: 10px;
+  }
+
+  .gc-logo{ font-size: 18px; }
+
+  /* make action buttons smaller */
+  .gc-actions{
+    display:flex;
+    gap:10px;
+    align-items:center;
+  }
+  .gc-actions .btn{
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 14px;
+    white-space: nowrap;
+  }
+
+  /* If you keep links visible: wrap them nicely */
+  .gc-links{
+    display:flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 8px;
+  }
+  .gc-links a{
+    font-size: 14px;
+    padding: 8px 10px;
+    border-radius: 10px;
+  }
+}
+
+/* ---------- HERO section ---------- */
+@media (max-width: 768px) {
+  .gc-hero{ padding: 26px 0 18px; }
+  .gc-hero-inner{ padding: 0 14px; }
+
+  .gc-hero h1{
+    font-size: 30px;
+    line-height: 1.15;
+    word-break: break-word;
+  }
+  .gc-hero p{
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  .hero-btns{
+    display:flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .hero-btns .btn{
+    width: 100%;
+    text-align:center;
+  }
+
+  /* If you have hero chips/badges row */
+  .badges, .pill-row, .ticker-pills{
+    display:flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+}
+
+/* ---------- PLANS grid ---------- */
+@media (max-width: 768px) {
+  .plan-grid{
+    display:grid;
+    grid-template-columns: 1fr !important;
+    gap: 14px;
+  }
+  .plan-card{
+    padding: 18px;
+  }
+  .plan-card h3{
+    font-size: 34px;
+    line-height: 1.1;
+  }
+  .choose-plan, .plan-card .btn{
+    width: 100%;
+  }
+}
+
+/* ---------- Stats counters strip ---------- */
+@media (max-width: 768px) {
+  .stats-strip{ padding: 12px 0; }
+  .stats-grid{
+    display:grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .statx{
+    padding: 14px !important;
+    border-radius: 16px;
+  }
+  .statx-num{
+    font-size: 28px;
+    line-height: 1.1;
+  }
+  .statx-label{
+    font-size: 12px;
+    opacity: .9;
+  }
+}
+
+/* ---------- Common pages header (.header) ---------- */
+@media (max-width: 768px) {
+  .header .header-in{
+    padding: 12px 14px;
+    gap: 10px;
+  }
+  .header .brand span{ font-size: 16px; }
+
+  /* nav wrap instead of pushing layout */
+  .header .nav{
+    display:flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .header .nav a{
+    font-size: 14px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    white-space: nowrap;
+  }
+
+  .header .actions{
+    display:flex;
+    gap: 10px;
+  }
+  .header .actions .btn{
+    padding: 10px 14px;
+    font-size: 14px;
+    white-space: nowrap;
+  }
+}
+
+/* ---------- WhatsApp button placement ---------- */
+@media (max-width: 768px) {
+  .wa-float, .whatsapp-float{
+    right: 14px;
+    bottom: 18px;
+    transform: none;
+  }
+}
+
+/* ---------- iFrame / charts overflow fix ---------- */
+@media (max-width: 768px) {
+  iframe{ max-width: 100%; }
+  .tv-wrap, .iframe-box{ overflow:hidden; border-radius: 14px; }
+}
