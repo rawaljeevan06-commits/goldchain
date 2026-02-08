@@ -1,11 +1,11 @@
 // js/config.js
 window.GC_CONFIG = {
-  whatsappNumber: "9779800000000",     // <-- change this
+  whatsappNumber: "9715400000000",     // <-- change this
   whatsappMessage: "Hello GoldChain! I need support.",
 
-  supportEmail: "support@goldchain.com", // <-- change this
-  supportPhone: "+977-98XXXXXXXX",       // optional
+  supportEmail: "supgoldchain1@gmail.com", // <-- change this
+  supportPhone: "+971-54XXXXXXXX",       // optional
 
-  officeLocationText: "Kathmandu, Nepal", // <-- change this
-  officeMapLink: "https://maps.google.com/?q=Kathmandu%20Nepal" // optional
+  officeLocationText: "Abudhabi, UAE", // <-- change this
+  officeMapLink: "hofficeMapLink: "https://maps.google.com/?q=Abu+Dhabi+UAE"" // optional
 };
