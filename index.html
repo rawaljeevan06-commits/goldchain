@@ -36,7 +36,13 @@
       <p>
         GoldChain helps you invest with clear returns, transparent plans, and a premium experience.
       </p>
-
+<!-- HERO BADGES -->
+<div class="hero-badges">
+  <span class="pill pill-hot">🔥 Trending</span>
+  <span class="pill">🔐 Secure Access</span>
+  <span class="pill">✔ Verified Workflow</span>
+  <span class="pill">📊 Live Dashboard</span>
+</div>
       <div class="hero-btns">
         <a class="btn btn-primary" href="#plans">View Plans</a>
         <a id="heroDashBtn" class="btn btn-outline" href="login.html">Go to Dashboard</a>
@@ -58,6 +64,36 @@
       </div>
     </div>
   </section>
+  </section>  <!-- END HERO -->
+
+<!-- STATS COUNTERS -->
+<section class="stats-strip">
+  <div class="gc-container">
+    <div class="stats-grid">
+      <div class="statx">
+        <div class="statx-num" data-count="4">0</div>
+        <div class="statx-label">Plans</div>
+      </div>
+
+      <div class="statx">
+        <div class="statx-num" data-count="1200">0</div>
+        <div class="statx-label">Visitors Joined</div>
+      </div>
+
+      <div class="statx">
+        <div class="statx-num" data-count="350">0</div>
+        <div class="statx-label">Verified Requests</div>
+      </div>
+
+      <div class="statx">
+        <div class="statx-num" data-count="24">0</div>
+        <div class="statx-label">Support Hours</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NEXT SECTION (Security / Transparency or whatever comes next) -->
 <!-- TRUST / BADGES STRIP -->
 <section class="trust-strip">
   <div class="gc-container">
@@ -579,6 +615,48 @@
       }
     }
   });
+</script>
+  <script>
+  // Animated counters (runs once when visible)
+  (function () {
+    const els = document.querySelectorAll(".statx-num");
+    if (!els.length) return;
+
+    const fmt = (n) => {
+      n = Number(n || 0);
+      if (n >= 1000) return (n / 1000).toFixed(1).replace(".0","") + "K";
+      return String(n);
+    };
+
+    const run = (el) => {
+      const target = Number(el.dataset.count || 0);
+      let cur = 0;
+      const steps = 40;
+      const inc = target / steps;
+
+      const tick = () => {
+        cur += inc;
+        if (cur >= target) {
+          el.textContent = fmt(target);
+          return;
+        }
+        el.textContent = fmt(cur);
+        requestAnimationFrame(tick);
+      };
+      tick();
+    };
+
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting && !e.target.dataset.done) {
+          e.target.dataset.done = "1";
+          run(e.target);
+        }
+      });
+    }, { threshold: 0.35 });
+
+    els.forEach(el => io.observe(el));
+  })();
 </script>
 </body>
 </html>
