@@ -1215,7 +1215,15 @@ body{
 .gc-bg-slider{
   position: fixed;
   inset: 0;
-  z-index: -5;          /* behind all site content */
+  z-index: 0;   /* ✅ IMPORTANT */
+  pointer-events: none;
+  overflow: hidden;
+}
+/* Ensure site content is above background */
+body{
+  position: relative;
+  z-index: 1;
+}
   pointer-events: none;
   overflow: hidden;
 }
