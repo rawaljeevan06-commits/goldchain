@@ -79,5 +79,32 @@
 
   <!-- ✅ ONLY ONE SCRIPT -->
   <script type="module" src="js/login.js?v=100"></script>
+  <script>
+(function(){
+  const root = document.body;
+  if(!root.classList.contains("auth-page")) return;
+
+  function setVars(x, y){
+    const px = (x * 14).toFixed(2) + "px";
+    const py = (y * 14).toFixed(2) + "px";
+    root.style.setProperty("--px", px);
+    root.style.setProperty("--py", py);
+  }
+
+  window.addEventListener("mousemove", (e) => {
+    const x = (e.clientX / window.innerWidth) - 0.5;
+    const y = (e.clientY / window.innerHeight) - 0.5;
+    setVars(x, y);
+  }, { passive: true });
+
+  window.addEventListener("touchmove", (e) => {
+    const t = e.touches && e.touches[0];
+    if(!t) return;
+    const x = (t.clientX / window.innerWidth) - 0.5;
+    const y = (t.clientY / window.innerHeight) - 0.5;
+    setVars(x, y);
+  }, { passive: true });
+})();
+</script>
 </body>
 </html>
