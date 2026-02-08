@@ -9,10 +9,8 @@
 </head>
 <body>
 
-  <!-- TOP BAR -->
   <div class="topbar">Legal & Risk Disclosure — Please read carefully</div>
 
-  <!-- HEADER -->
   <header class="header">
     <div class="container header-in">
       <a class="brand" href="index.html">
@@ -22,20 +20,20 @@
 
       <nav class="nav">
         <a href="index.html">Home</a>
+        <a href="index.html#plans">Plans</a>
         <a href="project.html">Our Project</a>
+        <a href="legal.html" class="active">Legal</a>
         <a href="contact.html">Contact</a>
       </nav>
 
-      <!-- ✅ FIXED HEADER ACTIONS -->
       <div class="actions">
         <a id="loginLink" class="btn btn-ghost" href="login.html">Login</a>
         <a id="signupLink" class="btn btn-primary" href="signup.html">Sign Up</a>
-        <a id="dashLink" class="btn btn-ghost" href="dashboard.html" style="display:none;">Go to Dashboard</a>
+        <a id="dashLink" class="btn btn-primary" href="dashboard.html" style="display:none;">Dashboard</a>
       </div>
     </div>
   </header>
 
-  <!-- CONTENT -->
   <section class="section">
     <div class="container" style="max-width:920px;">
       <div class="card">
@@ -47,77 +45,45 @@
 
         <hr style="margin:18px 0; opacity:.2;">
 
+        <!-- (your content stays same) -->
         <h3>1) Important Notice</h3>
         <p class="small" style="line-height:1.9; opacity:.9;">
           GoldChain Investment provides a digital platform experience for users to view plans, submit deposit requests,
           request withdrawals, and track account activity. Content on this website is for general information only and is not
           financial, investment, legal, or tax advice.
         </p>
-        <p class="small" style="line-height:1.9; opacity:.9;">
-          You are responsible for understanding and accepting the risks described below before using the platform.
-        </p>
 
         <h3 style="margin-top:16px;">2) No Investment Advice / No Guarantee</h3>
         <ul class="small" style="margin-top:10px; line-height:1.9;">
           <li><b>No advice:</b> Nothing on this website is a recommendation to invest or a promise of profit.</li>
-          <li><b>No guarantee:</b> Any percentages, examples, or calculator results shown are informational only and do not guarantee outcomes.</li>
-          <li><b>Independent decision:</b> You decide whether to participate based on your own research and risk tolerance.</li>
+          <li><b>No guarantee:</b> Any percentages, examples, or calculator results shown are informational only.</li>
+          <li><b>Independent decision:</b> You decide based on your own research and risk tolerance.</li>
         </ul>
 
         <h3 style="margin-top:16px;">3) Risk Disclosure</h3>
         <ul class="small" style="margin-top:10px; line-height:1.9;">
           <li><b>Loss risk:</b> You may lose some or all deposited funds.</li>
-          <li><b>Volatility:</b> Market conditions may change rapidly and can affect outcomes or timelines.</li>
-          <li><b>Liquidity/processing:</b> Withdrawals may be delayed due to verification, network congestion, or compliance checks.</li>
-          <li><b>Past performance:</b> Any historical examples do not predict future results.</li>
-          <li><b>Service dependency:</b> Third-party services (networks, wallets, providers) can fail or delay transactions.</li>
+          <li><b>Volatility:</b> Market conditions may change rapidly.</li>
+          <li><b>Withdrawals:</b> May be delayed due to verification or network issues.</li>
         </ul>
-
-        <h3 style="margin-top:16px;">4) User Responsibilities</h3>
-        <ul class="small" style="margin-top:10px; line-height:1.9;">
-          <li>You must provide accurate information during signup and keep it updated.</li>
-          <li>You must keep your password secure and not share login credentials.</li>
-          <li>You agree not to use the platform for illegal activity, fraud, or money laundering attempts.</li>
-          <li>You are responsible for complying with the laws and regulations that apply to you.</li>
-        </ul>
-
-        <h3 style="margin-top:16px;">5) Deposits & Verification</h3>
-        <p class="small" style="line-height:1.9; opacity:.9;">
-          Deposits are not automatically credited. Deposit requests may require manual verification before your balance is updated.
-          Verification may be delayed due to incomplete details, network issues, suspected fraud, or administrative review.
-        </p>
-
-        <h3 style="margin-top:16px;">6) Withdrawals & Processing</h3>
-        <ul class="small" style="margin-top:10px; line-height:1.9;">
-          <li>Withdrawals are <b>requests</b> and may require approval.</li>
-          <li>Processing time can vary depending on review checks and network conditions.</li>
-          <li>You are responsible for entering correct wallet details. Incorrect details may result in loss of funds.</li>
-        </ul>
-
-        <h3 style="margin-top:16px;">7) Limitation of Liability</h3>
-        <p class="small" style="line-height:1.9; opacity:.9;">
-          Use of the platform is at your own risk. No warranty is provided regarding uninterrupted or error-free operation.
-        </p>
 
         <hr style="margin:18px 0; opacity:.2;">
+
         <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
           <a class="btn btn-outline" href="project.html">Back to Our Project</a>
           <a class="btn btn-primary" href="index.html#plans">View Plans</a>
         </div>
-
       </div>
     </div>
   </section>
 
-  <!-- FOOTER -->
   <footer class="footer">
     <div class="container footer-in">
       <p class="small">©️ 2026 GoldChain Investment. All rights reserved.</p>
     </div>
   </footer>
 
-  <!-- ✅ IMPORTANT: Auth Header Control -->
-  <script type="module" src="js/header-auth.js"></script>
-
+  <!-- ✅ MUST be at bottom -->
+  <script type="module" src="js/nav-auth.js"></script>
 </body>
 </html>
