@@ -837,3 +837,19 @@ body{
     height: 380px;
   }
 }
+/* Force Live Chart full width */
+#live-chart .gc-container{
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+#live-chart .gc-chart-card{
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+#live-chart #tradingview_chart{
+  width: 100% !important;
+  min-height: 520px;
+}
