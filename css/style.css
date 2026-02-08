@@ -1303,3 +1303,4 @@ footer,
   .gc-bg, .gc-bg-shimmer{ animation: none !important; }
   .gc-bg{ opacity: 1 !important; }
 }
+body{ outline: 6px solid red !important; }
