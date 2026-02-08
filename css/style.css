@@ -2140,3 +2140,64 @@ body::before{
 @media (max-width: 520px){
   .stats-grid{ grid-template-columns: 1fr; }
 }
+/* =========================
+   CRYPTO AGGRESSIVE TICKER
+========================= */
+.ticker-strip{
+  padding:14px 0;
+  background: linear-gradient(90deg, rgba(10,10,10,.95), rgba(18,18,18,.95));
+  border-top: 1px solid rgba(255,255,255,.08);
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  overflow:hidden;
+}
+
+.ticker{
+  width:100%;
+  overflow:hidden;
+  position:relative;
+}
+
+.ticker-track{
+  display:inline-flex;
+  gap:18px;
+  white-space:nowrap;
+  animation: tickerMove 18s linear infinite;
+  padding-left: 100%;
+}
+
+.tick{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 14px;
+  border-radius:999px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(250,204,21,.14);
+  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+  font-size:13px;
+  font-weight:800;
+  letter-spacing:.2px;
+}
+
+@keyframes tickerMove{
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-100%); }
+}
+
+/* =========================
+   CRYPTO AGGRESSIVE HERO GLOW
+========================= */
+.gc-hero h1{
+  text-transform: uppercase;
+  letter-spacing: .8px;
+  text-shadow: 0 0 20px rgba(250,204,21,.14), 0 0 42px rgba(34,211,238,.10);
+}
+
+.btn.btn-primary{
+  box-shadow: 0 12px 40px rgba(250,204,21,.16);
+}
+
+.plan-card:hover{
+  transform: translateY(-6px);
+  transition: transform .18s ease;
+}
