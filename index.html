@@ -7,12 +7,7 @@
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-<div class="gc-bg-slider" aria-hidden="true">
-  <span class="gc-bg bg1"></span>
-  <span class="gc-bg bg2"></span>
-  <span class="gc-bg bg3"></span>
-  <span class="gc-bg-shimmer"></span>
-</div>
+
   <!-- NAVBAR -->
   <header class="gc-nav">
     <div class="gc-nav-inner">
@@ -53,8 +48,7 @@
         <span class="pill">📊 Live Dashboard</span>
       </div>
 
-      <!-- ✅ FIXED: removed extra < -->
-      <div class="hero-btns">
+      <<div class="hero-btns">
         <a class="btn btn-primary" href="#plans">🔥 Explore Plans</a>
         <a id="heroDashBtn" class="btn btn-outline" href="login.html">⚡ Open Dashboard</a>
       </div>
@@ -260,24 +254,6 @@
     </div>
   </section>
 
-  <!-- =========================
-       LIVE MARKET CHART
-  ========================= -->
-  <section id="live-chart" class="gc-section">
-    <div class="gc-container">
-
-      <div class="gc-section-head">
-        <h2 class="gc-gradient-title">Live Market Chart</h2>
-        <p class="gc-muted">Real-time gold market movement powered by TradingView.</p>
-      </div>
-
-      <div class="gc-chart-card">
-        <div id="tradingview_chart"></div>
-      </div>
-
-    </div>
-  </section>
-
   <!-- CONTACT -->
   <section id="contact" class="gc-section">
     <div class="gc-container">
@@ -293,81 +269,15 @@
   </section>
 
   <!-- WhatsApp Floating Button -->
-  <a href="https://wa.me/974876535344" class="wa-float" target="_blank" title="Chat on WhatsApp" rel="noopener">💬</a>
+  <a href="https://wa.me/974876535344" class="wa-float" target="_blank" title="Chat on WhatsApp">💬</a>
 
-  <!-- ✅ PREMIUM LEGAL FOOTER (genuine) -->
-  <footer class="gc-footer">
-    <div class="gc-container">
-
-      <div class="gc-footer-top">
-        <div class="gc-footer-brand">
-          <div class="gc-footer-logo">GoldChain</div>
-          <p class="small" style="opacity:.85; margin-top:10px;">
-            A modern investment-style dashboard experience built for clarity, tracking, and controlled verification workflows.
-          </p>
-          <div class="gc-footer-badges" style="margin-top:12px;">
-            <span class="pill">🔐 Secure Access</span>
-            <span class="pill">🧾 Verified Workflow</span>
-            <span class="pill">💬 Support</span>
-          </div>
-        </div>
-
-        <div class="gc-footer-cols">
-          <div class="gc-footer-col">
-            <h4>Company</h4>
-            <a href="#home">Home</a>
-            <a href="project.html">Our Project</a>
-            <a href="#plans">Plans</a>
-            <a href="#contact">Contact</a>
-          </div>
-
-          <div class="gc-footer-col">
-            <h4>Legal</h4>
-            <button class="gc-linkbtn" data-open-modal="terms">Terms of Service</button>
-            <button class="gc-linkbtn" data-open-modal="privacy">Privacy Policy</button>
-            <button class="gc-linkbtn" data-open-modal="risk">Risk Disclosure</button>
-            <button class="gc-linkbtn" data-open-modal="kyc">KYC / AML</button>
-          </div>
-
-          <div class="gc-footer-col">
-            <h4>Support</h4>
-            <a href="mailto:support@goldchain-investment.com">support@goldchain-investment.com</a>
-            <a href="https://wa.me/974876535344" target="_blank" rel="noopener">WhatsApp Support</a>
-            <span class="small" style="opacity:.8; display:block; margin-top:8px;">Support Hours: 24/7</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="gc-footer-bottom">
-        <div class="small" style="opacity:.8;">
-          ©️ 2026 GoldChain Investment. All rights reserved.
-        </div>
-        <div class="small" style="opacity:.75;">
-          Location: Doha, Qatar
-        </div>
-      </div>
-
-      <div class="gc-footer-disclaimer small">
-        <strong>Disclaimer:</strong> Information on this website is for general demonstration/educational purposes only and does not constitute financial advice.
-        Markets involve risk. Always do your own research and consult a professional advisor where appropriate.
-      </div>
-
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer-in">
+      <hr style="margin:20px 0; opacity:.2;">
+      <p class="small">©️ 2026 GoldChain Investment. All rights reserved.</p>
     </div>
   </footer>
-
-  <!-- ✅ LEGAL MODAL (opens from footer) -->
-  <div class="gc-modal" id="gcModal" aria-hidden="true">
-    <div class="gc-modal-backdrop" data-close-modal></div>
-    <div class="gc-modal-card" role="dialog" aria-modal="true" aria-labelledby="gcModalTitle">
-      <div class="gc-modal-head">
-        <h3 id="gcModalTitle">Legal</h3>
-        <button class="gc-modal-close" data-close-modal aria-label="Close">✕</button>
-      </div>
-      <div class="gc-modal-body" id="gcModalBody">
-        <!-- injected by JS -->
-      </div>
-    </div>
-  </div>
 
   <!-- Choose Plan -->
   <script>
@@ -476,7 +386,7 @@
 
       const baseValues = [4, 1200, 350, 24];
       function generateRandom(base) {
-        const variance = Math.floor(base * 0.05);
+        const variance = Math.floor(base * 0.05); // 5% variation (less “random”)
         return base + Math.floor(Math.random() * variance);
       }
 
@@ -507,108 +417,6 @@
         });
       });
     }
-  </script>
-
-  <!-- TradingView Library -->
-  <script src="https://s3.tradingview.com/tv.js"></script>
-  <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      if (typeof TradingView !== "undefined") {
-        new TradingView.widget({
-          autosize: true,
-          symbol: "XAUUSD",
-          interval: "15",
-          timezone: "Etc/UTC",
-          theme: "dark",
-          style: "1",
-          locale: "en",
-          toolbar_bg: "#111",
-          enable_publishing: false,
-          hide_top_toolbar: false,
-          hide_legend: false,
-          container_id: "tradingview_chart"
-        });
-      }
-    });
-  </script>
-
-  <!-- ✅ Footer Legal Modal Content -->
-  <script>
-    const LEGAL_TEXT = {
-      terms: `
-        <p><b>Terms of Service</b></p>
-        <p class="small">By using this website, you agree to follow our platform rules and use the service responsibly.</p>
-        <ul class="small">
-          <li>You must provide accurate information during registration.</li>
-          <li>Any misuse, abuse, or fraudulent activity may result in account suspension.</li>
-          <li>Services, plans, and policies may be updated at any time for security and compliance.</li>
-        </ul>
-        <p class="small"><b>Note:</b> This website content is provided for demonstration/ informational purposes and does not guarantee returns.</p>
-      `,
-      privacy: `
-        <p><b>Privacy Policy</b></p>
-        <p class="small">We respect your privacy. We collect only necessary data to operate the platform.</p>
-        <ul class="small">
-          <li>Basic account data (email, login identifiers) for authentication.</li>
-          <li>Transaction submissions (proof uploads/records) for verification workflows.</li>
-          <li>We do not sell personal data.</li>
-        </ul>
-        <p class="small">For support, contact: support@goldchain-investment.com</p>
-      `,
-      risk: `
-        <p><b>Risk Disclosure</b></p>
-        <p class="small">Investing and markets involve risk. Past performance does not guarantee future outcomes.</p>
-        <ul class="small">
-          <li>Returns shown are plan targets and may be subject to policy conditions.</li>
-          <li>Users are responsible for understanding risks before participation.</li>
-          <li>Always consult a financial professional for advice.</li>
-        </ul>
-      `,
-      kyc: `
-        <p><b>KYC / AML</b></p>
-        <p class="small">For security and compliance, we may require identity verification for certain actions.</p>
-        <ul class="small">
-          <li>KYC helps prevent fraud and protects users.</li>
-          <li>AML measures help detect and prevent unlawful activity.</li>
-          <li>We may request documents if needed for verification.</li>
-        </ul>
-      `
-    };
-
-    const modal = document.getElementById("gcModal");
-    const modalBody = document.getElementById("gcModalBody");
-    const modalTitle = document.getElementById("gcModalTitle");
-
-    function openModal(key, title){
-      if (!modal || !modalBody || !modalTitle) return;
-      modalTitle.textContent = title;
-      modalBody.innerHTML = LEGAL_TEXT[key] || "<p class='small'>Content not available.</p>";
-      modal.setAttribute("aria-hidden", "false");
-      modal.classList.add("open");
-      document.body.classList.add("gc-modal-open");
-    }
-
-    function closeModal(){
-      if (!modal) return;
-      modal.setAttribute("aria-hidden", "true");
-      modal.classList.remove("open");
-      document.body.classList.remove("gc-modal-open");
-    }
-
-    document.addEventListener("click", (e) => {
-      const openBtn = e.target.closest("[data-open-modal]");
-      if (openBtn){
-        const key = openBtn.getAttribute("data-open-modal");
-        const titleMap = { terms:"Terms of Service", privacy:"Privacy Policy", risk:"Risk Disclosure", kyc:"KYC / AML" };
-        openModal(key, titleMap[key] || "Legal");
-        return;
-      }
-      if (e.target.closest("[data-close-modal]")) closeModal();
-    });
-
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") closeModal();
-    });
   </script>
 
 </body>
