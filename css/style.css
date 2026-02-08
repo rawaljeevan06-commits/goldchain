@@ -2531,19 +2531,41 @@ body {
    MOBILE NAVBAR (gc-nav)
    ======================== */
 
+/* ===== Premium Hamburger ===== */
+
 .gc-menu-btn{
   display:none;
+  flex-direction:column;
+  gap:5px;
   background:none;
   border:none;
-  color:#fff;
-  font-size:24px;
   cursor:pointer;
+  padding:8px;
+}
+
+.gc-menu-btn span{
+  width:22px;
+  height:2px;
+  background:#facc15;
+  border-radius:2px;
+  transition:0.3s ease;
+}
+
+/* Animate to X */
+.gc-menu-btn.active span:nth-child(1){
+  transform:rotate(45deg) translate(5px,5px);
+}
+.gc-menu-btn.active span:nth-child(2){
+  opacity:0;
+}
+.gc-menu-btn.active span:nth-child(3){
+  transform:rotate(-45deg) translate(5px,-5px);
 }
 
 @media (max-width:768px){
 
   .gc-menu-btn{
-    display:block;
+    display:flex;
   }
 
   .gc-links{
