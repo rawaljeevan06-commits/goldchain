@@ -1,257 +1,98 @@
-// js/payment.js
-import { auth, db } from "./firebase.js";
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-import {
-  collection, addDoc, serverTimestamp,
-  doc, getDoc
-} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Payment | GoldChain</title>
 
-// ---------- Helpers ----------
-function money(n){ return `$${Number(n || 0).toFixed(2)}`; }
-function setMsg(t, isErr=false){
-  const el = document.getElementById("payMsg");
-  if (!el) return;
-  el.textContent = t || "";
-  el.style.color = isErr ? "#ff7b7b" : "#b9f6ca";
-}
-function safeParsePlan(raw){
-  // Accept JSON object OR legacy string like "Basic - $350"
-  if (!raw) return null;
-  try {
-    const obj = JSON.parse(raw);
-    if (obj && typeof obj === "object") return obj;
-  } catch (e) {}
-  // legacy fallback
-  const m = String(raw).match(/(\d{3,5})/);
-  const amt = m ? Number(m[1]) : 0;
-  return { name: "Plan", amount: amt, percent: 0, withdraw: "" };
-}
-function monthlyRateByAmount(amount){
-  const a = Number(amount || 0);
-  if (a >= 5000) return 18;
-  if (a >= 350) return 16;
-  return 0;
-}
-function planNameByAmount(amount){
-  const a = Number(amount || 0);
-  if (a >= 5000) return "Premium";
-  if (a >= 1000) return "Pro";
-  if (a >= 700) return "Growth";
-  if (a >= 350) return "Starter";
-  return "Plan";
-}
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
 
-// ---------- UI elements ----------
-const selectedPlanText = document.getElementById("selectedPlanText");
-const cryptoSelect = document.getElementById("cryptoSelect");
-const payAmountEl = document.getElementById("payAmount");
-const payNetworkEl = document.getElementById("payNetwork");
-const walletAddressEl = document.getElementById("walletAddress");
-const qrImg = document.getElementById("qrImg");
-const copyAddrBtn = document.getElementById("copyAddrBtn");
-const txidInput = document.getElementById("txidInput");
-const noteInput = document.getElementById("noteInput");
-const submitBtn = document.getElementById("submitProofBtn");
+<body>
+  <div class="topbar">Deposit / Payment — Submit your proof</div>
 
-// ---------- Your wallet addresses (PUT REAL ONES) ----------
-const WALLETS = {
-  USDT_TRC20: {
-    label: "USDT (TRC20)",
-    network: "TRC20",
-    address: "PUT_YOUR_USDT_TRC20_WALLET_HERE"
-  },
-  BTC: {
-    label: "Bitcoin (BTC)",
-    network: "BTC",
-    address: "PUT_YOUR_BTC_WALLET_HERE"
-  },
-  ETH: {
-    label: "Ethereum (ETH)",
-    network: "ETH",
-    address: "PUT_YOUR_ETH_WALLET_HERE"
-  }
-};
+  <header class="header">
+    <div class="container header-in">
+      <a class="brand" href="index.html">
+        <img src="images/logo.png" alt="GoldChain Logo">
+        <span>GoldChain</span>
+      </a>
 
-// ---------- Load selected plan (from localStorage OR user profile fallback) ----------
-async function loadSelectedPlanForUser(user){
-  let raw = null;
-  try { raw = localStorage.getItem("selectedPlan"); } catch(e) {}
-  if (!raw) {
-    try { raw = sessionStorage.getItem("selectedPlan"); } catch(e) {}
-  }
+      <button class="nav-toggle" type="button" aria-label="Menu">☰</button>
 
-  // If not found, fallback to Firestore user plan
-  if (!raw) {
-    try {
-      const snap = await getDoc(doc(db, "users", user.uid));
-      if (snap.exists()) {
-        const data = snap.data();
-        const amt = Number(data.plan || data.planAmount || 0);
-        if (amt > 0) {
-          return {
-            name: planNameByAmount(amt),
-            amount: amt,
-            percent: monthlyRateByAmount(amt),
-            withdraw: ""
-          };
-        }
-      }
-    } catch(e) {}
-    return null;
-  }
+      <nav class="nav">
+        <a href="index.html">Home</a>
+        <a href="about.html">Our Project</a>
+        <a href="legal.html">Legal</a>
+        <a href="contact.html">Contact</a>
+      </nav>
 
-  const obj = safeParsePlan(raw);
-  // Ensure amount is correct (some old code saved amount:0)
-  const amount = Number(obj.amount || obj.planAmount || 0) || 0;
+      <div class="actions">
+        <a class="btn btn-ghost" href="dashboard.html">Dashboard</a>
+      </div>
+    </div>
+  </header>
 
-  return {
-    name: obj.name || planNameByAmount(amount),
-    amount,
-    percent: monthlyRateByAmount(amount),
-    withdraw: obj.withdraw || ""
-  };
-}
+  <main class="section">
+    <div class="container">
 
-// ---------- Render payment details ----------
-function renderPayment(plan){
-  if (!plan || !plan.amount) {
-    if (selectedPlanText) selectedPlanText.textContent = "❌ No plan selected. Go to Plans and choose one.";
-    if (payAmountEl) payAmountEl.textContent = "—";
-    if (walletAddressEl) walletAddressEl.textContent = "—";
-    if (payNetworkEl) payNetworkEl.textContent = "—";
-    if (qrImg) qrImg.removeAttribute("src");
-    if (submitBtn) submitBtn.disabled = true;
-    return;
-  }
+      <div class="card">
+        <h2>Deposit / Payment</h2>
+        <p class="small" id="selectedPlanText">Loading your selected plan...</p>
+        <p class="small" id="payMsg" style="margin-top:10px;"></p>
+      </div>
 
-  const pct = monthlyRateByAmount(plan.amount);
-  const planName = planNameByAmount(plan.amount);
+      <div class="card" style="margin-top:14px;">
+        <label class="small">Choose Crypto</label>
+        <select id="cryptoSelect" class="input" style="margin-top:8px;">
+          <option value="USDT_TRC20">USDT (TRC20)</option>
+          <option value="BTC">BTC</option>
+          <option value="ETH">ETH</option>
+        </select>
 
-  if (selectedPlanText) {
-    selectedPlanText.textContent =
-      `Selected: ${planName} — ${money(plan.amount)} • ${pct}% monthly`;
-  }
+        <label class="small" style="display:block; margin-top:14px;">Network</label>
+        <div id="payNetwork" class="input" style="margin-top:8px;">—</div>
 
-  const cryptoKey = cryptoSelect?.value || "USDT_TRC20";
-  const wallet = WALLETS[cryptoKey] || WALLETS.USDT_TRC20;
+        <label class="small" style="display:block; margin-top:14px;">Wallet Address</label>
+        <div id="walletAddress" class="input" style="margin-top:8px;">—</div>
 
-  if (payAmountEl) payAmountEl.textContent = money(plan.amount);
-  if (payNetworkEl) payNetworkEl.textContent = `Network: ${wallet.network}`;
-  if (walletAddressEl) walletAddressEl.textContent = wallet.address;
+        <button id="copyAddrBtn" class="btn btn-ghost" type="button" style="margin-top:10px; width:100%;">Copy Address</button>
 
-  // Simple QR using a free QR generator URL (works as image)
-  // If you want, later we can generate QR locally too.
-  if (qrImg) {
-    const text = encodeURIComponent(wallet.address);
-    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${text}`;
-  }
+        <div style="margin-top:14px; display:flex; justify-content:center;">
+          <img id="qrImg" alt="QR Code" style="max-width:220px; width:100%; border-radius:12px;">
+        </div>
 
-  if (submitBtn) submitBtn.disabled = false;
-}
+        <label class="small" style="display:block; margin-top:16px;">Amount</label>
+        <div id="payAmount" class="input" style="margin-top:8px;">—</div>
 
-// ---------- Copy wallet ----------
-copyAddrBtn?.addEventListener("click", async () => {
-  const addr = walletAddressEl?.textContent || "";
-  if (!addr || addr === "—") return;
-  try {
-    await navigator.clipboard.writeText(addr);
-    setMsg("✅ Wallet address copied!");
-  } catch (e) {
-    setMsg("Copy failed. Please copy manually.", true);
-  }
-});
+        <label class="small" style="display:block; margin-top:16px;">TXID / Transaction Hash</label>
+        <input id="txidInput" class="input" type="text" placeholder="Paste your TXID here" style="margin-top:8px;">
 
-// Re-render on crypto change
-cryptoSelect?.addEventListener("change", async () => {
-  if (!window.__CURRENT_PLAN__) return;
-  renderPayment(window.__CURRENT_PLAN__);
-});
+        <label class="small" style="display:block; margin-top:16px;">Note (optional)</label>
+        <input id="noteInput" class="input" type="text" placeholder="Any note..." style="margin-top:8px;">
 
-// ---------- Submit proof ----------
-async function submitProof(user, plan){
-  setMsg("");
-  const txid = String(txidInput?.value || "").trim();
-  const note = String(noteInput?.value || "").trim();
+        <button id="submitProofBtn" class="btn btn-primary" type="button" style="margin-top:16px; width:100%;">
+          Submit Proof
+        </button>
+      </div>
 
-  if (!plan || !plan.amount) {
-    setMsg("❌ No plan selected. Please choose a plan first.", true);
-    return;
-  }
-  if (!txid || txid.length < 8) {
-    setMsg("❌ Please paste a valid TXID / Transaction Hash.", true);
-    return;
-  }
+    </div>
+  </main>
 
-  const cryptoKey = cryptoSelect?.value || "USDT_TRC20";
-  const wallet = WALLETS[cryptoKey] || WALLETS.USDT_TRC20;
+  <footer class="footer">
+    <div class="container">
+      <p class="small">&copy; 2026 GoldChain Investment. All rights reserved.</p>
+    </div>
+  </footer>
 
-  const amount = Number(plan.amount || 0);
-  const monthlyPercent = monthlyRateByAmount(amount);
-  const planName = planNameByAmount(amount);
+  <!-- ✅ This must load your JS file -->
+  <script type="module" src="js/payment.js"></script>
 
-  submitBtn.disabled = true;
-  setMsg("Submitting payment proof…");
-
-  try {
-    await addDoc(collection(db, "payments"), {
-      uid: user.uid,
-      email: user.email || "",
-
-      status: "pending",
-      createdAt: serverTimestamp(),
-
-      // Consistent fields for dashboard/admin/withdrawal
-      planAmount: amount,
-      planName: planName,
-      monthlyPercent: monthlyPercent,
-
-      // For display/admin
-      amount: amount,
-
-      method: wallet.label,
-      network: wallet.network,
-      toWallet: wallet.address,
-
-      txid,
-      note
-    });
-
-    setMsg("✅ Proof submitted. Waiting for admin verification.");
-    if (txidInput) txidInput.value = "";
-    if (noteInput) noteInput.value = "";
-
-  } catch (e) {
-    console.error(e);
-    setMsg("❌ Failed to submit. Check Firestore rules / internet.", true);
-  } finally {
-    submitBtn.disabled = false;
-  }
-}
-
-submitBtn?.addEventListener("click", async () => {
-  const user = window.__CURRENT_USER__;
-  const plan = window.__CURRENT_PLAN__;
-  if (!user) {
-    setMsg("❌ Please login first.", true);
-    window.location.href = "login.html";
-    return;
-  }
-  await submitProof(user, plan);
-});
-
-// ---------- Auth gate ----------
-onAuthStateChanged(auth, async (user) => {
-  if (!user) {
-    // You can allow view without login if you want, but proof requires login
-    setMsg("⚠️ Please login to submit payment proof.");
-    window.__CURRENT_USER__ = null;
-    return;
-  }
-
-  window.__CURRENT_USER__ = user;
-
-  const plan = await loadSelectedPlanForUser(user);
-  window.__CURRENT_PLAN__ = plan;
-
-  renderPayment(plan);
-});
+  <script>
+    const navToggle = document.querySelector(".nav-toggle");
+    const nav = document.querySelector(".nav");
+    if (navToggle && nav) navToggle.addEventListener("click", () => nav.classList.toggle("open"));
+  </script>
+</body>
+</html>
