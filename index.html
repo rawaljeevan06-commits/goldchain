@@ -1,59 +1,57 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>GoldChain Investment</title>
-
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
 
   <!-- NAVBAR -->
- <header class="gc-nav">
-  <div class="gc-nav-inner">
-    <div class="gc-logo">GoldChain</div>
+  <header class="gc-nav">
+    <div class="gc-nav-inner">
+      <div class="gc-logo">GoldChain</div>
 
-    <!-- Mobile Menu Button -->
-    <button class="gc-menu-btn" id="gcMenuBtn">
-  <span></span>
-  <span></span>
-  <span></span>
-</button>
+      <!-- Mobile Menu Button -->
+      <button class="gc-menu-btn" id="gcMenuBtn" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
 
-    <nav class="gc-links" id="gcNavLinks">
-      <a href="#home">Home</a>
-      <a href="#history">Gold History</a>
-      <a href="#plans">Plans</a>
-      <a href="project.html">Our Project</a>
-      <a href="#contact">Contact</a>
-    </nav>
+      <nav class="gc-links" id="gcNavLinks">
+        <a href="#home">Home</a>
+        <a href="#history">Gold History</a>
+        <a href="#plans">Plans</a>
+        <a href="project.html">Our Project</a>
+        <a href="#contact">Contact</a>
+      </nav>
 
-    <div class="gc-actions">
-      <a id="loginLink" class="btn btn-outline" href="login.html">Login</a>
-      <a id="signupLink" class="btn btn-primary" href="signup.html">Sign Up</a>
-      <a id="dashLink" class="btn btn-primary" href="dashboard.html" style="display:none;">Dashboard</a>
+      <div class="gc-actions">
+        <a id="loginLink" class="btn btn-outline" href="login.html">Login</a>
+        <a id="signupLink" class="btn btn-primary" href="signup.html">Sign Up</a>
+        <a id="dashLink" class="btn btn-primary" href="dashboard.html" style="display:none;">Dashboard</a>
+      </div>
     </div>
-  </div>
-</header>
+  </header>
 
   <!-- HERO -->
   <section id="home" class="gc-hero">
     <div class="gc-hero-inner">
       <h1>Invest in Gold. Grow with Confidence.</h1>
-      <p>
-        GoldChain helps you invest with clear returns, transparent plans, and a premium experience.
-      </p>
-<!-- HERO BADGES -->
-<div class="hero-badges">
-  <span class="pill pill-hot">🔥 Trending</span>
-  <span class="pill">🔐 Secure Access</span>
-  <span class="pill">✔ Verified Workflow</span>
-  <span class="pill">📊 Live Dashboard</span>
-</div>
-      <<div class="hero-btns">
-  <a class="btn btn-primary" href="#plans">🔥 Explore Plans</a>
-  <a class="btn btn-outline" href="dashboard.html">⚡ Open Dashboard</a>
-</div>
+      <p>GoldChain helps you invest with clear returns, transparent plans, and a premium experience.</p>
+
+      <!-- HERO BADGES -->
+      <div class="hero-badges">
+        <span class="pill pill-hot">🔥 Trending</span>
+        <span class="pill">🔐 Secure Access</span>
+        <span class="pill">✔ Verified Workflow</span>
+        <span class="pill">📊 Live Dashboard</span>
+      </div>
+
+      <div class="hero-btns">
+        <a class="btn btn-primary" href="#plans">🔥 Explore Plans</a>
+        <a id="heroDashBtn" class="btn btn-outline" href="login.html">⚡ Open Dashboard</a>
+      </div>
 
       <div class="gc-stats">
         <div class="stat">
@@ -71,137 +69,110 @@
       </div>
     </div>
   </section>
-  </section>  <!-- END HERO -->
+  <!-- END HERO -->
 
-<!-- STATS COUNTERS -->
-<section class="stats-strip">
-  <div class="gc-container">
-    <div class="stats-grid">
-      <div class="statx">
-        <div class="statx-num" data-count="4">0</div>
-        <div class="statx-label">Plans</div>
-      </div>
-
-      <div class="statx">
-        <div class="statx-num" data-count="1200">0</div>
-        <div class="statx-label">Visitors Joined</div>
-      </div>
-
-      <div class="statx">
-        <div class="statx-num" data-count="350">0</div>
-        <div class="statx-label">Verified Requests</div>
-      </div>
-
-      <div class="statx">
-        <div class="statx-num" data-count="24">0</div>
-        <div class="statx-label">Support Hours</div>
-      </div>
-    </div>
-  </div>
-</section>
-<!-- LIVE ACTIVITY TICKER -->
-<section class="ticker-strip">
-  <div class="ticker">
-    <div class="ticker-track" id="tickerTrack">
-      <span class="tick">🔥 New member joined • Doha</span>
-      <span class="tick">⚡ Plan selected • Growth $700</span>
-      <span class="tick">💎 Deposit proof submitted • USDT TRC20</span>
-      <span class="tick">📈 Dashboard updated • Activity verified</span>
-      <span class="tick">🚀 Referral code used • +1 new signup</span>
-      <span class="tick">🟡 Live price tracking • XAU/USD</span>
-      <!-- repeat once for smooth loop -->
-      <span class="tick">🔥 New member joined • Doha</span>
-      <span class="tick">⚡ Plan selected • Growth $700</span>
-      <span class="tick">💎 Deposit proof submitted • USDT TRC20</span>
-      <span class="tick">📈 Dashboard updated • Activity verified</span>
-      <span class="tick">🚀 Referral code used • +1 new signup</span>
-      <span class="tick">🟡 Live price tracking • XAU/USD</span>
-    </div>
-  </div>
-</section>
-<!-- NEXT SECTION (Security / Transparency or whatever comes next) -->
-<!-- TRUST / BADGES STRIP -->
-<section class="trust-strip">
-  <div class="gc-container">
-    <div class="trust-head">
-      <h2 class="gc-title" style="margin:0;">Built for Confidence</h2>
-      <p class="gc-text" style="margin:8px 0 0; opacity:.9;">
-        Clear workflow, visible records, and a premium user experience.
-      </p>
-    </div>
-
-    <div class="trust-badges">
-      <div class="trust-badge">
-        <div class="trust-ico">🔐</div>
-        <div>
-          <div class="trust-title">Secure Access</div>
-          <div class="trust-sub">Protected login system</div>
+  <!-- STATS COUNTERS -->
+  <section class="stats-strip">
+    <div class="gc-container">
+      <div class="stats-grid">
+        <div class="statx">
+          <div class="statx-num" data-count="4">0</div>
+          <div class="statx-label">Plans</div>
         </div>
-      </div>
-
-      <div class="trust-badge">
-        <div class="trust-ico">✔️</div>
-        <div>
-          <div class="trust-title">Verification Flow</div>
-          <div class="trust-sub">Controlled approval process</div>
+        <div class="statx">
+          <div class="statx-num" data-count="1200">0</div>
+          <div class="statx-label">Visitors Joined</div>
         </div>
-      </div>
-
-      <div class="trust-badge">
-        <div class="trust-ico">📊</div>
-        <div>
-          <div class="trust-title">Live Dashboard</div>
-          <div class="trust-sub">Track activity clearly</div>
+        <div class="statx">
+          <div class="statx-num" data-count="350">0</div>
+          <div class="statx-label">Verified Requests</div>
         </div>
-      </div>
-
-      <div class="trust-badge">
-        <div class="trust-ico">⚡</div>
-        <div>
-          <div class="trust-title">Fast Support</div>
-          <div class="trust-sub">WhatsApp + email help</div>
-        </div>
-      </div>
-
-      <div class="trust-badge gold">
-        <div class="trust-ico">💎</div>
-        <div>
-          <div class="trust-title">Premium Interface</div>
-          <div class="trust-sub">Modern fintech layout</div>
-        </div>
-      </div>
-
-      <div class="trust-badge">
-        <div class="trust-ico">🧾</div>
-        <div>
-          <div class="trust-title">Transparent Records</div>
-          <div class="trust-sub">Visible deposit history</div>
+        <div class="statx">
+          <div class="statx-num" data-count="24">0</div>
+          <div class="statx-label">Support Hours</div>
         </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
+
+  <!-- LIVE ACTIVITY TICKER -->
+  <section class="ticker-strip">
+    <div class="ticker">
+      <div class="ticker-track" id="tickerTrack">
+        <span class="tick">🔥 New member joined • Doha</span>
+        <span class="tick">⚡ Plan selected • Growth $700</span>
+        <span class="tick">💎 Deposit proof submitted • USDT TRC20</span>
+        <span class="tick">📈 Dashboard updated • Activity verified</span>
+        <span class="tick">🚀 Referral code used • +1 new signup</span>
+        <span class="tick">🟡 Live price tracking • XAU/USD</span>
+
+        <!-- repeat once for smooth loop -->
+        <span class="tick">🔥 New member joined • Doha</span>
+        <span class="tick">⚡ Plan selected • Growth $700</span>
+        <span class="tick">💎 Deposit proof submitted • USDT TRC20</span>
+        <span class="tick">📈 Dashboard updated • Activity verified</span>
+        <span class="tick">🚀 Referral code used • +1 new signup</span>
+        <span class="tick">🟡 Live price tracking • XAU/USD</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRUST / BADGES STRIP -->
+  <section class="trust-strip">
+    <div class="gc-container">
+      <div class="trust-head">
+        <h2 class="gc-title" style="margin:0;">Built for Confidence</h2>
+        <p class="gc-text" style="margin:8px 0 0; opacity:.9;">
+          Clear workflow, visible records, and a premium user experience.
+        </p>
+      </div>
+
+      <div class="trust-badges">
+        <div class="trust-badge">
+          <div class="trust-ico">🔐</div>
+          <div><div class="trust-title">Secure Access</div><div class="trust-sub">Protected login system</div></div>
+        </div>
+        <div class="trust-badge">
+          <div class="trust-ico">✔️</div>
+          <div><div class="trust-title">Verification Flow</div><div class="trust-sub">Controlled approval process</div></div>
+        </div>
+        <div class="trust-badge">
+          <div class="trust-ico">📊</div>
+          <div><div class="trust-title">Live Dashboard</div><div class="trust-sub">Track activity clearly</div></div>
+        </div>
+        <div class="trust-badge">
+          <div class="trust-ico">⚡</div>
+          <div><div class="trust-title">Fast Support</div><div class="trust-sub">WhatsApp + email help</div></div>
+        </div>
+        <div class="trust-badge gold">
+          <div class="trust-ico">💎</div>
+          <div><div class="trust-title">Premium Interface</div><div class="trust-sub">Modern fintech layout</div></div>
+        </div>
+        <div class="trust-badge">
+          <div class="trust-ico">🧾</div>
+          <div><div class="trust-title">Transparent Records</div><div class="trust-sub">Visible deposit history</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- SECURITY / TRANSPARENCY -->
   <section style="padding:40px 0; background:rgba(0,0,0,0.35); border-top:1px solid rgba(255,255,255,0.08); border-bottom:1px solid rgba(255,255,255,0.08);">
     <div class="container" style="text-align:center;">
       <h2 style="margin-bottom:25px;">Platform Security & Transparency</h2>
-
       <div style="display:flex; justify-content:center; gap:34px; flex-wrap:wrap;">
         <div style="max-width:240px;">
           <h3>🔐 Secure Authentication</h3>
           <p class="small">Protected login system powered by secure backend services.</p>
         </div>
-
         <div style="max-width:240px;">
           <h3>✔ Verified Transactions</h3>
           <p class="small">Deposits are verified before balance activation.</p>
         </div>
-
         <div style="max-width:240px;">
           <h3>📊 Transparent Dashboard</h3>
           <p class="small">Track deposits, withdrawals, plans, and referrals clearly.</p>
         </div>
-
         <div style="max-width:240px;">
           <h3>🛡 Admin Oversight</h3>
           <p class="small">Manual approval ensures controlled operations.</p>
@@ -214,28 +185,13 @@
   <section id="history" class="gc-section">
     <div class="gc-container">
       <h2 class="gc-title">A Short History of Gold</h2>
-      <p class="gc-text">
-        Gold has been trusted for thousands of years because it is rare, durable, and valuable across cultures.
-        Ancient civilizations used gold for trade, jewelry, and royal treasures.
-      </p>
-      <p class="gc-text">
-        Even today, many people view gold as a “safe haven” asset, especially during uncertainty.
-        It’s a symbol of stability and long-term value.
-      </p>
+      <p class="gc-text">Gold has been trusted for thousands of years because it is rare, durable, and valuable across cultures.</p>
+      <p class="gc-text">Even today, many people view gold as a “safe haven” asset, especially during uncertainty.</p>
 
       <div class="gc-info-grid">
-        <div class="info-card">
-          <h3>Why Gold?</h3>
-          <p>Gold holds value over time and is globally recognized.</p>
-        </div>
-        <div class="info-card">
-          <h3>Trusted Asset</h3>
-          <p>Used for savings and protection through different eras.</p>
-        </div>
-        <div class="info-card">
-          <h3>Long-Term</h3>
-          <p>Many investors use gold as part of a balanced strategy.</p>
-        </div>
+        <div class="info-card"><h3>Why Gold?</h3><p>Gold holds value over time and is globally recognized.</p></div>
+        <div class="info-card"><h3>Trusted Asset</h3><p>Used for savings and protection through different eras.</p></div>
+        <div class="info-card"><h3>Long-Term</h3><p>Many investors use gold as part of a balanced strategy.</p></div>
       </div>
     </div>
   </section>
@@ -247,73 +203,38 @@
       <p class="gc-text">Choose a plan based on your investment amount and withdrawal timeline.</p>
 
       <div class="plan-grid">
-
-        <!-- Starter -->
         <div class="plan-card">
           <div class="badge">Starter</div>
           <h3>$350 Minimum</h3>
           <p class="plan-big">16% Monthly</p>
           <p class="plan-small">Withdraw after 45 days</p>
-
-          <button class="btn btn-primary choose-plan"
-            data-plan="Starter"
-            data-amount="350"
-            data-percent="16"
-            data-withdraw="Withdraw after 45 days">
-            Choose Plan
-          </button>
+          <button class="btn btn-primary choose-plan" data-plan="Starter" data-amount="350" data-percent="16" data-withdraw="Withdraw after 45 days">Choose Plan</button>
         </div>
 
-        <!-- Growth -->
         <div class="plan-card glow">
           <div class="badge badge-offer">LIMITED OFFER</div>
           <div class="badge">Growth</div>
-
           <h3>$700</h3>
           <p class="plan-big">16% Monthly</p>
           <p class="plan-small">Withdraw after 1 month</p>
-
-          <button class="btn btn-primary choose-plan"
-            data-plan="Growth"
-            data-amount="700"
-            data-percent="16"
-            data-withdraw="Withdraw after 1 month">
-            Choose Plan
-          </button>
+          <button class="btn btn-primary choose-plan" data-plan="Growth" data-amount="700" data-percent="16" data-withdraw="Withdraw after 1 month">Choose Plan</button>
         </div>
 
-        <!-- Pro -->
         <div class="plan-card glow">
           <div class="badge">Pro</div>
           <h3>$1000</h3>
           <p class="plan-big">16% Monthly</p>
           <p class="plan-small">Withdraw after 15 days</p>
-
-          <button class="btn btn-primary choose-plan"
-            data-plan="Pro"
-            data-amount="1000"
-            data-percent="16"
-            data-withdraw="Withdraw after 15 days">
-            Choose Plan
-          </button>
+          <button class="btn btn-primary choose-plan" data-plan="Pro" data-amount="1000" data-percent="16" data-withdraw="Withdraw after 15 days">Choose Plan</button>
         </div>
 
-        <!-- Premium -->
         <div class="plan-card premium-plan">
           <div class="badge badge-gold">Premium</div>
           <h3>$5000+</h3>
           <p class="plan-big">18% Monthly</p>
           <p class="plan-small">Withdraw weekly</p>
-
-          <button class="btn btn-primary choose-plan"
-            data-plan="Premium"
-            data-amount="5000"
-            data-percent="18"
-            data-withdraw="Withdraw weekly">
-            Choose Plan
-          </button>
+          <button class="btn btn-primary choose-plan" data-plan="Premium" data-amount="5000" data-percent="18" data-withdraw="Withdraw weekly">Choose Plan</button>
         </div>
-
       </div>
 
       <!-- Profit Calculator -->
@@ -333,50 +254,6 @@
     </div>
   </section>
 
-  <!-- ABOUT (short) -->
-  <section style="padding:55px 0;">
-    <div class="container" style="max-width:900px; text-align:center;">
-      <h2>About GoldChain Investment</h2>
-
-      <p class="small" style="margin-top:15px; line-height:1.9;">
-        GoldChain Investment operates as a structured digital participation platform focused on transparency,
-        accountability, and controlled financial workflows. We combine technology infrastructure with
-        administrative verification to maintain a disciplined and traceable system.
-      </p>
-
-      <div style="margin-top:22px;">
-        <p class="small"><b>Registered Brand:</b> GoldChain Investment</p>
-        <p class="small"><b>Support Email:</b> support@goldchain-investment.com</p>
-        <p class="small"><b>Operational Model:</b> Digital Investment Participation Platform</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- LIVE GOLD PRICE -->
-  <section class="gc-section">
-    <div class="gc-container">
-      <h2 class="gc-title">Live Gold Price</h2>
-      <p class="gc-text">Track real-time gold price movement (XAU/USD).</p>
-
-      <div class="tv-wrap">
-        <iframe
-          src="https://s.tradingview.com/widgetembed/?symbol=OANDA%3AXAUUSD&interval=15&hidesidetoolbar=1&symboledit=0&saveimage=0&toolbarbg=%231f1f1f&studies=%5B%5D&theme=dark&style=1&timezone=Etc%2FUTC&withdateranges=1&hidevolume=1&hideideas=1"
-          title="Live Gold Chart"
-          loading="lazy"
-          referrerpolicy="no-referrer"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
-        </iframe>
-      </div>
-
-      <p class="gc-text" style="margin-top:10px;">
-        If the chart doesn’t load on your browser,
-        <a href="https://www.tradingview.com/symbols/XAUUSD/" target="_blank" style="text-decoration:underline;">
-          open it here
-        </a>.
-      </p>
-    </div>
-  </section>
-
   <!-- CONTACT -->
   <section id="contact" class="gc-section">
     <div class="gc-container">
@@ -390,100 +267,6 @@
       </div>
     </div>
   </section>
-<!-- ✅ OUR SUCCESS (HOME) -->
-<section class="gc-section">
-  <div class="gc-container">
-    <h2 class="gc-title">Our Success</h2>
-    <p class="gc-text">
-      We focus on verified transactions, transparent dashboards, and controlled withdrawals to keep the platform organized and trusted.
-    </p>
-
-    <div style="display:flex; gap:16px; flex-wrap:wrap; margin-top:14px;">
-      <div class="card" style="flex:1; min-width:220px;">
-        <h3>Verified Deposits</h3>
-        <p class="small" style="opacity:.9;">Deposits are verified before balance is activated.</p>
-      </div>
-
-      <div class="card" style="flex:1; min-width:220px;">
-        <h3>Controlled Withdrawals</h3>
-        <p class="small" style="opacity:.9;">Requests follow an approval flow for security.</p>
-      </div>
-
-      <div class="card" style="flex:1; min-width:220px;">
-        <h3>Referral Tracking</h3>
-        <p class="small" style="opacity:.9;">Earnings and codes are recorded and visible.</p>
-      </div>
-    </div>
-  </div>
-</section>
-<div style="text-align:center; margin-bottom:20px;">
-  <h3>Member Satisfaction</h3>
-  <p style="font-size:22px; color:#facc15;">★★★★★</p>
-  <p class="small">Rated highly for transparency and user experience.</p>
-<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:16px; margin-top:14px;">
-
-  <div class="card">
-    <p class="small" style="line-height:1.8;">
-      “I appreciate the deposit verification process. It makes the platform feel controlled and structured.”
-    </p>
-    <p class="small" style="opacity:.7; margin-top:10px;">
-      <b>— Rajesh Sharma</b><br>
-      <span style="font-size:12px;">Doha, Qatar</span>
-    </p>
-  </div>
-
-  <div class="card">
-    <p class="small" style="line-height:1.8;">
-      “The dashboard layout is clear and professional. I can monitor my plan and referral earnings easily.”
-    </p>
-    <p class="small" style="opacity:.7; margin-top:10px;">
-      <b>— Aamir Khan</b><br>
-      <span style="font-size:12px;">Dubai, UAE</span>
-    </p>
-  </div>
-
-  <div class="card">
-    <p class="small" style="line-height:1.8;">
-      “Withdraw request tracking and admin approval gives transparency. The system feels organized.”
-    </p>
-    <p class="small" style="opacity:.7; margin-top:10px;">
-      <b>— Michael D.</b><br>
-      <span style="font-size:12px;">London, UK</span>
-    </p>
-  </div>
-
-</div>
-
-      <div class="card">
-        <p class="small" style="line-height:1.8;">
-          “The dashboard is clean and professional. I can track my plan, balance, and referral earnings anytime.”
-        </p>
-        <p class="small" style="opacity:.7; margin-top:10px;"><b>— Member B</b></p>
-      </div>
-
-      <div class="card">
-        <p class="small" style="line-height:1.8;">
-          “The referral system is simple. I can copy my code quickly and see my earnings clearly.”
-        </p>
-        <p class="small" style="opacity:.7; margin-top:10px;"><b>— Member C</b></p>
-      </div>
-    </div>
-  </div>
-</section>
-  <!-- CTA -->
-  <section style="padding:55px 0; text-align:center;">
-    <div class="container">
-      <h2>Ready to Start Your Growth Journey?</h2>
-      <p class="small" style="margin-top:15px;">
-        Join GoldChain Investment today and experience structured digital growth.
-      </p>
-
-      <div style="margin-top:25px;">
-        <a class="btn btn-primary" href="signup.html">Create Account</a>
-        <a class="btn btn-outline" href="project.html">Read Our Project</a>
-      </div>
-    </div>
-  </section>
 
   <!-- WhatsApp Floating Button -->
   <a href="https://wa.me/974876535344" class="wa-float" target="_blank" title="Chat on WhatsApp">💬</a>
@@ -491,221 +274,150 @@
   <!-- FOOTER -->
   <footer class="footer">
     <div class="container footer-in">
-      <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:20px;">
-        <div>
-          <h3>GoldChain Investment</h3>
-          <p class="small">Structured. Transparent. Secure.</p>
-        </div>
-<section class="gc-section">
-  <div class="gc-container">
-    <h2 class="gc-title">Why Choose GoldChain?</h2>
-
-    <div style="display:flex; gap:18px; flex-wrap:wrap; margin-top:14px;">
-      <div class="card" style="flex:1; min-width:220px;">
-        <h3>Transparent Workflow</h3>
-        <p class="small">Clear deposit verification and visible account activity.</p>
-      </div>
-
-      <div class="card" style="flex:1; min-width:220px;">
-        <h3>Structured Plans</h3>
-        <p class="small">Multiple participation levels with defined timelines.</p>
-      </div>
-
-      <div class="card" style="flex:1; min-width:220px;">
-        <h3>Referral Rewards</h3>
-        <p class="small">Earn after verified deposits with tracking system.</p>
-      </div>
-    </div>
-  </div>
-</section>
-        <div>
-          <p class="small">
-            <a href="project.html">Our Project</a><br>
-            <a href="legal.html">Legal & Risk Disclosure</a><br>
-            <a href="contact.html">Contact</a>
-          </p>
-        </div>
-      </div>
-
       <hr style="margin:20px 0; opacity:.2;">
       <p class="small">©️ 2026 GoldChain Investment. All rights reserved.</p>
     </div>
   </footer>
 
-<script>
- <!-- Choose Plan -->
-<script>
-  document.addEventListener("click", (e) => {
-    const btn = e.target.closest(".choose-plan");
-    if (!btn) return;
-
-    const planObj = {
-      name: btn.dataset.plan || "Plan",
-      amount: Number(btn.dataset.amount || 0),
-      percent: Number(btn.dataset.percent || 0),
-      withdraw: btn.dataset.withdraw || ""
-    };
-
-    try { localStorage.setItem("selectedPlan", JSON.stringify(planObj)); } catch (e) {}
-    try { sessionStorage.setItem("selectedPlan", JSON.stringify(planObj)); } catch (e) {}
-
-    window.location.href = "dashboard.html";
-  });
-</script>
-
-<!-- Calculator (FINAL CLEAN VERSION) -->
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const calcBtn = document.getElementById("calcBtn");
-    const amountInput = document.getElementById("amountInput");
-    const resultEl = document.getElementById("resultEl");
-
-    if (!calcBtn || !amountInput || !resultEl) return;
-
-    function cleanNumber(v) {
-      return Number(String(v || "").replace(/[^0-9.]/g, ""));
-    }
-
-    calcBtn.addEventListener("click", () => {
-      const amount = cleanNumber(amountInput.value);
-
-      if (!amount || amount <= 0) {
-        alert("Please enter a valid amount");
-        return;
-      }
-
-      let rate = 0;
-      let planName = "";
-      let withdrawText = "";
-
-      if (amount >= 5000) {
-        rate = 0.18;
-        planName = "Premium";
-        withdrawText = "Profit withdraw after 7 days, capital + full 18% after 30 days";
-      } else if (amount >= 1000) {
-        rate = 0.16;
-        planName = "Pro";
-        withdrawText = "Withdraw after 15 days";
-      } else if (amount >= 700) {
-        rate = 0.16;
-        planName = "Growth";
-        withdrawText = "Withdraw after 1 month";
-      } else if (amount >= 350) {
-        rate = 0.16;
-        planName = "Starter";
-        withdrawText = "Withdraw after 45 days";
-      } else {
-        alert("Minimum investment is $350");
-        return;
-      }
-
-      const monthlyProfit = amount * rate;
-      const weeklyEstimate = monthlyProfit / 4;
-
-      resultEl.style.display = "block";
-      resultEl.innerHTML =
-        "<b>Plan:</b> " + planName +
-        "<br><b>Monthly Profit (" + (rate * 100) + "%):</b> $ " + monthlyProfit.toFixed(2) +
-        "<br><b>Weekly Estimate:</b> $ " + weeklyEstimate.toFixed(2) +
-        "<br><span class='small'><b>Withdraw Policy:</b> " + withdrawText + "</span>";
-    });
-  });
-</script>
-
-<!-- Header Auth Control -->
-<script type="module">
-  import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-  import { auth } from "./js/firebase.js";
-
-  const loginLink = document.getElementById("loginLink");
-  const signupLink = document.getElementById("signupLink");
-  const dashLink = document.getElementById("dashLink");
-  const heroDashBtn = document.getElementById("heroDashBtn");
-
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      if (loginLink) loginLink.style.display = "none";
-      if (signupLink) signupLink.style.display = "none";
-      if (dashLink) dashLink.style.display = "inline-flex";
-
-      if (heroDashBtn) {
-        heroDashBtn.href = "dashboard.html";
-      }
-    } else {
-      if (loginLink) loginLink.style.display = "inline-flex";
-      if (signupLink) signupLink.style.display = "inline-flex";
-      if (dashLink) dashLink.style.display = "none";
-
-      if (heroDashBtn) {
-        heroDashBtn.href = "login.html";
-      }
-    }
-  });
-</script>
+  <!-- Choose Plan -->
   <script>
-document.addEventListener("DOMContentLoaded", () => {
-  const counters = document.querySelectorAll(".statx-num");
+    document.addEventListener("click", (e) => {
+      const btn = e.target.closest(".choose-plan");
+      if (!btn) return;
 
-  function animateCounter(el, target) {
-    let current = 0;
-    const increment = target / 40;
+      const planObj = {
+        name: btn.dataset.plan || "Plan",
+        amount: Number(btn.dataset.amount || 0),
+        percent: Number(btn.dataset.percent || 0),
+        withdraw: btn.dataset.withdraw || ""
+      };
 
-    const update = () => {
-      current += increment;
-      if (current >= target) {
-        el.textContent = formatNumber(target);
-      } else {
-        el.textContent = formatNumber(Math.floor(current));
-        requestAnimationFrame(update);
+      try { localStorage.setItem("selectedPlan", JSON.stringify(planObj)); } catch (e) {}
+      try { sessionStorage.setItem("selectedPlan", JSON.stringify(planObj)); } catch (e) {}
+
+      window.location.href = "dashboard.html";
+    });
+  </script>
+
+  <!-- Calculator -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const calcBtn = document.getElementById("calcBtn");
+      const amountInput = document.getElementById("amountInput");
+      const resultEl = document.getElementById("resultEl");
+      if (!calcBtn || !amountInput || !resultEl) return;
+
+      function cleanNumber(v) {
+        return Number(String(v || "").replace(/[^0-9.]/g, ""));
       }
-    };
 
-    update();
-  }
+      calcBtn.addEventListener("click", () => {
+        const amount = cleanNumber(amountInput.value);
+        if (!amount || amount <= 0) return alert("Please enter a valid amount");
 
-  function formatNumber(num) {
-    if (num >= 1000) {
-      return (num / 1000).toFixed(1) + "K";
+        let rate = 0, planName = "", withdrawText = "";
+
+        if (amount >= 5000) { rate = 0.18; planName = "Premium"; withdrawText = "Profit withdraw after 7 days, capital + full 18% after 30 days"; }
+        else if (amount >= 1000) { rate = 0.16; planName = "Pro"; withdrawText = "Withdraw after 15 days"; }
+        else if (amount >= 700) { rate = 0.16; planName = "Growth"; withdrawText = "Withdraw after 1 month"; }
+        else if (amount >= 350) { rate = 0.16; planName = "Starter"; withdrawText = "Withdraw after 45 days"; }
+        else return alert("Minimum investment is $350");
+
+        const monthlyProfit = amount * rate;
+        const weeklyEstimate = monthlyProfit / 4;
+
+        resultEl.style.display = "block";
+        resultEl.innerHTML =
+          "<b>Plan:</b> " + planName +
+          "<br><b>Monthly Profit (" + (rate * 100) + "%):</b> $ " + monthlyProfit.toFixed(2) +
+          "<br><b>Weekly Estimate:</b> $ " + weeklyEstimate.toFixed(2) +
+          "<br><span class='small'><b>Withdraw Policy:</b> " + withdrawText + "</span>";
+      });
+    });
+  </script>
+
+  <!-- Header Auth Control -->
+  <script type="module">
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import { auth } from "./js/firebase.js";
+
+    const loginLink = document.getElementById("loginLink");
+    const signupLink = document.getElementById("signupLink");
+    const dashLink = document.getElementById("dashLink");
+    const heroDashBtn = document.getElementById("heroDashBtn");
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        if (loginLink) loginLink.style.display = "none";
+        if (signupLink) signupLink.style.display = "none";
+        if (dashLink) dashLink.style.display = "inline-flex";
+        if (heroDashBtn) heroDashBtn.href = "dashboard.html";
+      } else {
+        if (loginLink) loginLink.style.display = "inline-flex";
+        if (signupLink) signupLink.style.display = "inline-flex";
+        if (dashLink) dashLink.style.display = "none";
+        if (heroDashBtn) heroDashBtn.href = "login.html";
+      }
+    });
+  </script>
+
+  <!-- Stats counters -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const counters = document.querySelectorAll(".statx-num");
+
+      function formatNumber(num) {
+        if (num >= 1000) return (num / 1000).toFixed(1) + "K";
+        return String(num);
+      }
+
+      function animateCounter(el, target) {
+        let current = 0;
+        const steps = 40;
+        const increment = target / steps;
+
+        const update = () => {
+          current += increment;
+          if (current >= target) el.textContent = formatNumber(target);
+          else { el.textContent = formatNumber(Math.floor(current)); requestAnimationFrame(update); }
+        };
+        update();
+      }
+
+      const baseValues = [4, 1200, 350, 24];
+      function generateRandom(base) {
+        const variance = Math.floor(base * 0.05); // 5% variation (less “random”)
+        return base + Math.floor(Math.random() * variance);
+      }
+
+      function updateStats() {
+        counters.forEach((counter, i) => animateCounter(counter, generateRandom(baseValues[i])));
+      }
+
+      updateStats();
+      setInterval(updateStats, 6000);
+    });
+  </script>
+
+  <!-- Mobile menu toggle -->
+  <script>
+    const gcMenuBtn = document.getElementById("gcMenuBtn");
+    const gcNavLinks = document.getElementById("gcNavLinks");
+
+    if (gcMenuBtn && gcNavLinks) {
+      gcMenuBtn.addEventListener("click", () => {
+        gcNavLinks.classList.toggle("active");
+        gcMenuBtn.classList.toggle("active");
+      });
+
+      document.querySelectorAll("#gcNavLinks a").forEach(a => {
+        a.addEventListener("click", () => {
+          gcNavLinks.classList.remove("active");
+          gcMenuBtn.classList.remove("active");
+        });
+      });
     }
-    return num;
-  }
+  </script>
 
-  function generateRandom(base) {
-    const variance = Math.floor(base * 0.1); // 10% variation
-    return base + Math.floor(Math.random() * variance);
-  }
-
-  const baseValues = {
-    0: 4,
-    1: 1200,
-    2: 350,
-    3: 24
-  };
-
-  function updateStats() {
-    counters.forEach((counter, index) => {
-      const newValue = generateRandom(baseValues[index]);
-      animateCounter(counter, newValue);
-    });
-  }
-
-  // First load
-  updateStats();
-
-  // Change every 6 seconds
-  setInterval(updateStats, 6000);
-});
-</script>
- <script>
-  const gcMenuBtn = document.getElementById("gcMenuBtn");
-  const gcNavLinks = document.getElementById("gcNavLinks");
-
-  if (gcMenuBtn && gcNavLinks) {
-    gcMenuBtn.addEventListener("click", () => {
-      gcNavLinks.classList.toggle("active");
-      gcMenuBtn.classList.toggle("active");
-    });
-  }
-</script>
 </body>
 </html>
