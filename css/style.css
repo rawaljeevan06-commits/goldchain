@@ -759,3 +759,90 @@ body.page-bg::after{
 .page-bg .gc-hero{
   display: none !important;
 }
+/* ======================================
+   PREMIUM NAVBAR FIX
+====================================== */
+
+.gc-nav{
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: rgba(10,10,12,.65);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.gc-nav-inner{
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+/* Logo */
+.gc-brand{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: #fff;
+  font-weight: 700;
+}
+
+.gc-brand img{
+  height: 32px;
+  width: auto;
+}
+
+/* Links */
+.gc-links{
+  display: flex;
+  gap: 20px;
+}
+
+.gc-links a{
+  color: #ddd;
+  text-decoration: none;
+  font-weight: 500;
+  transition: 0.3s;
+}
+
+.gc-links a:hover{
+  color: #ffd54f;
+}
+
+/* Right buttons */
+.gc-actions{
+  display: flex;
+  gap: 10px;
+}
+
+/* Button styles */
+.btn{
+  padding: 8px 16px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.btn-primary{
+  background: #222;
+  color: #fff;
+  border: 1px solid rgba(255,255,255,.1);
+}
+
+.btn-ghost{
+  background: transparent;
+  color: #fff;
+  border: 1px solid rgba(255,255,255,.2);
+}
+
+.btn-gold{
+  background: linear-gradient(135deg,#f5c518,#ffd54f);
+  color: #000;
+  border: none;
+}
