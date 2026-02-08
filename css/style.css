@@ -1199,3 +1199,107 @@ body.gc-modal-open{ overflow: hidden; }
 @media (prefers-reduced-motion: reduce){
   .auth-page::after, .auth-particles{ animation: none !important; }
 }
+/* =========================
+   HOME: TOP-to-BOTTOM GOLD BACKGROUND SLIDER
+   uses bg1.jpg bg2.jpg bg3.jpg
+========================= */
+
+html, body { min-height: 100%; }
+body{
+  background: #07080b;
+  color: #fff;
+  overflow-x: hidden;
+}
+
+/* Slider wrapper behind everything */
+.gc-bg-slider{
+  position: fixed;
+  inset: 0;
+  z-index: -5;          /* behind all site content */
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* Each background image layer */
+.gc-bg{
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  transform: scale(1.06);       /* slight zoom for premium look */
+  opacity: 0;
+  animation: gcBgFade 18s infinite;
+  filter: saturate(1.05) contrast(1.05);
+}
+
+/* Your 3 images (make sure paths match your folder) */
+.gc-bg.bg1{ background-image: url("../images/bg1.jpg"); animation-delay: 0s; }
+.gc-bg.bg2{ background-image: url("../images/bg2.jpg"); animation-delay: 6s; }
+.gc-bg.bg3{ background-image: url("../images/bg3.jpg"); animation-delay: 12s; }
+
+/* Fade animation (3 images, each 6s window) */
+@keyframes gcBgFade{
+  0%   { opacity: 0; }
+  10%  { opacity: 1; }
+  45%  { opacity: 1; }
+  55%  { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+/* Dark overlay + gold glow so text always readable */
+.gc-bg-slider::before{
+  content:"";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.78)),
+    radial-gradient(900px 520px at 20% 20%, rgba(255,195,90,0.18), transparent 60%),
+    radial-gradient(900px 520px at 80% 25%, rgba(255,120,80,0.10), transparent 62%);
+  z-index: 1;
+}
+
+/* Shimmer layer (gold sweep) */
+.gc-bg-shimmer{
+  position:absolute;
+  inset:-20%;
+  z-index: 2;
+  background: linear-gradient(120deg,
+    transparent 35%,
+    rgba(255,210,120,0.06) 45%,
+    rgba(255,170,60,0.10) 50%,
+    rgba(255,210,120,0.06) 55%,
+    transparent 65%
+  );
+  opacity: .65;
+  filter: blur(0.7px);
+  animation: gcShimmerSweep 9s linear infinite;
+}
+
+@keyframes gcShimmerSweep{
+  0%   { transform: translateX(-12%); }
+  100% { transform: translateX(12%); }
+}
+
+/* IMPORTANT: make sections transparent so background shows top->bottom */
+.gc-hero,
+.gc-section,
+.stats-strip,
+.ticker-strip,
+.trust-strip,
+footer,
+.gc-footer{
+  background: transparent !important;
+}
+
+/* Keep cards readable (glass effect) */
+.card, .plan-card, .info-card, .contact-box, .gc-chart-card{
+  background: rgba(255,255,255,0.05) !important;
+  border: 1px solid rgba(255,255,255,0.10) !important;
+  backdrop-filter: blur(18px);
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce){
+  .gc-bg, .gc-bg-shimmer{ animation: none !important; }
+  .gc-bg{ opacity: 1 !important; }
+}
