@@ -636,46 +636,58 @@
   });
 </script>
   <script>
-  // Animated counters (runs once when visible)
-  (function () {
-    const els = document.querySelectorAll(".statx-num");
-    if (!els.length) return;
+document.addEventListener("DOMContentLoaded", () => {
+  const counters = document.querySelectorAll(".statx-num");
 
-    const fmt = (n) => {
-      n = Number(n || 0);
-      if (n >= 1000) return (n / 1000).toFixed(1).replace(".0","") + "K";
-      return String(n);
+  function animateCounter(el, target) {
+    let current = 0;
+    const increment = target / 40;
+
+    const update = () => {
+      current += increment;
+      if (current >= target) {
+        el.textContent = formatNumber(target);
+      } else {
+        el.textContent = formatNumber(Math.floor(current));
+        requestAnimationFrame(update);
+      }
     };
 
-    const run = (el) => {
-      const target = Number(el.dataset.count || 0);
-      let cur = 0;
-      const steps = 40;
-      const inc = target / steps;
+    update();
+  }
 
-      const tick = () => {
-        cur += inc;
-        if (cur >= target) {
-          el.textContent = fmt(target);
-          return;
-        }
-        el.textContent = fmt(cur);
-        requestAnimationFrame(tick);
-      };
-      tick();
-    };
+  function formatNumber(num) {
+    if (num >= 1000) {
+      return (num / 1000).toFixed(1) + "K";
+    }
+    return num;
+  }
 
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach((e) => {
-        if (e.isIntersecting && !e.target.dataset.done) {
-          e.target.dataset.done = "1";
-          run(e.target);
-        }
-      });
-    }, { threshold: 0.35 });
+  function generateRandom(base) {
+    const variance = Math.floor(base * 0.1); // 10% variation
+    return base + Math.floor(Math.random() * variance);
+  }
 
-    els.forEach(el => io.observe(el));
-  })();
+  const baseValues = {
+    0: 4,
+    1: 1200,
+    2: 350,
+    3: 24
+  };
+
+  function updateStats() {
+    counters.forEach((counter, index) => {
+      const newValue = generateRandom(baseValues[index]);
+      animateCounter(counter, newValue);
+    });
+  }
+
+  // First load
+  updateStats();
+
+  // Change every 6 seconds
+  setInterval(updateStats, 6000);
+});
 </script>
 </body>
 </html>
