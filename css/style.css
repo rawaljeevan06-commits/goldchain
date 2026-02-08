@@ -667,3 +667,95 @@ body.auth-page::after {
   width: auto;
   display: block;
 }
+/* =========================================
+   GLOBAL BACKGROUND + GLASS CARD SYSTEM
+   Use on all inner pages (legal/project/dashboard/etc)
+========================================= */
+
+:root{
+  --glass: rgba(20,20,20,.55);
+  --glass2: rgba(20,20,20,.35);
+  --stroke: rgba(255,255,255,.10);
+  --blur: blur(10px);
+}
+
+/* Default site background (all pages) */
+body{
+  background: #07080b;
+}
+
+/* Add class "page-bg" on pages you want background image */
+body.page-bg{
+  position: relative;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Background image layer */
+body.page-bg::before{
+  content:"";
+  position: fixed;
+  inset: 0;
+  z-index: -3;
+  background: url("../images/bg2.jpg") center/cover no-repeat;
+  filter: brightness(.55) saturate(1.15);
+  transform: scale(1.04);
+}
+
+/* Soft dark overlay */
+body.page-bg::after{
+  content:"";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background: radial-gradient(800px 500px at 20% 10%, rgba(255,196,45,.18), transparent 60%),
+              linear-gradient(to bottom, rgba(0,0,0,.35), rgba(0,0,0,.65));
+}
+
+/* Universal glass card */
+.gc-card,
+.card,
+.panel,
+.box{
+  background: var(--glass);
+  border: 1px solid var(--stroke);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  border-radius: 18px;
+  box-shadow: 0 18px 50px rgba(0,0,0,.35);
+}
+
+/* Nice padding defaults */
+.gc-card{ padding: 18px; }
+.section .card{ padding: 18px; }
+
+/* Make sections readable on background */
+.section{
+  padding: 32px 0;
+}
+
+/* =========================================
+   FIX: LOGO / BRAND SIZE (Prevents HUGE logo)
+========================================= */
+.brand img,
+.gc-brand img,
+.header .brand img{
+  height: 34px !important;
+  width: auto !important;
+  object-fit: contain;
+}
+
+.brand span,
+.gc-brand span{
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: .3px;
+}
+
+/* If any page accidentally has giant hero image text, hide it */
+.auth-page .hero,
+.auth-page .hero-title,
+.auth-page .gc-hero,
+.page-bg .gc-hero{
+  display: none !important;
+}
