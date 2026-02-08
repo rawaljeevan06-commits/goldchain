@@ -654,3 +654,16 @@ body.auth-page::after {
   border: 1px solid rgba(255,255,255,.12);
   box-shadow: 0 20px 60px rgba(0,0,0,.5);
 }
+/* ===== FIX NAVBAR LOGO SIZE ===== */
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand img {
+  height: 38px;   /* change to 32px if still big */
+  width: auto;
+  display: block;
+}
