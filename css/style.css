@@ -1080,3 +1080,122 @@ body.gc-modal-open{ overflow: hidden; }
     to{ opacity:1; transform: translateY(0); }
   }
 }
+/* =========================
+   PREMIUM AUTH BACKGROUND
+   (gold shimmer + particles + parallax)
+========================= */
+
+/* Choose which background image */
+.auth-page.bg1{ --auth-bg:url("../images/bg1.jpg"); }
+.auth-page.bg2{ --auth-bg:url("../images/bg2.jpg"); }
+.auth-page.bg3{ --auth-bg:url("../images/bg3.jpg"); }
+
+.auth-page{
+  position: relative;
+  min-height: 100vh;
+  overflow-x: hidden;
+
+  /* Base background image */
+  background:
+    linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.78)),
+    var(--auth-bg);
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+
+  /* for parallax */
+  --px: 0px;
+  --py: 0px;
+}
+
+/* Soft vignette + depth */
+.auth-page::before{
+  content:"";
+  position: fixed;
+  inset: 0;
+  pointer-events:none;
+  z-index: 0;
+
+  background:
+    radial-gradient(900px 520px at 18% 20%, rgba(255,195,90,0.20), transparent 55%),
+    radial-gradient(820px 520px at 86% 30%, rgba(255,140,70,0.10), transparent 55%),
+    radial-gradient(900px 600px at 50% 90%, rgba(255,220,140,0.08), transparent 60%),
+    radial-gradient(1200px 900px at 50% 50%, rgba(0,0,0,0.25), rgba(0,0,0,0.70));
+  mix-blend-mode: screen;
+  opacity: 0.85;
+}
+
+/* Gold shimmer layer */
+.auth-page::after{
+  content:"";
+  position: fixed;
+  inset: -20%;
+  pointer-events:none;
+  z-index: 0;
+
+  /* shimmer stripes + glow */
+  background:
+    linear-gradient(120deg,
+      transparent 35%,
+      rgba(255,210,120,0.10) 45%,
+      rgba(255,170,60,0.18) 50%,
+      rgba(255,210,120,0.10) 55%,
+      transparent 65%
+    ),
+    radial-gradient(700px 420px at 30% 35%, rgba(255,190,90,0.09), transparent 65%);
+
+  transform: translate(calc(var(--px) * 0.35), calc(var(--py) * 0.35));
+  filter: blur(0.5px);
+  opacity: 0.65;
+  animation: gcShimmer 6s linear infinite;
+}
+
+@keyframes gcShimmer{
+  0%   { transform: translate(calc(var(--px) * 0.35), calc(var(--py) * 0.35)) translateX(-12%); }
+  100% { transform: translate(calc(var(--px) * 0.35), calc(var(--py) * 0.35)) translateX(12%); }
+}
+
+/* Subtle particles (CSS-only) */
+.auth-particles{
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events:none;
+  opacity: 0.7;
+
+  background:
+    radial-gradient(2px 2px at 10% 25%, rgba(255,220,160,0.65), transparent 60%),
+    radial-gradient(1.6px 1.6px at 25% 60%, rgba(255,200,120,0.55), transparent 60%),
+    radial-gradient(2.2px 2.2px at 40% 35%, rgba(255,230,190,0.55), transparent 60%),
+    radial-gradient(1.4px 1.4px at 55% 70%, rgba(255,200,120,0.45), transparent 60%),
+    radial-gradient(2.4px 2.4px at 70% 30%, rgba(255,220,160,0.55), transparent 60%),
+    radial-gradient(1.6px 1.6px at 85% 58%, rgba(255,210,140,0.50), transparent 60%),
+    radial-gradient(2.2px 2.2px at 92% 22%, rgba(255,240,200,0.45), transparent 60%);
+  animation: gcParticles 10s ease-in-out infinite;
+  transform: translate(calc(var(--px) * 0.25), calc(var(--py) * 0.25));
+}
+
+@keyframes gcParticles{
+  0%   { transform: translate(calc(var(--px) * 0.25), calc(var(--py) * 0.25)) translateY(0px); }
+  50%  { transform: translate(calc(var(--px) * 0.25), calc(var(--py) * 0.25)) translateY(-10px); }
+  100% { transform: translate(calc(var(--px) * 0.25), calc(var(--py) * 0.25)) translateY(0px); }
+}
+
+/* Make sure your content sits above background layers */
+.auth-page > *{
+  position: relative;
+  z-index: 1;
+}
+
+/* Glass look for auth cards (keep your class names too) */
+.auth-card, .card, .login-card, .signup-card{
+  background: rgba(10,12,16,0.58);
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(255,255,255,0.14);
+  box-shadow: 0 22px 60px rgba(0,0,0,0.55);
+}
+
+/* Respect accessibility: reduce motion */
+@media (prefers-reduced-motion: reduce){
+  .auth-page::after, .auth-particles{ animation: none !important; }
+}
