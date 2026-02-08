@@ -27,6 +27,31 @@ function setMsg(el, text) {
   el.textContent = text || "";
 }
 
+function friendlyAuthError(err) {
+  const code = err?.code || "";
+
+  if (code === "auth/invalid-credential" || code === "auth/wrong-password") {
+    return "Wrong email or password.";
+  }
+  if (code === "auth/user-not-found") {
+    return "Account not found. Please sign up first.";
+  }
+  if (code === "auth/too-many-requests") {
+    return "Too many attempts. Please wait a moment and try again.";
+  }
+  if (code === "auth/invalid-email") {
+    return "Please enter a valid email address.";
+  }
+  if (code === "auth/network-request-failed") {
+    return "Network problem. Check internet and try again.";
+  }
+  if (code === "auth/user-disabled") {
+    return "This account is disabled. Contact support.";
+  }
+
+  return "Login failed. Please try again.";
+}
+
 function goAfterLogin(user) {
   if (!user) return;
   // ✅ Admin -> admin.html
@@ -66,7 +91,7 @@ loginForm?.addEventListener("submit", async (e) => {
     goAfterLogin(cred.user);
   } catch (err) {
     console.error(err);
-    setMsg(loginMsg, `❌ ${err?.message || "Login failed"}`);
+    setMsg(loginMsg, `❌ ${friendlyAuthError(err)}`);
   }
 });
 
@@ -87,7 +112,7 @@ forgotPasswordLink?.addEventListener("click", async (e) => {
     setMsg(resetMsg, "✅ Password reset email sent. Check your inbox.");
   } catch (err) {
     console.error(err);
-    setMsg(resetMsg, `❌ ${err?.message || "Could not send reset email"}`);
+    setMsg(resetMsg, `❌ ${friendlyAuthError(err)}`);
   }
 });
 
