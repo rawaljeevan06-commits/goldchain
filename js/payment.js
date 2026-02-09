@@ -71,20 +71,21 @@ document.addEventListener("DOMContentLoaded", () => {
   const payMsg = document.getElementById("payMsg");
 
   // ---------- Auth protect (FIXED) ----------
-let checked = false;
+  let checked = false;
 
-onAuthStateChanged(auth, (user) => {
-  if (checked) return;
-  checked = true;
+  onAuthStateChanged(auth, (user) => {
+    if (checked) return;
+    checked = true;
 
-  if (!user) {
-    // Small delay to avoid false logout on page load (Safari/iOS fix)
-    setTimeout(() => {
-      const u = auth.currentUser;
-      if (!u) window.location.replace("login.html");
-    }, 800);
-  }
-});
+    if (!user) {
+      // Small delay to avoid false logout on page load (Safari/iOS fix)
+      setTimeout(() => {
+        const u = auth.currentUser;
+        if (!u) window.location.replace("login.html");
+      }, 800);
+    }
+  });
+
   // ---------- Load plan ----------
   const raw = loadPlanSafely();
   if (!raw) {
@@ -180,7 +181,7 @@ onAuthStateChanged(auth, (user) => {
 
     // Lock button to avoid double clicks
     submitProofBtn.disabled = true;
-    submitProofBtn.textContent = "Saving...";
+    submitProofBtn.textContent = "Processing...";
 
     // ✅ Local storage (same device)
     const localProof = {
@@ -219,7 +220,7 @@ onAuthStateChanged(auth, (user) => {
       console.error(err);
       payMsg.textContent = "❌ Failed to save to database. Check Firestore rules or internet.";
       submitProofBtn.disabled = false; // allow retry
-      submitProofBtn.textContent = "I Have Paid";
+      submitProofBtn.textContent = "Submit Proof";
       return;
     }
 
