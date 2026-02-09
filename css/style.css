@@ -2638,3 +2638,66 @@ body {
     overflow: hidden !important;
   }
 }
+/* ============================= */
+/* FLOATING GLASS BADGES */
+/* ============================= */
+
+.floating-badge{
+  position: fixed;
+  top: 90px;
+  z-index: 9999;
+
+  padding: 14px 20px;
+  border-radius: 999px;
+
+  background: rgba(255, 200, 0, 0.15);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+
+  border: 1px solid rgba(255,255,255,0.35);
+
+  box-shadow:
+    0 10px 30px rgba(255, 180, 0, 0.35),
+    inset 0 0 15px rgba(255,255,255,0.2);
+
+  font-weight: 900;
+  font-size: 14px;
+  color: #ffffff;
+  letter-spacing: 0.3px;
+
+  cursor: pointer;
+  animation: floaty 3.5s ease-in-out infinite;
+  transition: transform 0.3s ease;
+}
+
+.left-badge{
+  left: 15px;
+}
+
+.right-badge{
+  right: 15px;
+  animation-delay: 1.5s; /* makes them float differently */
+}
+
+/* Floating animation */
+@keyframes floaty{
+  0%,100%{ transform: translateY(0px); }
+  50%{ transform: translateY(-8px); }
+}
+
+/* Hover glow boost */
+.floating-badge:hover{
+  transform: scale(1.05);
+  box-shadow:
+    0 15px 40px rgba(255, 200, 0, 0.55),
+    inset 0 0 18px rgba(255,255,255,0.3);
+}
+
+/* Mobile */
+@media (max-width: 480px){
+  .floating-badge{
+    top: 80px;
+    padding: 12px 16px;
+    font-size: 12px;
+  }
+}
