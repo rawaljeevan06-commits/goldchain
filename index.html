@@ -48,7 +48,8 @@
         <span class="pill">📊 Live Dashboard</span>
       </div>
 
-      <<div class="hero-btns">
+      <!-- ✅ fixed: removed extra "<" -->
+      <div class="hero-btns">
         <a class="btn btn-primary" href="#plans">🔥 Explore Plans</a>
         <a id="heroDashBtn" class="btn btn-outline" href="login.html">⚡ Open Dashboard</a>
       </div>
@@ -70,6 +71,18 @@
     </div>
   </section>
   <!-- END HERO -->
+
+  <!-- ✅ LIVE GOLD CHART (ADDED) -->
+  <section class="gc-section" style="padding-top:40px;">
+    <div class="gc-container">
+      <h2 class="gc-title">Live Gold Market (XAU/USD)</h2>
+      <p class="gc-text">Track real-time gold price movement directly on GoldChain.</p>
+
+      <div style="margin-top:16px; border-radius:16px; overflow:hidden; border:1px solid rgba(255,255,255,0.08);">
+        <div id="gold-live-chart" style="height:520px; width:100%;"></div>
+      </div>
+    </div>
+  </section>
 
   <!-- STATS COUNTERS -->
   <section class="stats-strip">
@@ -417,7 +430,32 @@
         });
       });
     }
-<script src="js/config.js"></script>
   </script>
+
+  <!-- ✅ Your config script (was inside another script before, now correct) -->
+  <script src="js/config.js"></script>
+
+  <!-- ✅ TradingView Live Gold Chart Script (ADDED) -->
+  <script src="https://s3.tradingview.com/tv.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      if (window.TradingView && document.getElementById("gold-live-chart")) {
+        new TradingView.widget({
+          autosize: true,
+          symbol: "OANDA:XAUUSD",
+          interval: "15",
+          timezone: "Etc/UTC",
+          theme: "dark",
+          style: "1",
+          locale: "en",
+          enable_publishing: false,
+          allow_symbol_change: true,
+          withdateranges: true,
+          container_id: "gold-live-chart"
+        });
+      }
+    });
+  </script>
+
 </body>
 </html>
