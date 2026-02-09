@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -447,8 +446,24 @@
   </script>
 <script type="module">
   import { requireAuth, wireLogout } from "./js/auth-guard.js";
+  import { auth } from "./js/firebase.js";
+  import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
   requireAuth();
   wireLogout("logoutBtn");
+
+  onAuthStateChanged(auth, (user) => {
+    const badge = document.getElementById("adminBadge");
+
+    if (!user) {
+      window.location.href = "login.html";
+      return;
+    }
+
+    if (badge) {
+      badge.textContent = "✅ Logged in: " + user.email;
+    }
+  });
 </script>
 </body>
 </html>
