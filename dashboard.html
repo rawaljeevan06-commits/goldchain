@@ -552,6 +552,10 @@
     const nav = document.querySelector(".nav");
     if (navToggle && nav) navToggle.addEventListener("click", () => nav.classList.toggle("open"));
   </script>
-
+<script type="module">
+  import { requireAuth, wireLogout } from "./js/auth-guard.js";
+  requireAuth();
+  wireLogout("logoutBtn");
+</script>
 </body>
 </html>
