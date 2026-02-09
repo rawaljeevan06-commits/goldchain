@@ -1,30 +1,36 @@
 // js/guard.js
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import { auth } from "./firebase.js";
+import {
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
-// Wait until Firebase finishes restoring session, then decide.
-export function requireAuth(redirectTo = "login.html") {
-  return new Promise((resolve) => {
-    let done = false;
+// Protect private pages (dashboard, payment, admin)
+export function requireAuth() {
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      window.location.href = "login.html";
+    }
+  });
+}
 
-    const unsub = onAuthStateChanged(auth, (user) => {
-      if (done) return;
-      done = true;
-      try { unsub(); } catch (e) {}
-      if (!user) {
-        window.location.replace(redirectTo);
-        return;
-      }
-      resolve(user);
-    });
+// Prevent logged-in users from seeing login/signup again
+export function blockAuthPages() {
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      window.location.href = "dashboard.html";
+    }
+  });
+}
 
-    // Safety fallback (prevents “instant redirect” timing issues)
-    setTimeout(() => {
-      if (done) return;
-      done = true;
-      try { unsub(); } catch (e) {}
-      // If still unknown after timeout, do NOT force logout; just redirect to login.
-      window.location.replace(redirectTo);
-    }, 2500);
+// Logout button
+export function wireLogout(buttonId = "logoutBtn") {
+  const btn = document.getElementById(buttonId);
+  if (!btn) return;
+
+  btn.addEventListener("click", async (e) => {
+    e.preventDefault();
+    await signOut(auth);
+    window.location.href = "login.html";
   });
 }
