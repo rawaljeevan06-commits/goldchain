@@ -2639,65 +2639,81 @@ body {
   }
 }
 /* ============================= */
-/* FLOATING GLASS BADGES */
+/* 3D GOLDEN FLOATING BADGES */
 /* ============================= */
 
-.floating-badge{
+.gold-bubble{
   position: fixed;
-  top: 90px;
+  top: 95px;
   z-index: 9999;
 
-  padding: 14px 20px;
-  border-radius: 999px;
-
-  background: rgba(255, 200, 0, 0.15);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-
-  border: 1px solid rgba(255,255,255,0.35);
-
-  box-shadow:
-    0 10px 30px rgba(255, 180, 0, 0.35),
-    inset 0 0 15px rgba(255,255,255,0.2);
+  padding: 18px 30px;
+  border-radius: 60px;
 
   font-weight: 900;
-  font-size: 14px;
-  color: #ffffff;
-  letter-spacing: 0.3px;
+  font-size: 18px;
+  color: #4a2e00;
+
+  background: linear-gradient(
+    145deg,
+    #fff6c5 0%,
+    #ffd700 30%,
+    #ffb700 55%,
+    #ffd86b 75%,
+    #fff3b0 100%
+  );
+
+  box-shadow:
+    0 15px 35px rgba(255, 200, 0, 0.55),
+    inset 0 5px 12px rgba(255,255,255,0.7),
+    inset 0 -6px 10px rgba(180,120,0,0.4);
+
+  border: 2px solid rgba(255,255,255,0.6);
 
   cursor: pointer;
-  animation: floaty 3.5s ease-in-out infinite;
+  animation: floatGold 3.5s ease-in-out infinite;
   transition: transform 0.3s ease;
 }
 
-.left-badge{
-  left: 15px;
+/* Left position */
+.left-bubble{
+  left: 20px;
 }
 
-.right-badge{
-  right: 15px;
-  animation-delay: 1.5s; /* makes them float differently */
+/* Right position */
+.right-bubble{
+  right: 20px;
+  animation-delay: 1.5s; /* makes floating different */
 }
 
 /* Floating animation */
-@keyframes floaty{
-  0%,100%{ transform: translateY(0px); }
-  50%{ transform: translateY(-8px); }
+@keyframes floatGold{
+  0%,100%{
+    transform: translateY(0px);
+  }
+  50%{
+    transform: translateY(-10px);
+  }
 }
 
-/* Hover glow boost */
-.floating-badge:hover{
-  transform: scale(1.05);
-  box-shadow:
-    0 15px 40px rgba(255, 200, 0, 0.55),
-    inset 0 0 18px rgba(255,255,255,0.3);
+/* Hover effect */
+.gold-bubble:hover{
+  transform: scale(1.08);
 }
 
-/* Mobile */
-@media (max-width: 480px){
-  .floating-badge{
-    top: 80px;
-    padding: 12px 16px;
-    font-size: 12px;
+/* Mobile adjustment */
+@media (max-width:480px){
+  .gold-bubble{
+    top: 85px;
+    padding: 14px 22px;
+    font-size: 15px;
+  }
+
+  .left-bubble{
+    left: 12px;
+  }
+
+  .right-bubble{
+    right: 12px;
   }
 }
