@@ -9,8 +9,8 @@
 
   <div class="topbar">Admin Panel — Payment Verification</div>
   <div class="container" style="margin-top:12px;">
-  <div class="badge" id="adminBadge">Checking admin access...</div>
-</div>
+    <div class="badge" id="adminBadge">Checking admin access...</div>
+  </div>
 
   <header class="header">
     <div class="container header-in">
@@ -111,6 +111,7 @@
     const ADMIN_UIDS = ["40B1eYKROIXFAZLpelBhjjFTDm72"];
 
     const adminInfo = document.getElementById("adminInfo");
+    const adminBadge = document.getElementById("adminBadge");
     const paymentsBody = document.getElementById("paymentsBody");
     const withdrawalsBody = document.getElementById("withdrawalsBody");
 
@@ -306,7 +307,6 @@
         const planName = p.planName || p.plan || "";
 
         const userRef = uid ? doc(db, "users", uid) : null;
-        const userSnap = userRef ? await tx.get(userRef) : null;
 
         // WRITE
         tx.update(payRef, { status, verifiedAt: serverTimestamp() });
@@ -431,12 +431,15 @@
       if (!user) { window.location.replace("login.html"); return; }
 
       if (!ADMIN_UIDS.includes(user.uid)) {
-        adminInfo.textContent = "❌ Access denied (not admin).";
+        if (adminInfo) adminInfo.textContent = "❌ Access denied (not admin).";
+        if (adminBadge) adminBadge.textContent = "❌ Not admin";
         window.location.replace("dashboard.html");
         return;
       }
 
-      adminInfo.textContent = `✅ Admin: ${user.email || "-"} | UID: ${user.uid}`;
+      if (adminInfo) adminInfo.textContent = `✅ Admin: ${user.email || "-"} | UID: ${user.uid}`;
+      if (adminBadge) adminBadge.textContent = "✅ Admin: " + (user.email || user.uid);
+
       console.log("✅ ADMIN UID =", user.uid);
 
       await loadPendingPayments();
@@ -444,26 +447,6 @@
       await loadTotals();
     });
   </script>
-<script type="module">
-  import { requireAuth, wireLogout } from "./js/auth-guard.js";
-  import { auth } from "./js/firebase.js";
-  import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
-  requireAuth();
-  wireLogout("logoutBtn");
-
-  onAuthStateChanged(auth, (user) => {
-    const badge = document.getElementById("adminBadge");
-
-    if (!user) {
-      window.location.href = "login.html";
-      return;
-    }
-
-    if (badge) {
-      badge.textContent = "✅ Logged in: " + user.email;
-    }
-  });
-</script>
 </body>
 </html>
