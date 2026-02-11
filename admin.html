@@ -51,6 +51,24 @@
     <tbody id="notificationsBody"></tbody>
   </table>
 </div>
+        <hr style="margin:18px 0; opacity:.25;">
+<h2>Notifications</h2>
+<p class="small" id="nMsg" style="margin-top:8px;">Loading notifications…</p>
+
+<div style="overflow:auto; margin-top:12px;">
+  <table style="width:100%; border-collapse:collapse; min-width:900px;">
+    <thead>
+      <tr style="text-align:left; border-bottom:1px solid rgba(255,255,255,.15);">
+        <th style="padding:10px;">Time</th>
+        <th style="padding:10px;">Title</th>
+        <th style="padding:10px;">Message</th>
+        <th style="padding:10px;">Type</th>
+        <th style="padding:10px;">Actions</th>
+      </tr>
+    </thead>
+    <tbody id="notificationsBody"></tbody>
+  </table>
+</div>
         <h2>Pending Payments</h2>
         <p class="small" id="adminInfo">Checking admin access…</p>
 
@@ -121,7 +139,7 @@
     import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
     import {
       collection, query, where, orderBy, limit, getDocs,
-      doc, serverTimestamp,
+      doc, serverTimestamp, updateDoc,
       runTransaction, increment
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
@@ -142,7 +160,9 @@
     const tVerified = document.getElementById("tVerified");
     const tApprovedWd = document.getElementById("tApprovedWd");
     const tMoney = document.getElementById("tMoney");
-
+// Notifications UI
+const notificationsBody = document.getElementById("notificationsBody");
+const nMsg = document.getElementById("nMsg");
     function esc(s) {
       return String(s ?? "").replace(/[&<>"']/g, (c) => ({
         "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
@@ -398,7 +418,14 @@
     document.addEventListener("click", async (e) => {
       const btn = e.target.closest("button[data-type][data-act][data-id]");
       if (!btn) return;
-
+if (type === "notif") {
+  if (nMsg) nMsg.textContent = "Updating notification…";
+  if (act === "read") {
+    await updateDoc(doc(db, "notifications", id), { isRead: true });
+  }
+  if (nMsg) nMsg.textContent = "✅ Notification updated.";
+  await loadAdminNotifications();
+}
       const type = btn.getAttribute("data-type");
       const act  = btn.getAttribute("data-act");
       const id   = btn.getAttribute("data-id");
@@ -438,6 +465,7 @@
       await loadPendingPayments();
       await loadPendingWithdrawals();
       await loadTotals();
+      await loadAdminNotifications();
     });
 
     logoutBtn?.addEventListener("click", async () => {
