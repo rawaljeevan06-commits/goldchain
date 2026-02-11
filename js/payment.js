@@ -1,230 +1,452 @@
-// js/payment.js (MODULE)
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin | Payments</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
 
-import { auth, db } from "./firebase.js";
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-import { addDoc, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+  <div class="topbar">Admin Panel — Payment Verification</div>
+  <div class="container" style="margin-top:12px;">
+    <div class="badge" id="adminBadge">Checking admin access...</div>
+  </div>
 
-// ---------- Helpers ----------
-function loadPlanSafely() {
-  let raw = null;
-  try { raw = localStorage.getItem("selectedPlan"); } catch (e) {}
-  if (!raw) {
-    try { raw = sessionStorage.getItem("selectedPlan"); } catch (e) {}
-  }
-  return raw;
-}
+  <header class="header">
+    <div class="container header-in">
+      <a class="brand" href="index.html">
+        <img src="images/logo.png" alt="GoldChain Logo">
+        <span>GoldChain</span>
+      </a>
 
-function makeQrUrl(text) {
-  const encoded = encodeURIComponent(text);
-  return `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encoded}`;
-}
+      <nav class="nav">
+        <a href="admin.html" class="active">Admin Dashboard</a>
+      </nav>
 
-function fallbackCopy(text) {
-  const ta = document.createElement("textarea");
-  ta.value = text;
-  ta.setAttribute("readonly", "");
-  ta.style.position = "fixed";
-  ta.style.top = "-1000px";
-  ta.style.left = "-1000px";
-  document.body.appendChild(ta);
-  ta.select();
-  ta.setSelectionRange(0, ta.value.length);
+      <div class="actions">
+        <button id="refreshBtn" class="btn btn-outline" type="button">Refresh</button>
+        <button id="logoutBtn" class="btn btn-logout" type="button">Logout</button>
+      </div>
+    </div>
+  </header>
 
-  let ok = false;
-  try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+  <section class="section">
+    <div class="container">
+      <div class="card">
+        <h2>Pending Payments</h2>
+        <p class="small" id="adminInfo">Checking admin access…</p>
 
-  document.body.removeChild(ta);
-  return ok;
-}
+        <div class="dash-cards" style="margin-top:14px;">
+          <div class="card">
+            <h3>Total Verified Payments</h3>
+            <p class="big" id="tVerified">0</p>
+          </div>
 
-// ✅ PUT YOUR REAL WALLET ADDRESSES HERE
-const WALLETS = {
-  USDT_TRC20: {
-    label: "USDT (TRC20)",
-    networkText: "Network: TRON (TRC20) — send USDT on TRC20 only",
-    address: "TCqayESg8BwzJGFtSydc84NSvxkGHhtyz8"
-  },
-  BTC: {
-    label: "Bitcoin (BTC)",
-    networkText: "Network: Bitcoin (BTC)",
-    address: "13sU6KbrP8x3G4T8STs7ESeqSxM1VF3EyZ"
-  },
-  ETH: {
-    label: "Ethereum (ETH)",
-    networkText: "Network: Ethereum (ERC20)",
-    address: "0x1a803ebbc60b6bbc70dfcbb60cf60099d96717e9"
-  }
-};
+          <div class="card">
+            <h3>Total Approved Withdrawals</h3>
+            <p class="big" id="tApprovedWd">0</p>
+          </div>
 
-document.addEventListener("DOMContentLoaded", () => {
-  // ---------- Elements ----------
-  const selectedPlanText = document.getElementById("selectedPlanText");
-  const payAmount = document.getElementById("payAmount");
-  const payNetwork = document.getElementById("payNetwork");
-  const walletAddress = document.getElementById("walletAddress");
-  const qrImg = document.getElementById("qrImg");
-  const cryptoSelect = document.getElementById("cryptoSelect");
-  const copyAddrBtn = document.getElementById("copyAddrBtn");
-  const txidInput = document.getElementById("txidInput");
-  const noteInput = document.getElementById("noteInput");
-  const submitProofBtn = document.getElementById("submitProofBtn");
-  const payMsg = document.getElementById("payMsg");
+          <div class="card">
+            <h3>Totals</h3>
+            <p class="muted">Deposits / Withdrawals</p>
+            <p class="big" id="tMoney">$0.00 / $0.00</p>
+          </div>
+        </div>
 
-  // ---------- Auth protect (FIXED) ----------
-  let checked = false;
+        <div style="overflow:auto; margin-top:12px;">
+          <table style="width:100%; border-collapse:collapse; min-width:900px;">
+            <thead>
+              <tr style="text-align:left; border-bottom:1px solid rgba(255,255,255,.15);">
+                <th style="padding:10px;">Time</th>
+                <th style="padding:10px;">User</th>
+                <th style="padding:10px;">Plan</th>
+                <th style="padding:10px;">Amount</th>
+                <th style="padding:10px;">Method</th>
+                <th style="padding:10px;">TXID</th>
+                <th style="padding:10px;">Status</th>
+                <th style="padding:10px;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="paymentsBody"></tbody>
+          </table>
+        </div>
 
-  onAuthStateChanged(auth, (user) => {
-    if (checked) return;
-    checked = true;
+        <p class="small" id="msg" style="margin-top:10px;"></p>
 
-    if (!user) {
-      // Small delay to avoid false logout on page load (Safari/iOS fix)
-      setTimeout(() => {
-        const u = auth.currentUser;
-        if (!u) window.location.replace("login.html");
-      }, 800);
+        <hr style="margin:30px 0; opacity:.25;">
+        <h2>Pending Withdrawals</h2>
+        <p class="small" id="wMsg" style="margin-top:8px;"></p>
+
+        <div style="overflow:auto; margin-top:12px;">
+          <table style="width:100%; border-collapse:collapse; min-width:900px;">
+            <thead>
+              <tr style="text-align:left; border-bottom:1px solid rgba(255,255,255,.15);">
+                <th style="padding:10px;">Time</th>
+                <th style="padding:10px;">User</th>
+                <th style="padding:10px;">Amount</th>
+                <th style="padding:10px;">Wallet</th>
+                <th style="padding:10px;">Status</th>
+                <th style="padding:10px;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="withdrawalsBody"></tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <script type="module">
+    import { auth, db } from "./js/firebase.js";
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import {
+      collection, query, where, orderBy, limit, getDocs,
+      doc, serverTimestamp,
+      runTransaction, increment
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    // ✅ PUT YOUR ADMIN UID HERE
+    const ADMIN_UIDS = ["40B1eYKROIXFAZLpelBhjjFTDm72"];
+
+    const adminInfo = document.getElementById("adminInfo");
+    const adminBadge = document.getElementById("adminBadge");
+    const paymentsBody = document.getElementById("paymentsBody");
+    const withdrawalsBody = document.getElementById("withdrawalsBody");
+
+    const msg = document.getElementById("msg");
+    const wMsg = document.getElementById("wMsg");
+
+    const refreshBtn = document.getElementById("refreshBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    const tVerified = document.getElementById("tVerified");
+    const tApprovedWd = document.getElementById("tApprovedWd");
+    const tMoney = document.getElementById("tMoney");
+
+    function esc(s) {
+      return String(s ?? "").replace(/[&<>"']/g, (c) => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+      }[c]));
     }
-  });
-
-  // ---------- Load plan ----------
-  const raw = loadPlanSafely();
-  if (!raw) {
-    alert("No plan selected. Please choose a plan first.");
-    window.location.href = "plans.html";
-    return;
-  }
-
-  let plan = null;
-  try { plan = JSON.parse(raw); } catch (e) {}
-
-  if (!plan || !plan.name || !plan.amount) {
-    alert("Selected plan data is invalid. Please reselect your plan.");
-    window.location.href = "plans.html";
-    return;
-  }
-
-  selectedPlanText.textContent = `Selected plan: ${plan.name}`;
-  payAmount.textContent = `$${plan.amount} USD`;
-
-  // ---------- Render crypto ----------
-  function renderCrypto(key) {
-    const cfg = WALLETS[key];
-    if (!cfg || !cfg.address || cfg.address.includes("PASTE_")) {
-      payNetwork.textContent = "Wallet not set yet. Add your address in js/payment.js";
-      walletAddress.textContent = "—";
-      qrImg.src = "";
-      return;
+    function formatTime(ts) {
+      try {
+        if (!ts) return "-";
+        if (typeof ts.toDate === "function") return ts.toDate().toLocaleString();
+        return new Date(ts).toLocaleString();
+      } catch { return "-"; }
+    }
+    function money(n){ return `$${Number(n||0).toFixed(2)}`; }
+    function errText(e){
+      const code = e?.code ? `(${e.code}) ` : "";
+      const m = e?.message || String(e || "");
+      return code + m;
     }
 
-    payNetwork.textContent = cfg.networkText;
-    walletAddress.textContent = cfg.address;
+    async function loadTotals(){
+      try{
+        const pSnap = await getDocs(query(collection(db,"payments"), limit(500)));
+        let verifiedCount = 0;
+        let depositSum = 0;
 
-    const qrText = `${cfg.label}\nAddress: ${cfg.address}\nAmount: $${plan.amount} USD\nPlan: ${plan.name}`;
-    qrImg.src = makeQrUrl(qrText);
-  }
+        pSnap.forEach(d=>{
+          const p = d.data();
+          if(String(p.status||"").toLowerCase()==="verified"){
+            verifiedCount++;
+            depositSum += Number(p.amount||0);
+          }
+        });
 
-  renderCrypto(cryptoSelect.value);
+        const wSnap = await getDocs(query(collection(db,"withdrawals"), limit(500)));
+        let approvedCount = 0;
+        let withdrawSum = 0;
 
-  cryptoSelect.addEventListener("change", () => {
-    renderCrypto(cryptoSelect.value);
-    payMsg.textContent = "";
-  });
+        wSnap.forEach(d=>{
+          const w = d.data();
+          if(String(w.status||"").toLowerCase()==="approved"){
+            approvedCount++;
+            withdrawSum += Number(w.amount||0);
+          }
+        });
 
-  // ---------- Copy address (Safari-safe) ----------
-  copyAddrBtn.addEventListener("click", async () => {
-    const addr = walletAddress.textContent.trim();
-    if (!addr || addr === "—") {
-      payMsg.textContent = "❌ No address to copy.";
-      return;
+        if(tVerified) tVerified.textContent = String(verifiedCount);
+        if(tApprovedWd) tApprovedWd.textContent = String(approvedCount);
+        if(tMoney) tMoney.textContent = `${money(depositSum)} / ${money(withdrawSum)}`;
+      }catch(e){
+        console.warn("Totals failed:", e);
+      }
     }
 
-    try {
-      if (navigator.clipboard && window.isSecureContext) {
-        await navigator.clipboard.writeText(addr);
-        payMsg.textContent = "✅ Address copied.";
+    async function loadPendingPayments() {
+      if (!paymentsBody) return;
+      paymentsBody.innerHTML = "";
+      msg.textContent = "Loading pending payments…";
+
+      try {
+        let q1 = query(
+          collection(db, "payments"),
+          where("status", "==", "pending"),
+          orderBy("createdAt", "desc"),
+          limit(50)
+        );
+
+        let snap;
+        try { snap = await getDocs(q1); }
+        catch (e) {
+          snap = await getDocs(query(
+            collection(db, "payments"),
+            where("status", "==", "pending"),
+            limit(50)
+          ));
+        }
+
+        if (snap.empty) { msg.textContent = "✅ No pending payments."; return; }
+
+        msg.textContent = `Found ${snap.size} pending payment(s).`;
+
+        snap.forEach((docSnap) => {
+          const p  = docSnap.data();
+          const id = docSnap.id;
+
+          const tr = document.createElement("tr");
+          tr.style.borderBottom = "1px solid rgba(255,255,255,.08)";
+
+          tr.innerHTML = `
+            <td style="padding:10px;">${esc(formatTime(p.createdAt))}</td>
+            <td style="padding:10px;">${esc(p.email || p.uid || "-")}</td>
+            <td style="padding:10px;">${esc(p.planName || p.plan || "-")}</td>
+            <td style="padding:10px;">$${esc(p.amount ?? "-")}</td>
+            <td style="padding:10px;">${esc(p.method || "-")}</td>
+            <td style="padding:10px; max-width:260px; word-break:break-all;">${esc(p.txid || "-")}</td>
+            <td style="padding:10px;">${esc(p.status || "-")}</td>
+            <td style="padding:10px; display:flex; gap:8px; flex-wrap:wrap;">
+              <button class="btn btn-primary" type="button" data-type="pay" data-act="approve" data-id="${esc(id)}">Approve</button>
+              <button class="btn btn-outline" type="button" data-type="pay" data-act="reject" data-id="${esc(id)}">Reject</button>
+            </td>
+          `;
+          paymentsBody.appendChild(tr);
+        });
+
+      } catch (e) {
+        console.error(e);
+        msg.textContent = "❌ Failed to load payments: " + errText(e);
+      }
+    }
+
+    async function loadPendingWithdrawals() {
+      if (!withdrawalsBody) return;
+      withdrawalsBody.innerHTML = "";
+      if (wMsg) wMsg.textContent = "Loading pending withdrawals…";
+
+      try {
+        let q1 = query(
+          collection(db, "withdrawals"),
+          where("status", "==", "pending"),
+          orderBy("createdAt", "desc"),
+          limit(50)
+        );
+
+        let snap;
+        try { snap = await getDocs(q1); }
+        catch (e) {
+          snap = await getDocs(query(
+            collection(db, "withdrawals"),
+            where("status", "==", "pending"),
+            limit(50)
+          ));
+        }
+
+        if (snap.empty) { if (wMsg) wMsg.textContent = "✅ No pending withdrawals."; return; }
+
+        if (wMsg) wMsg.textContent = `Found ${snap.size} pending withdrawal(s).`;
+
+        snap.forEach((docSnap) => {
+          const w  = docSnap.data();
+          const id = docSnap.id;
+
+          const tr = document.createElement("tr");
+          tr.style.borderBottom = "1px solid rgba(255,255,255,.08)";
+
+          tr.innerHTML = `
+            <td style="padding:10px;">${esc(formatTime(w.createdAt))}</td>
+            <td style="padding:10px;">${esc(w.email || w.uid || "-")}</td>
+            <td style="padding:10px;">$${esc(w.amount ?? "-")}</td>
+            <td style="padding:10px; max-width:320px; word-break:break-all;">${esc(w.wallet || w.walletAddress || "-")}</td>
+            <td style="padding:10px;">${esc(w.status || "-")}</td>
+            <td style="padding:10px; display:flex; gap:8px; flex-wrap:wrap;">
+              <button class="btn btn-primary" type="button" data-type="wd" data-act="approve" data-id="${esc(id)}">Approve</button>
+              <button class="btn btn-outline" type="button" data-type="wd" data-act="reject" data-id="${esc(id)}">Reject</button>
+            </td>
+          `;
+          withdrawalsBody.appendChild(tr);
+        });
+
+      } catch (e) {
+        console.error(e);
+        if (wMsg) wMsg.textContent = "❌ Failed to load withdrawals: " + errText(e);
+      }
+    }
+
+    // ✅ APPROVE PAYMENT: also saves plan into users/{uid}.selectedPlan (THIS FIXES “No plan selected”)
+    async function setPaymentStatus(paymentId, status) {
+      const payRef = doc(db, "payments", paymentId);
+
+      await runTransaction(db, async (tx) => {
+        // READ FIRST
+        const paySnap = await tx.get(payRef);
+        if (!paySnap.exists()) return;
+
+        const p = paySnap.data();
+        const currentStatus = String(p.status || "").toLowerCase();
+        if (currentStatus === "verified" && status === "verified") return;
+
+        const uid = p.uid;
+        const email = p.email || "";
+        const amount = Number(p.amount || 0);
+        const planName = p.planName || p.plan || "";
+
+        const userRef = uid ? doc(db, "users", uid) : null;
+
+        // WRITE
+        tx.update(payRef, { status, verifiedAt: serverTimestamp() });
+
+        if (status !== "verified") return;
+        if (!uid || !Number.isFinite(amount) || amount <= 0) return;
+
+        // create or merge user profile
+        tx.set(userRef, {
+          email,
+          paymentVerified: true,
+          selectedPlan: planName,
+          selectedPlanAt: serverTimestamp(),
+          balance: increment(amount),
+          referralEarnings: increment(0)
+        }, { merge: true });
+
+        // (Optional) audit
+        tx.set(doc(collection(db, "audit")), {
+          type: "payment_verified",
+          paymentId,
+          uid,
+          email,
+          amount,
+          planName,
+          byAdmin: auth.currentUser?.uid || "",
+          at: serverTimestamp()
+        });
+      });
+    }
+
+    async function setWithdrawalStatus(withdrawalId, status) {
+      const wRef = doc(db, "withdrawals", withdrawalId);
+
+      await runTransaction(db, async (tx) => {
+        // READ FIRST
+        const wSnap = await tx.get(wRef);
+        if (!wSnap.exists()) return;
+        const w = wSnap.data();
+
+        const currentStatus = String(w.status || "").toLowerCase();
+        if (currentStatus === "approved" && status === "approved") return;
+
+        const uid = w.uid;
+        const amount = Number(w.amount || 0);
+        const userRef = uid ? doc(db, "users", uid) : null;
+
+        if (userRef) await tx.get(userRef);
+
+        // WRITE
+        const upd = { status };
+        if (status === "approved") upd.processedAt = serverTimestamp();
+        tx.update(wRef, upd);
+
+        if (status !== "approved") return;
+        if (!uid || !Number.isFinite(amount) || amount <= 0) return;
+
+        tx.set(userRef, { balance: increment(-amount) }, { merge: true });
+
+        tx.set(doc(collection(db, "audit")), {
+          type: "withdrawal_approved",
+          withdrawalId,
+          uid,
+          amount,
+          byAdmin: auth.currentUser?.uid || "",
+          at: serverTimestamp()
+        });
+      });
+    }
+
+    document.addEventListener("click", async (e) => {
+      const btn = e.target.closest("button[data-type][data-act][data-id]");
+      if (!btn) return;
+
+      const type = btn.getAttribute("data-type");
+      const act  = btn.getAttribute("data-act");
+      const id   = btn.getAttribute("data-id");
+      if (!id) return;
+
+      btn.disabled = true;
+
+      try {
+        if (type === "pay") {
+          msg.textContent = "Updating payment…";
+          if (act === "approve") await setPaymentStatus(id, "verified");
+          if (act === "reject")  await setPaymentStatus(id, "rejected");
+          msg.textContent = "✅ Payment updated.";
+          await loadPendingPayments();
+        }
+
+        if (type === "wd") {
+          if (wMsg) wMsg.textContent = "Updating withdrawal…";
+          if (act === "approve") await setWithdrawalStatus(id, "approved");
+          if (act === "reject")  await setWithdrawalStatus(id, "rejected");
+          if (wMsg) wMsg.textContent = "✅ Withdrawal updated.";
+          await loadPendingWithdrawals();
+        }
+
+        await loadTotals();
+
+      } catch (err) {
+        console.error(err);
+        if (type === "pay") msg.textContent = "❌ Payment update failed: " + errText(err);
+        if (type === "wd" && wMsg) wMsg.textContent = "❌ Withdrawal update failed: " + errText(err);
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    refreshBtn?.addEventListener("click", async () => {
+      await loadPendingPayments();
+      await loadPendingWithdrawals();
+      await loadTotals();
+    });
+
+    logoutBtn?.addEventListener("click", async () => {
+      try { await signOut(auth); } catch (e) {}
+      window.location.replace("login.html");
+    });
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) { window.location.replace("login.html"); return; }
+
+      if (!ADMIN_UIDS.includes(user.uid)) {
+        if (adminInfo) adminInfo.textContent = "❌ Access denied (not admin).";
+        if (adminBadge) adminBadge.textContent = "❌ Not admin";
+        window.location.replace("dashboard.html");
         return;
       }
-    } catch (e) {}
 
-    const ok = fallbackCopy(addr);
-    payMsg.textContent = ok ? "✅ Address copied." : "❌ Copy blocked. Please copy manually.";
-  });
+      if (adminInfo) adminInfo.textContent = `✅ Admin: ${user.email || "-"} | UID: ${user.uid}`;
+      if (adminBadge) adminBadge.textContent = "✅ Admin: " + (user.email || user.uid);
 
-  // ---------- Submit proof ----------
-  submitProofBtn.addEventListener("click", async () => {
-    // Safari: permission request must happen inside user click
-    if ("Notification" in window && Notification.permission === "default") {
-      try { await Notification.requestPermission(); } catch (e) {}
-    }
+      console.log("✅ ADMIN UID =", user.uid);
 
-    const user = auth.currentUser;
-    if (!user) {
-      alert("Please login again.");
-      window.location.replace("login.html");
-      return;
-    }
+      await loadPendingPayments();
+      await loadPendingWithdrawals();
+      await loadTotals();
+    });
+  </script>
 
-    const method = cryptoSelect.value;
-    const cfg = WALLETS[method];
-    const txid = (txidInput.value || "").trim();
-    const note = (noteInput.value || "").trim();
-
-    if (!cfg || !cfg.address || cfg.address.includes("PASTE_")) {
-      payMsg.textContent = "❌ Wallet address not set yet. Add it in js/payment.js first.";
-      return;
-    }
-
-    if (!txid || txid.length < 10) {
-      payMsg.textContent = "❌ Please paste a valid TXID / transaction hash.";
-      return;
-    }
-
-    // Lock button to avoid double clicks
-    submitProofBtn.disabled = true;
-    submitProofBtn.textContent = "Processing...";
-
-    // ✅ Local storage (same device)
-    const localProof = {
-      uid: user.uid,
-      email: user.email || "",
-      planName: plan.name,
-      amount: Number(plan.amount),
-      method,
-      address: cfg.address,
-      txid,
-      note,
-      status: "pending",
-      createdAt: new Date().toISOString()
-    };
-
-    try { localStorage.setItem("paymentProof", JSON.stringify(localProof)); } catch (e) {}
-
-    // ✅ Firestore (works on other devices)
-    payMsg.textContent = "⏳ Saving payment proof...";
-
-    try {
-      await addDoc(collection(db, "payments"), {
-        ...localProof,
-        createdAt: serverTimestamp()
-      });
-
-      payMsg.textContent = "✅ Proof saved. Status: Pending verification.";
-
-      if ("Notification" in window && Notification.permission === "granted") {
-        new Notification("Payment Submitted ✅", {
-          body: "We received your TXID. Status is Pending verification.",
-          icon: "images/logo.png"
-        });
-      }
-    } catch (err) {
-      console.error(err);
-      payMsg.textContent = "❌ Failed to save to database. Check Firestore rules or internet.";
-      submitProofBtn.disabled = false; // allow retry
-      submitProofBtn.textContent = "Submit Proof";
-      return;
-    }
-
-    // Keep disabled after success
-    submitProofBtn.textContent = "Saved ✅";
-  });
-});
+</body>
+</html>
