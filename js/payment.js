@@ -32,25 +32,6 @@
 
   <section class="section">
     <div class="container">
-      <div class="card">
-  <hr style="margin:18px 0; opacity:.25;">
-<h2>Notifications</h2>
-<p class="small" id="nMsg" style="margin-top:8px;">Loading notifications…</p>
-
-<div style="overflow:auto; margin-top:12px;">
-  <table style="width:100%; border-collapse:collapse; min-width:900px;">
-    <thead>
-      <tr style="text-align:left; border-bottom:1px solid rgba(255,255,255,.15);">
-        <th style="padding:10px;">Time</th>
-        <th style="padding:10px;">Title</th>
-        <th style="padding:10px;">Message</th>
-        <th style="padding:10px;">Type</th>
-        <th style="padding:10px;">Actions</th>
-      </tr>
-    </thead>
-    <tbody id="notificationsBody"></tbody>
-  </table>
-</div>
         <h2>Pending Payments</h2>
         <p class="small" id="adminInfo">Checking admin access…</p>
 
