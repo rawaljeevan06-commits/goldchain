@@ -1,13 +1,12 @@
 // js/payment.js
-// Payment proof submission -> Firestore (so Admin & Dashboard can see it)
-// If Firestore not available, fallback to localStorage
+import { db, auth } from "./firebase.js?v=5";
 
-import { db, auth } from "./firebase.js"; 
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import {
   collection,
   addDoc,
   serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 const selectedPlanText = document.getElementById("selectedPlanText");
 const payMsg = document.getElementById("payMsg");
@@ -23,6 +22,9 @@ const txidInput = document.getElementById("txidInput");
 const noteInput = document.getElementById("noteInput");
 const submitProofBtn = document.getElementById("submitProofBtn");
 
+// Debug: MUST print an object (not undefined)
+console.log("✅ payment.js db =", db);
+
 // -------------------------
 // 1) Load selected plan safely
 // -------------------------
@@ -34,14 +36,11 @@ function loadSelectedPlan() {
     try { raw = sessionStorage.getItem("selectedPlan"); } catch (e) {}
   }
 
-  // URL fallback: payment.html?plan=700&roi=16
   if (!raw) {
     const url = new URL(window.location.href);
     const plan = url.searchParams.get("plan");
     const roi = url.searchParams.get("roi");
-    if (plan) {
-      raw = JSON.stringify({ amount: Number(plan), roi: roi ? String(roi) : "" });
-    }
+    if (plan) raw = JSON.stringify({ amount: Number(plan), roi: roi ? String(roi) : "" });
   }
 
   if (!raw) return null;
@@ -49,7 +48,7 @@ function loadSelectedPlan() {
   try {
     const obj = JSON.parse(raw);
     return obj && typeof obj === "object" ? obj : null;
-  } catch (e) {
+  } catch {
     return null;
   }
 }
@@ -114,15 +113,12 @@ function updateCryptoUI() {
 // -------------------------
 async function copyAddress() {
   const addr = walletAddress.textContent.trim();
-  if (!addr || addr === "—") {
-    setMsg("Wallet address not available.", false);
-    return;
-  }
+  if (!addr || addr === "—") return setMsg("Wallet address not available.", false);
 
   try {
     await navigator.clipboard.writeText(addr);
     setMsg("Address copied ✅", true);
-  } catch (e) {
+  } catch {
     const ta = document.createElement("textarea");
     ta.value = addr;
     document.body.appendChild(ta);
@@ -137,11 +133,9 @@ async function copyAddress() {
 // 5) Submit proof
 // -------------------------
 function validateTxid(txid) {
-  const t = (txid || "").trim();
-  return t.length >= 10;
+  return (txid || "").trim().length >= 10;
 }
 
-// local fallback (only if Firestore fails)
 function saveProofLocally(payload) {
   try {
     const key = "paymentProofs";
@@ -149,12 +143,12 @@ function saveProofLocally(payload) {
     existing.unshift(payload);
     localStorage.setItem(key, JSON.stringify(existing));
     return true;
-  } catch (e) {
+  } catch {
     return false;
   }
 }
 
-async function submitProof() {
+async function submitProof(user) {
   const planObj = loadSelectedPlan();
   const amount = planObj?.amount ?? null;
 
@@ -164,23 +158,18 @@ async function submitProof() {
   const txid = txidInput.value.trim();
   const note = noteInput.value.trim();
 
-  if (!amount) {
-    setMsg("Plan not found. Please select a plan again from Dashboard.", false);
-    return;
-  }
-  if (!validateTxid(txid)) {
-    setMsg("Please enter a valid TXID / Transaction Hash.", false);
-    return;
-  }
-  if (!cfg) {
-    setMsg("Please choose a crypto option.", false);
-    return;
+  if (!amount) return setMsg("Plan not found. Please select a plan again from Dashboard.", false);
+  if (!validateTxid(txid)) return setMsg("Please enter a valid TXID / Transaction Hash.", false);
+  if (!cfg) return setMsg("Please choose a crypto option.", false);
+
+  // If db is not real, we can’t write -> go local immediately
+  if (!db) {
+    const ok = saveProofLocally({ amount, txid, note, method: cryptoKey, createdAtISO: new Date().toISOString() });
+    return setMsg(ok ? "Saved locally ✅ (Firebase not loaded in Safari)" : "Could not submit proof.", false);
   }
 
   submitProofBtn.disabled = true;
   submitProofBtn.textContent = "Submitting...";
-
-  const user = auth?.currentUser || null;
 
   const payload = {
     amount: Number(amount),
@@ -197,7 +186,6 @@ async function submitProof() {
   };
 
   try {
-    // ✅ Write to Firestore
     await addDoc(collection(db, "payments"), {
       ...payload,
       createdAt: serverTimestamp()
@@ -208,14 +196,8 @@ async function submitProof() {
     noteInput.value = "";
   } catch (err) {
     console.error("Firestore submit failed:", err);
-
-    // fallback local
     const ok = saveProofLocally(payload);
-    if (ok) {
-      setMsg("Saved locally ✅ (Firebase issue). Admin won't see this until Firebase works.", false);
-    } else {
-      setMsg("Could not submit proof. Please try again.", false);
-    }
+    setMsg(ok ? "Saved locally ✅ (Firebase issue). Admin won't see this until Firebase works." : "Could not submit proof. Please try again.", false);
   }
 
   submitProofBtn.disabled = false;
@@ -223,7 +205,7 @@ async function submitProof() {
 }
 
 // -------------------------
-// 6) Init page
+// 6) Init page (require auth)
 // -------------------------
 (function init() {
   const planObj = loadSelectedPlan();
@@ -241,5 +223,10 @@ async function submitProof() {
   updateCryptoUI();
   cryptoSelect.addEventListener("change", updateCryptoUI);
   copyAddrBtn.addEventListener("click", copyAddress);
-  submitProofBtn.addEventListener("click", submitProof);
+
+  // Require login before allowing submit
+  onAuthStateChanged(auth, (user) => {
+    if (!user) return window.location.replace("login.html");
+    submitProofBtn.addEventListener("click", () => submitProof(user));
+  });
 })();
