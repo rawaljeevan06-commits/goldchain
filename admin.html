@@ -330,15 +330,26 @@
         if (status !== "verified") return;
         if (!uid || !Number.isFinite(amount) || amount <= 0) return;
 
-        tx.set(userRef, {
-          email,
-          paymentVerified: true,
-          selectedPlan: planName,
-          selectedPlanAt: serverTimestamp(),
-          balance: increment(amount),
-          referralEarnings: increment(0)
-        }, { merge: true });
+        const roiMonthly = 16; // change later if dynamic
 
+const now = new Date();
+const nextPayout = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+
+tx.set(userRef, {
+  email,
+  paymentVerified: true,
+
+  selectedPlan: planName,
+  planAmount: amount,
+  roiMonthly: roiMonthly,
+
+  approvedAt: serverTimestamp(),
+  nextPayoutAt: nextPayout,
+  status: "active",
+
+  balance: increment(amount),
+  referralEarnings: increment(0)
+}, { merge: true });
         tx.set(doc(collection(db, "audit")), {
           type: "payment_verified",
           paymentId,
