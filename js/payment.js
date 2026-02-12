@@ -1,11 +1,13 @@
 // js/payment.js
-// Works with payment.html you sent.
-// Features:
-// - Reads selected plan from localStorage/sessionStorage + URL fallback
-// - Shows plan + amount
-// - Updates network/address/QR based on crypto select
-// - Copy address button
-// - Simple proof submit (saves to Firestore if Firebase is configured, else local fallback)
+// Payment proof submission -> Firestore (so Admin & Dashboard can see it)
+// If Firestore not available, fallback to localStorage
+
+import { db, auth } from "./firebase.js"; 
+import {
+  collection,
+  addDoc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const selectedPlanText = document.getElementById("selectedPlanText");
 const payMsg = document.getElementById("payMsg");
@@ -53,7 +55,7 @@ function loadSelectedPlan() {
 }
 
 // -------------------------
-// 2) Wallet config (EDIT THESE)
+// 2) Wallet config
 // -------------------------
 const WALLETS = {
   USDT_TRC20: {
@@ -121,7 +123,6 @@ async function copyAddress() {
     await navigator.clipboard.writeText(addr);
     setMsg("Address copied ✅", true);
   } catch (e) {
-    // fallback
     const ta = document.createElement("textarea");
     ta.value = addr;
     document.body.appendChild(ta);
@@ -133,8 +134,14 @@ async function copyAddress() {
 }
 
 // -------------------------
-// 5) Submit proof (local save fallback)
+// 5) Submit proof
 // -------------------------
+function validateTxid(txid) {
+  const t = (txid || "").trim();
+  return t.length >= 10;
+}
+
+// local fallback (only if Firestore fails)
 function saveProofLocally(payload) {
   try {
     const key = "paymentProofs";
@@ -145,12 +152,6 @@ function saveProofLocally(payload) {
   } catch (e) {
     return false;
   }
-}
-
-function validateTxid(txid) {
-  const t = (txid || "").trim();
-  if (t.length < 10) return false;
-  return true;
 }
 
 async function submitProof() {
@@ -167,12 +168,10 @@ async function submitProof() {
     setMsg("Plan not found. Please select a plan again from Dashboard.", false);
     return;
   }
-
   if (!validateTxid(txid)) {
     setMsg("Please enter a valid TXID / Transaction Hash.", false);
     return;
   }
-
   if (!cfg) {
     setMsg("Please choose a crypto option.", false);
     return;
@@ -181,28 +180,42 @@ async function submitProof() {
   submitProofBtn.disabled = true;
   submitProofBtn.textContent = "Submitting...";
 
+  const user = auth?.currentUser || null;
+
   const payload = {
-    createdAt: new Date().toISOString(),
     amount: Number(amount),
     roi: planObj?.roi || "",
-    crypto: cryptoKey,
+    method: cryptoKey,
     network: cfg.network,
     address: cfg.address,
     txid,
-    note
+    note: note || "",
+    status: "pending",
+    uid: user?.uid || null,
+    email: user?.email || null,
+    createdAtISO: new Date().toISOString()
   };
 
-  // ✅ If you have Firebase Firestore configured in another file,
-  // you can replace this section with Firestore addDoc().
-  // For now we save locally so it ALWAYS works.
-  const ok = saveProofLocally(payload);
+  try {
+    // ✅ Write to Firestore
+    await addDoc(collection(db, "payments"), {
+      ...payload,
+      createdAt: serverTimestamp()
+    });
 
-  if (ok) {
-    setMsg("Proof submitted ✅ (saved). Admin will verify soon.", true);
+    setMsg("Proof submitted ✅ Now waiting for admin approval.", true);
     txidInput.value = "";
     noteInput.value = "";
-  } else {
-    setMsg("Could not save proof. Please try again.", false);
+  } catch (err) {
+    console.error("Firestore submit failed:", err);
+
+    // fallback local
+    const ok = saveProofLocally(payload);
+    if (ok) {
+      setMsg("Saved locally ✅ (Firebase issue). Admin won't see this until Firebase works.", false);
+    } else {
+      setMsg("Could not submit proof. Please try again.", false);
+    }
   }
 
   submitProofBtn.disabled = false;
@@ -225,9 +238,7 @@ async function submitProof() {
     payAmount.textContent = formatMoney(planObj.amount);
   }
 
-  // default crypto
   updateCryptoUI();
-
   cryptoSelect.addEventListener("change", updateCryptoUI);
   copyAddrBtn.addEventListener("click", copyAddress);
   submitProofBtn.addEventListener("click", submitProof);
