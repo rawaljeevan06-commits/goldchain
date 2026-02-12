@@ -86,7 +86,16 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         }
       }
+catch (error) {
 
+  if (error.code === "auth/email-already-in-use") {
+    msgEl.textContent = "This email already has an account. Please login instead.";
+    window.location.href = "login.html";
+    return;
+  }
+
+  msgEl.textContent = error.message;
+}
       // ✅ Create user profile in Firestore
       await setDoc(doc(db, "users", uid), {
         name,
