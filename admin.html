@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -33,24 +34,27 @@
   <section class="section">
     <div class="container">
       <div class="card">
-        <hr style="margin:18px 0; opacity:.25;">
-<h2>Notifications</h2>
-<p class="small" id="nMsg" style="margin-top:8px;">Loading notifications…</p>
 
-<div style="overflow:auto; margin-top:12px;">
-  <table style="width:100%; border-collapse:collapse; min-width:900px;">
-    <thead>
-      <tr style="text-align:left; border-bottom:1px solid rgba(255,255,255,.15);">
-        <th style="padding:10px;">Time</th>
-        <th style="padding:10px;">Title</th>
-        <th style="padding:10px;">Message</th>
-        <th style="padding:10px;">Type</th>
-        <th style="padding:10px;">Actions</th>
-      </tr>
-    </thead>
-    <tbody id="notificationsBody"></tbody>
-  </table>
-</div>
+        <hr style="margin:18px 0; opacity:.25;">
+        <h2>Notifications</h2>
+        <p class="small" id="nMsg" style="margin-top:8px;">Loading notifications…</p>
+
+        <div style="overflow:auto; margin-top:12px;">
+          <table style="width:100%; border-collapse:collapse; min-width:900px;">
+            <thead>
+              <tr style="text-align:left; border-bottom:1px solid rgba(255,255,255,.15);">
+                <th style="padding:10px;">Time</th>
+                <th style="padding:10px;">Title</th>
+                <th style="padding:10px;">Message</th>
+                <th style="padding:10px;">Type</th>
+                <th style="padding:10px;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="notificationsBody"></tbody>
+          </table>
+        </div>
+
+        <hr style="margin:18px 0; opacity:.25;">
         <h2>Pending Payments</h2>
         <p class="small" id="adminInfo">Checking admin access…</p>
 
@@ -132,7 +136,6 @@
     const adminBadge = document.getElementById("adminBadge");
     const paymentsBody = document.getElementById("paymentsBody");
     const withdrawalsBody = document.getElementById("withdrawalsBody");
-
     const msg = document.getElementById("msg");
     const wMsg = document.getElementById("wMsg");
 
@@ -199,7 +202,7 @@
     async function loadPendingPayments() {
       if (!paymentsBody) return;
       paymentsBody.innerHTML = "";
-      msg.textContent = "Loading pending payments…";
+      if (msg) msg.textContent = "Loading pending payments…";
 
       try {
         let q1 = query(
@@ -219,9 +222,8 @@
           ));
         }
 
-        if (snap.empty) { msg.textContent = "✅ No pending payments."; return; }
-
-        msg.textContent = `Found ${snap.size} pending payment(s).`;
+        if (snap.empty) { if (msg) msg.textContent = "✅ No pending payments."; return; }
+        if (msg) msg.textContent = `Found ${snap.size} pending payment(s).`;
 
         snap.forEach((docSnap) => {
           const p  = docSnap.data();
@@ -248,7 +250,7 @@
 
       } catch (e) {
         console.error(e);
-        msg.textContent = "❌ Failed to load payments: " + errText(e);
+        if (msg) msg.textContent = "❌ Failed to load payments: " + errText(e);
       }
     }
 
@@ -276,7 +278,6 @@
         }
 
         if (snap.empty) { if (wMsg) wMsg.textContent = "✅ No pending withdrawals."; return; }
-
         if (wMsg) wMsg.textContent = `Found ${snap.size} pending withdrawal(s).`;
 
         snap.forEach((docSnap) => {
@@ -306,12 +307,10 @@
       }
     }
 
-    // ✅ APPROVE PAYMENT: also saves plan into users/{uid}.selectedPlan (THIS FIXES “No plan selected”)
     async function setPaymentStatus(paymentId, status) {
       const payRef = doc(db, "payments", paymentId);
 
       await runTransaction(db, async (tx) => {
-        // READ FIRST
         const paySnap = await tx.get(payRef);
         if (!paySnap.exists()) return;
 
@@ -326,13 +325,11 @@
 
         const userRef = uid ? doc(db, "users", uid) : null;
 
-        // WRITE
         tx.update(payRef, { status, verifiedAt: serverTimestamp() });
 
         if (status !== "verified") return;
         if (!uid || !Number.isFinite(amount) || amount <= 0) return;
 
-        // create or merge user profile
         tx.set(userRef, {
           email,
           paymentVerified: true,
@@ -342,7 +339,6 @@
           referralEarnings: increment(0)
         }, { merge: true });
 
-        // (Optional) audit
         tx.set(doc(collection(db, "audit")), {
           type: "payment_verified",
           paymentId,
@@ -360,7 +356,6 @@
       const wRef = doc(db, "withdrawals", withdrawalId);
 
       await runTransaction(db, async (tx) => {
-        // READ FIRST
         const wSnap = await tx.get(wRef);
         if (!wSnap.exists()) return;
         const w = wSnap.data();
@@ -374,7 +369,6 @@
 
         if (userRef) await tx.get(userRef);
 
-        // WRITE
         const upd = { status };
         if (status === "approved") upd.processedAt = serverTimestamp();
         tx.update(wRef, upd);
@@ -408,10 +402,10 @@
 
       try {
         if (type === "pay") {
-          msg.textContent = "Updating payment…";
+          if (msg) msg.textContent = "Updating payment…";
           if (act === "approve") await setPaymentStatus(id, "verified");
           if (act === "reject")  await setPaymentStatus(id, "rejected");
-          msg.textContent = "✅ Payment updated.";
+          if (msg) msg.textContent = "✅ Payment updated.";
           await loadPendingPayments();
         }
 
@@ -427,7 +421,7 @@
 
       } catch (err) {
         console.error(err);
-        if (type === "pay") msg.textContent = "❌ Payment update failed: " + errText(err);
+        if (type === "pay" && msg) msg.textContent = "❌ Payment update failed: " + errText(err);
         if (type === "wd" && wMsg) wMsg.textContent = "❌ Withdrawal update failed: " + errText(err);
       } finally {
         btn.disabled = false;
