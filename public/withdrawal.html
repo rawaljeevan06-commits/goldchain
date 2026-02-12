@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Withdrawal | GoldChain</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <div class="topbar">Withdrawal — Verified users only</div>
+
+  <header class="header">
+    <div class="container header-in">
+      <a class="brand" href="index.html">
+        <img src="images/logo.png" alt="GoldChain Logo">
+        <span>GoldChain</span>
+      </a>
+
+      <nav class="nav">
+        <a href="dashboard.html">Dashboard</a>
+      </nav>
+
+      <div class="actions">
+        <button id="backBtn" class="btn btn-outline" type="button">Back</button>
+        <button id="logoutBtn" class="btn btn-logout" type="button">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <section class="section">
+    <div class="container">
+      <div class="card">
+        <h2>Request Withdrawal</h2>
+        <p class="small" id="userEmail">Loading…</p>
+
+        <div style="display:grid; gap:10px; margin-top:12px;">
+          <div class="card" style="padding:12px;">
+            <p class="muted">Status</p>
+            <p class="big" id="statusText">Checking…</p>
+          </div>
+
+          <div class="card" style="padding:12px;">
+            <p class="muted">Plan</p>
+            <p class="big" id="planText">—</p>
+            <p class="muted" id="profitText">—</p>
+          </div>
+
+          <div class="card" style="padding:12px;">
+            <p class="muted">Available Balance</p>
+            <p class="big" id="availableText">$0.00</p>
+            <p class="muted" id="lockInfo">—</p>
+          </div>
+        </div>
+
+        <hr style="margin:16px 0; opacity:.25;">
+
+        <h3 style="margin-bottom:8px;">Submit request</h3>
+
+        <div style="display:grid; gap:10px;">
+          <input id="wallet" type="text" placeholder="Wallet Address (USDT/TRC20 or BTC or ETH)" />
+          <input id="amount" type="number" placeholder="Amount (USD)" />
+          <input id="note" type="text" placeholder="Note (optional)" />
+
+          <button id="submitBtn" class="btn btn-primary" type="button">Submit Request</button>
+          <p class="small" id="msg"></p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <script type="module">
+    import { auth, db } from "./js/firebase.js";
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import {
+      collection, query, where, limit, getDocs, orderBy,
+      addDoc, serverTimestamp,
+      doc, getDoc
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    const userEmailEl = document.getElementById("userEmail");
+    const statusText  = document.getElementById("statusText");
+    const planText    = document.getElementById("planText");
+    const profitText  = document.getElementById("profitText");
+    const availableEl = document.getElementById("availableText");
+    const lockInfoEl  = document.getElementById("lockInfo");
+    const msgEl       = document.getElementById("msg");
+
+    const walletEl    = document.getElementById("wallet");
+    const amountEl    = document.getElementById("amount");
+    const noteEl      = document.getElementById("note");
+    const submitBtn   = document.getElementById("submitBtn");
+
+    document.getElementById("backBtn").onclick = () => window.location.href="dashboard.html";
+    document.getElementById("logoutBtn").onclick = async () => {
+      try { await signOut(auth); } catch(e) {}
+      window.location.replace("login.html");
+    };
+
+    function money(n){ return `$${Number(n||0).toFixed(2)}`; }
+    function setMsg(t){ msgEl.textContent = t || ""; }
+
+    // ✅ FINAL RULES
+    // 350/700/1000 => 16% monthly
+    // 5000+        => 18% monthly, profit withdraw after 7 days, capital + full 18% after 30 days (B)
+    function monthlyPercentByPlanAmount(planAmount){
+      const a = Number(planAmount)||0;
+      if (a >= 5000) return 18;
+      if (a >= 350)  return 16;
+      return 0;
+    }
+
+    // ✅ Lock days by plan (for non-VIP this is capital lock; for VIP this is profit lock)
+    function lockDaysByPlanAmount(planAmount){
+      const a = Number(planAmount)||0;
+      if (a >= 5000) return 7;   // VIP profit unlock after 7 days
+      if (a >= 1000) return 15;  // Pro
+      if (a >= 700)  return 30;  // Growth
+      if (a >= 350)  return 45;  // Starter
+      return null;               // ✅ FIX: no more 999999 fallback
+    }
+
+    function tsToDate(x){
+      try{
+        if(!x) return null;
+        if(typeof x.toDate==="function") return x.toDate();
+        return new Date(x);
+      }catch{ return null; }
+    }
+
+    function daysBetween(d1, d2){
+      return Math.floor((d2-d1)/(1000*60*60*24));
+    }
+
+    async function getUserProfile(uid){
+      const snap = await getDoc(doc(db, "users", uid));
+      if (!snap.exists()) return null;
+      return snap.data();
+    }
+
+    async function getLatestVerifiedPayment(user){
+      // ✅ FIX: ensure we get the latest verified payment (not random)
+      const qv = query(
+        collection(db, "payments"),
+        where("uid", "==", user.uid),
+        where("status", "==", "verified"),
+        orderBy("createdAt", "desc"),
+        limit(1)
+      );
+      const snap = await getDocs(qv);
+      if (snap.empty) return null;
+      return { id: snap.docs[0].id, ...snap.docs[0].data() };
+    }
+
+    async function hasPendingWithdrawal(user){
+      const qp = query(
+        collection(db, "withdrawals"),
+        where("uid", "==", user.uid),
+        where("status", "==", "pending"),
+        limit(1)
+      );
+      const snap = await getDocs(qp);
+      return !snap.empty;
+    }
+
+    function resolvePlanAmount(profile, verified){
+      const fromProfile = Number(profile?.planAmount ?? profile?.plan ?? 0);
+      const fromPayment = Number(verified?.planAmount ?? verified?.amount ?? 0);
+      return fromProfile || fromPayment || 0;
+    }
+
+    let STATE = {
+      user: null,
+      profile: null,
+      verified: null,
+      locked: true,
+      pending: false,
+      available: 0,
+      planAmount: 0,
+      daysSinceVerify: 0
+    };
+
+    function renderUI(){
+      if(!STATE.verified){
+        statusText.textContent = "⛔ Not verified";
+        planText.textContent = "—";
+        profitText.textContent = "—";
+        availableEl.textContent = "$0.00";
+        lockInfoEl.textContent = "You must have a verified deposit to withdraw.";
+        submitBtn.disabled = true;
+        return;
+      }
+
+      const planAmt = Number(STATE.planAmount || 0);
+      const pctMonthly = monthlyPercentByPlanAmount(planAmt);
+
+      statusText.textContent = "✅ Verified — You can request withdrawal";
+      planText.textContent = `${STATE.verified.planName || "Selected Plan"} ($${planAmt} • ${pctMonthly}% monthly)`;
+
+      const monthlyProfit = (planAmt * pctMonthly) / 100;
+      profitText.textContent = `Estimated monthly profit: ${money(monthlyProfit)} (informational)`;
+
+      availableEl.textContent = money(STATE.available);
+
+      if(STATE.pending){
+        lockInfoEl.textContent = "⏳ You already have a pending withdrawal request.";
+        submitBtn.disabled = true;
+        return;
+      }
+
+      if(STATE.locked){
+        const lockDays = lockDaysByPlanAmount(planAmt);
+        if(lockDays === null){
+          lockInfoEl.textContent = "🔒 Plan not detected. Please choose a plan again.";
+        } else {
+          const remaining = Math.max(0, lockDays - STATE.daysSinceVerify);
+          lockInfoEl.textContent = `🔒 Withdrawal locked. Available after ${remaining} day(s).`;
+        }
+        submitBtn.disabled = true;
+        return;
+      }
+
+      lockInfoEl.textContent = "Withdrawal available ✅";
+      submitBtn.disabled = false;
+    }
+
+    async function loadState(){
+      setMsg("");
+      const user = STATE.user;
+
+      const profile = await getUserProfile(user.uid);
+      STATE.profile = profile;
+
+      const verified = await getLatestVerifiedPayment(user);
+      STATE.verified = verified;
+
+      if(!verified){
+        STATE.available = 0;
+        STATE.locked = true;
+        STATE.pending = false;
+        STATE.planAmount = 0;
+        STATE.daysSinceVerify = 0;
+        renderUI();
+        return;
+      }
+
+      STATE.planAmount = resolvePlanAmount(profile, verified);
+
+      STATE.pending = await hasPendingWithdrawal(user);
+
+      const vAt = tsToDate(verified.verifiedAt || verified.createdAt);
+      const now = new Date();
+      STATE.daysSinceVerify = vAt ? Math.max(0, daysBetween(vAt, now)) : 0;
+
+      const planAmt = Number(STATE.planAmount || 0);
+
+      // ✅ VIP PLAN (5000+) — option B
+      if(planAmt >= 5000){
+        const weeklyRate = 0.18 / 4; // 4.5% weekly (18% monthly divided into 4 weeks)
+        const weeksPassed = Math.floor(STATE.daysSinceVerify / 7);
+        const profitAvailable = (planAmt * weeklyRate) * weeksPassed;
+
+        if(STATE.daysSinceVerify >= 30){
+          // capital + full 18% after 30 days
+          STATE.available = planAmt + (planAmt * 0.18);
+          STATE.locked = false;
+        } else if(STATE.daysSinceVerify >= 7){
+          // profit only after 7 days
+          STATE.available = profitAvailable;
+          STATE.locked = false;
+        } else {
+          STATE.available = 0;
+          STATE.locked = true;
+        }
+
+        renderUI();
+        return;
+      }
+
+      // ✅ other plans: show admin balance but lock by plan days
+      const lockDays = lockDaysByPlanAmount(planAmt);
+      if(lockDays === null){
+        STATE.available = 0;
+        STATE.locked = true;
+        renderUI();
+        return;
+      }
+
+      const balance = Number(profile?.balance || 0);
+      STATE.available = Math.max(0, balance);
+
+      STATE.locked = (STATE.daysSinceVerify < lockDays);
+
+      renderUI();
+    }
+
+    submitBtn.addEventListener("click", async () => {
+      setMsg("");
+
+      const wallet = String(walletEl.value||"").trim();
+      const amount = Number(amountEl.value||0);
+      const note   = String(noteEl.value||"").trim();
+
+      if(!wallet || wallet.length < 8){
+        setMsg("❌ Please enter a valid wallet address.");
+        return;
+      }
+
+      if(!amount || amount <= 0){
+        setMsg("❌ Enter a valid amount.");
+        return;
+      }
+
+      if(amount > STATE.available){
+        setMsg(`❌ Amount exceeds available balance (${money(STATE.available)}).`);
+        return;
+      }
+
+      if(STATE.pending){
+        setMsg("❌ You already have a pending withdrawal request.");
+        return;
+      }
+
+      if(STATE.locked){
+        setMsg("❌ Withdrawal is locked by plan rule.");
+        return;
+      }
+
+      const planAmt = Number(STATE.planAmount || 0);
+      const pctMonthly = monthlyPercentByPlanAmount(planAmt);
+
+      submitBtn.disabled = true;
+      setMsg("Submitting…");
+
+      try{
+        await addDoc(collection(db, "withdrawals"), {
+          uid: STATE.user.uid,
+          email: STATE.user.email || "",
+          wallet,
+          amount,
+          note,
+
+          status: "pending",
+          createdAt: serverTimestamp(),
+
+          planName: STATE.verified.planName || "",
+          planAmount: planAmt,
+          monthlyPercent: pctMonthly,
+
+          balanceAtRequest: STATE.available
+        });
+
+        setMsg("✅ Withdrawal request submitted (pending).");
+        await loadState();
+      }catch(e){
+        console.error(e);
+        setMsg("❌ Failed to submit withdrawal (check Firestore rules).");
+      }finally{
+        submitBtn.disabled = false;
+      }
+    });
+
+    onAuthStateChanged(auth, async (user) => {
+      if(!user){
+        window.location.replace("login.html");
+        return;
+      }
+      STATE.user = user;
+      userEmailEl.textContent = user.email || "";
+      await loadState();
+    });
+  </script>
+
+</body>
+</html>

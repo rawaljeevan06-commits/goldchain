@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Payment | GoldChain</title>
+
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+  <div class="topbar">Deposit / Payment — Submit your proof</div>
+
+  <header class="header">
+    <div class="container header-in">
+      <a class="brand" href="index.html">
+        <img src="images/logo.png" alt="GoldChain Logo">
+        <span>GoldChain</span>
+      </a>
+
+      <button class="nav-toggle" type="button" aria-label="Menu">☰</button>
+
+      <nav class="nav">
+        <a href="index.html">Home</a>
+        <a href="about.html">Our Project</a>
+        <a href="legal.html">Legal</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+
+      <div class="actions">
+        <a class="btn btn-ghost" href="dashboard.html">Dashboard</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="section">
+    <div class="container">
+
+      <div class="card">
+        <h2>Deposit / Payment</h2>
+        <p class="small" id="selectedPlanText">Loading your selected plan...</p>
+        <p class="small" id="payMsg" style="margin-top:10px;"></p>
+      </div>
+
+      <div class="card" style="margin-top:14px;">
+        <label class="small">Choose Crypto</label>
+        <select id="cryptoSelect" class="input" style="margin-top:8px;">
+          <option value="USDT_TRC20">USDT (TRC20)</option>
+          <option value="BTC">BTC</option>
+          <option value="ETH">ETH</option>
+        </select>
+
+        <label class="small" style="display:block; margin-top:14px;">Network</label>
+        <div id="payNetwork" class="input" style="margin-top:8px;">—</div>
+
+        <label class="small" style="display:block; margin-top:14px;">Wallet Address</label>
+        <div id="walletAddress" class="input" style="margin-top:8px;">—</div>
+
+        <button id="copyAddrBtn" class="btn btn-ghost" type="button" style="margin-top:10px; width:100%;">Copy Address</button>
+
+        <div style="margin-top:14px; display:flex; justify-content:center;">
+          <img id="qrImg" alt="QR Code" style="max-width:220px; width:100%; border-radius:12px;">
+        </div>
+
+        <label class="small" style="display:block; margin-top:16px;">Amount</label>
+        <div id="payAmount" class="input" style="margin-top:8px;">—</div>
+
+        <label class="small" style="display:block; margin-top:16px;">TXID / Transaction Hash</label>
+        <input id="txidInput" class="input" type="text" placeholder="Paste your TXID here" style="margin-top:8px;">
+
+        <label class="small" style="display:block; margin-top:16px;">Note (optional)</label>
+        <input id="noteInput" class="input" type="text" placeholder="Any note..." style="margin-top:8px;">
+
+        <button id="submitProofBtn" class="btn btn-primary" type="button" style="margin-top:16px; width:100%;">
+          Submit Proof
+        </button>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p class="small">&copy; 2026 GoldChain Investment. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- ✅ This must load your JS file -->
+  <script type="module" src="js/payment.js?v=3"></script>
+
+  <script>
+    const navToggle = document.querySelector(".nav-toggle");
+    const nav = document.querySelector(".nav");
+    if (navToggle && nav) navToggle.addEventListener("click", () => nav.classList.toggle("open"));
+  </script>
+</body>
+</html>

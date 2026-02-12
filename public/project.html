@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Our Project | GoldChain Investment</title>
+
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+  <div class="topbar">Our Project — Transparent. Structured. Secure.</div>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="container header-in">
+      <a class="brand" href="index.html">
+        <img src="images/logo.png" alt="GoldChain Logo">
+        <span>GoldChain</span>
+      </a>
+
+      <button class="nav-toggle" type="button" aria-label="Menu">☰</button>
+
+      <nav class="nav">
+        <a href="index.html">Home</a>
+        <a href="index.html#plans">Plans</a>
+        <a href="project.html" class="active">Our Project</a>
+        <a href="legal.html">Legal</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+
+      <!-- Actions: these IDs are IMPORTANT for nav-auth.js -->
+      <div class="actions">
+        <a id="loginLink" class="btn btn-ghost" href="login.html">Login</a>
+        <a id="signupLink" class="btn btn-primary" href="signup.html">Sign Up</a>
+        <a id="dashLink" class="btn btn-primary" href="dashboard.html" style="display:none;">Dashboard</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="section">
+    <div class="container" style="max-width:980px;">
+      <div class="card" style="padding:26px;">
+        <h1 style="margin-bottom:8px;">GoldChain Investment Project</h1>
+        <p class="small" style="opacity:.9; line-height:1.8;">
+          GoldChain Investment is a structured digital participation platform designed to create a clear, trackable
+          experience for members — from choosing a plan to deposit verification, dashboard access, withdrawals, and referral rewards.
+          We focus on transparency, controlled workflows, and a premium user experience.
+        </p>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;">
+          <a class="btn btn-primary" href="signup.html">Create Account</a>
+          <a class="btn btn-outline" href="dashboard.html">Go to Dashboard</a>
+          <a class="btn btn-ghost" href="legal.html">Read Legal & Risk</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAIN CONTENT -->
+  <section class="section">
+    <div class="container" style="max-width:980px; display:grid; gap:14px;">
+
+      <div class="card">
+        <h2>1) Vision & Purpose</h2>
+        <p class="small" style="line-height:1.9;">
+          Our goal is to make participation simple and understandable: users choose a plan, complete a deposit,
+          and then access the dashboard to track status, balance, and activity history.
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>2) How the Platform Works</h2>
+        <div class="dash-cards" style="margin-top:10px;">
+          <div class="card"><h3>Step 1</h3><p class="small">Create an account and choose a plan.</p></div>
+          <div class="card"><h3>Step 2</h3><p class="small">Submit deposit details (TXID / method).</p></div>
+          <div class="card"><h3>Step 3</h3><p class="small">Admin verifies payment before unlocking.</p></div>
+          <div class="card"><h3>Step 4</h3><p class="small">Dashboard shows plan, balance, history, referral.</p></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>3) Security & Transparency</h2>
+        <ul class="small" style="margin-top:10px; line-height:1.9;">
+          <li><b>Authentication:</b> Secure login system to protect user access.</li>
+          <li><b>Verification:</b> Deposits are verified before balance is activated.</li>
+          <li><b>Clear History:</b> Users can see deposits/withdrawals records in the dashboard.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h2>4) Plans & Participation</h2>
+        <p class="small" style="line-height:1.9;">
+          We offer multiple plans so users can join at a level that fits their budget and timeline.
+        </p>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+          <a class="btn btn-primary" href="index.html#plans">View Plans</a>
+          <a class="btn btn-ghost" href="legal.html">Legal & Risk Disclosure</a>
+        </div>
+      </div>
+
+      <div class="card" style="text-align:center;">
+        <h2>Ready to Start?</h2>
+        <p class="small" style="opacity:.9; line-height:1.9;">
+          Create an account, choose your plan, and begin your journey with a structured platform designed for clarity.
+        </p>
+        <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:12px;">
+          <a class="btn btn-primary" href="signup.html">Create Account</a>
+          <a class="btn btn-outline" href="dashboard.html">Dashboard</a>
+          <a class="btn btn-ghost" href="contact.html">Contact Support</a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container footer-in">
+      <p class="small">©️ 2026 GoldChain Investment. All rights reserved.</p>
+      <div class="social">
+        <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+      </div>
+    </div>
+  </footer>
+
+  <a class="whatsapp-float" href="https://wa.me/974876535344" target="_blank" aria-label="WhatsApp Chat">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+
+  <script>
+    const navToggle = document.querySelector(".nav-toggle");
+    const nav = document.querySelector(".nav");
+    if (navToggle && nav) navToggle.addEventListener("click", () => nav.classList.toggle("open"));
+  </script>
+
+  <!-- ✅ MUST be at bottom -->
+  <script type="module" src="js/nav-auth.js"></script>
+</body>
+</html>

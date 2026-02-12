@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard | GoldChain</title>
+
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body class="page-bottom-space">
+
+  <div class="glow-layer"></div>
+
+  <div class="topbar">Dashboard — GoldChain Investment</div>
+
+  <header class="header">
+    <div class="container header-in">
+      <a class="brand" href="index.html">
+        <img src="images/logo.png" alt="GoldChain Logo">
+        <span>GoldChain</span>
+      </a>
+
+      <button class="nav-toggle" type="button" aria-label="Menu">☰</button>
+
+      <nav class="nav">
+        <a href="index.html">Home</a>
+        <a href="project.html">Our Project</a>
+        <a href="legal.html">Legal</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+
+      <div class="actions">
+        <a class="btn btn-ghost" href="payment.html" id="depositBtn">Deposit</a>
+        <button class="btn btn-ghost" id="withdrawBtn" type="button">Withdraw</button>
+        <button class="btn btn-primary" id="logoutBtn" type="button">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <section class="section">
+    <div class="container">
+
+      <h2 style="margin-bottom:8px;">Welcome 👋</h2>
+      <p class="small">Logged in as: <b id="emailEl">Loading...</b></p>
+
+      <div class="dash-cards" style="margin-top:14px;">
+
+        <div class="card glass">
+          <h3>Account</h3>
+          <p class="small">Balance: <b>$<span id="balanceEl">0.00</span></b></p>
+          <p class="small">Created: <span id="createdEl">—</span></p>
+        </div>
+        
+        <div class="card glass">
+          <h3>Payment Status</h3>
+          <p class="small" id="payStatusEl">Checking...</p>
+          <a class="btn btn-primary full" href="payment.html" style="margin-top:10px;">Pay / Deposit</a>
+        </div>
+
+        <div class="card glass">
+          <h3>Plan</h3>
+          <p class="small" id="planEl">Loading...</p>
+          <a class="btn btn-ghost full" href="index.html#plans" style="margin-top:10px;">View Plans</a>
+        </div>
+
+        <div class="card glass">
+          <h3>Your Referral</h3>
+          <p class="small">Your Referral Code:</p>
+
+          <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+            <input id="myRefCode" class="input" readonly style="max-width:220px;">
+            <button class="btn btn-primary" id="copyRefBtn" type="button">Copy</button>
+          </div>
+
+          <p class="small" style="margin-top:10px;">
+            Earnings: <b>$<span id="refEarn">0.00</span></b>
+          </p>
+
+          <a href="referral.html" class="btn btn-primary" style="margin-top:10px;">Open Referral Center</a>
+        </div>
+
+      </div>
+
+      <!-- TODAY STATS -->
+      <div class="dash-cards" style="margin-top:18px;">
+        <div class="card glass">
+          <h3>Today Verified Deposits</h3>
+          <p class="big">$<span id="todayDepositsEl">0.00</span></p>
+          <p class="small" style="opacity:.8;">Live total for today</p>
+        </div>
+
+        <div class="card glass">
+          <h3>Today Approved Withdrawals</h3>
+          <p class="big">$<span id="todayWithdrawalsEl">0.00</span></p>
+          <p class="small" style="opacity:.8;">Live total for today</p>
+        </div>
+
+        <div class="card glass">
+          <h3>VIP Status</h3>
+          <p class="small" id="vipStatusEl" style="font-weight:800;">Checking…</p>
+          <span class="vip-badge" id="vipBadge" style="display:none;">VIP</span>
+        </div>
+      </div>
+
+      <!-- TOTAL VERIFIED -->
+      <div class="card glass" style="margin-top:18px;">
+        <h2>Total Verified Deposits (Real-time)</h2>
+        <p class="small" style="opacity:.9;">This updates live from verified payments.</p>
+        <p class="big" style="margin-top:10px;">$<span id="totalDepositsEl">0.00</span></p>
+      </div>
+
+      <!-- LIVE DEPOSITS -->
+      <div class="card glass" style="margin-top:18px;">
+        <h2>Live Deposits</h2>
+        <p class="small" style="opacity:.9;">Latest verified deposits (auto-updating)</p>
+        <div id="liveDepositsBox" style="margin-top:10px; display:grid; gap:10px;">
+          <p class="small" style="opacity:.7;">Loading…</p>
+        </div>
+      </div>
+
+      <!-- PAYMENT HISTORY -->
+      <div class="card glass" style="margin-top:18px;">
+        <h2>Payment History</h2>
+        <p class="small" style="opacity:.85;">Your last 20 deposits</p>
+        <div style="overflow:auto; margin-top:10px;">
+          <table style="width:100%; border-collapse:collapse; min-width:800px;">
+            <thead>
+              <tr style="text-align:left; border-bottom:1px solid rgba(255,255,255,.15);">
+                <th style="padding:10px;">Time</th>
+                <th style="padding:10px;">Amount</th>
+                <th style="padding:10px;">Method</th>
+                <th style="padding:10px;">TXID</th>
+                <th style="padding:10px;">Status</th>
+              </tr>
+            </thead>
+            <tbody id="payHistBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- WITHDRAWAL HISTORY -->
+      <div class="card glass" style="margin-top:18px;">
+        <h2>Withdrawal History</h2>
+        <p class="small" style="opacity:.85;">Your last 20 withdrawals</p>
+        <div style="overflow:auto; margin-top:10px;">
+          <table style="width:100%; border-collapse:collapse; min-width:800px;">
+            <thead>
+              <tr style="text-align:left; border-bottom:1px solid rgba(255,255,255,.15);">
+                <th style="padding:10px;">Time</th>
+                <th style="padding:10px;">Amount</th>
+                <th style="padding:10px;">Wallet</th>
+                <th style="padding:10px;">Status</th>
+              </tr>
+            </thead>
+            <tbody id="wdHistBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- LEGAL SHORT -->
+      <div class="card glass" style="margin-top:18px;">
+        <h2>Legal & Risk Disclosure</h2>
+        <p class="small" style="opacity:.9; line-height:1.9;">
+          Participation involves risk. Percentages or examples shown are informational and do not guarantee future outcomes.
+          Only participate with funds you can afford and read the full Legal page.
+        </p>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+          <a class="btn btn-outline" href="legal.html">Open Full Legal Page</a>
+          <a class="btn btn-primary" href="GoldChain-Legal-Risk-Disclosure.pdf" target="_blank" rel="noopener">
+            Download PDF
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container footer-in">
+      <p class="small">©️ 2026 GoldChain Investment. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <div style="position:fixed; bottom:0; left:0; right:0; background:#111; color:#facc15; padding:8px; text-align:center; z-index:50;">
+    <span id="liveTicker">Loading latest verified deposit...</span>
+  </div>
+
+  <script type="module">
+    import { auth, db } from "./js/firebase.js";
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import {
+      doc, getDoc,
+      collection, query, where, limit,
+      onSnapshot
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    const emailEl = document.getElementById("emailEl");
+    const balanceEl = document.getElementById("balanceEl");
+    const createdEl = document.getElementById("createdEl");
+    const planEl = document.getElementById("planEl");
+    const payStatusEl = document.getElementById("payStatusEl");
+
+    const myRefCodeEl = document.getElementById("myRefCode");
+    const refEarnEl = document.getElementById("refEarn");
+    const copyRefBtn = document.getElementById("copyRefBtn");
+
+    const withdrawBtn = document.getElementById("withdrawBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    function fmtTime(ts){
+      try{
+        if(!ts) return "-";
+        if(typeof ts.toDate==="function") return ts.toDate().toLocaleString();
+        return new Date(ts).toLocaleString();
+      }catch{ return "-"; }
+    }
+
+    function parsePlanAmountFromAny(x){
+      // accepts: 350, "350", "$350", "Growth $700", "Plan: $1000"
+      const s = String(x ?? "").replace(/,/g,"");
+      const m = s.match(/(\d{2,6}(\.\d+)?)/);
+      return m ? Number(m[1]) : 0;
+    }
+
+    function displayPlanText(data){
+      // BEST ORDER: numeric plan -> planName -> selectedPlan -> localStorage fallback
+      const planNum = Number(data.plan || 0);
+      if (planNum > 0) return `Selected Plan: $${planNum}`;
+
+      if (data.planName) return String(data.planName);
+      if (data.selectedPlan) return String(data.selectedPlan);
+
+      let storage = "";
+      try{ storage = localStorage.getItem("selectedPlan") || ""; }catch(e){}
+      if (storage) return storage;
+
+      return "No plan selected";
+    }
+
+    // ✅ Today stats (no composite index)
+    function startTodayStats(userPlanAmount){
+      const todayDepEl = document.getElementById("todayDepositsEl");
+      const todayWdEl = document.getElementById("todayWithdrawalsEl");
+      const vipStatusEl = document.getElementById("vipStatusEl");
+      const vipBadge = document.getElementById("vipBadge");
+
+      const planAmt = Number(userPlanAmount || 0);
+      const isVip = planAmt >= 5000;
+      if (vipStatusEl) vipStatusEl.textContent = isVip ? "✅ VIP Member" : "Standard Member";
+      if (vipBadge) vipBadge.style.display = isVip ? "inline-block" : "none";
+
+      const now = new Date();
+      const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+      const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+
+      // Payments today: filter status in JS
+      const qTodayPay = query(
+        collection(db, "payments"),
+        where("verifiedAt", ">=", start),
+        where("verifiedAt", "<=", end)
+      );
+
+      onSnapshot(qTodayPay, (snap) => {
+        let sum = 0;
+        snap.forEach(d => {
+          const p = d.data();
+          if (String(p.status || "").toLowerCase() === "verified") {
+            sum += Number(p.amount || 0);
+          }
+        });
+        if (todayDepEl) todayDepEl.textContent = sum.toFixed(2);
+      });
+
+      // Withdrawals today: filter status in JS
+      const qTodayWd = query(
+        collection(db, "withdrawals"),
+        where("processedAt", ">=", start),
+        where("processedAt", "<=", end)
+      );
+
+      onSnapshot(qTodayWd, (snap) => {
+        let sum = 0;
+        snap.forEach(d => {
+          const w = d.data();
+          if (String(w.status || "").toLowerCase() === "approved") {
+            sum += Number(w.amount || 0);
+          }
+        });
+        if (todayWdEl) todayWdEl.textContent = sum.toFixed(2);
+      });
+    }
+
+    // ✅ Total verified + ticker (no composite index)
+    function startRealtimeDeposits(){
+      const totalEl = document.getElementById("totalDepositsEl");
+      const tickerEl = document.getElementById("liveTicker");
+
+      const qAll = query(collection(db, "payments"));
+      onSnapshot(qAll, (snap) => {
+        let sum = 0;
+        let latest = null;
+
+        snap.forEach(d => {
+          const p = d.data();
+          if (String(p.status || "").toLowerCase() === "verified") {
+            sum += Number(p.amount || 0);
+            const t = p.verifiedAt?.toDate ? p.verifiedAt.toDate().getTime() : 0;
+            if (!latest || t > latest.t) latest = { t, p };
+          }
+        });
+
+        if (totalEl) totalEl.textContent = sum.toFixed(2);
+
+        if (!latest) {
+          if (tickerEl) tickerEl.textContent = "No verified deposits yet.";
+          return;
+        }
+
+        const p = latest.p;
+        const amt = Number(p.amount || 0).toFixed(2);
+        const who = p.email || "Member";
+        const plan = p.planName ? ` — ${p.planName}` : "";
+        if (tickerEl) tickerEl.textContent = `✅ Verified Deposit: $${amt} by ${who}${plan}`;
+      });
+    }
+
+    // ✅ Live deposits list
+    function startLiveDepositList(){
+      const box = document.getElementById("liveDepositsBox");
+      if (!box) return;
+
+      const qAll = query(collection(db, "payments"));
+      onSnapshot(qAll, (snap) => {
+        const verified = [];
+
+        snap.forEach(d => {
+          const p = d.data();
+          if (String(p.status || "").toLowerCase() === "verified") {
+            const t = p.verifiedAt?.toDate ? p.verifiedAt.toDate().getTime() : 0;
+            verified.push({ t, p });
+          }
+        });
+
+        verified.sort((a,b) => b.t - a.t);
+        const top = verified.slice(0, 6);
+
+        if (top.length === 0) {
+          box.innerHTML = `<p class="small" style="opacity:.7;">No verified deposits yet.</p>`;
+          return;
+        }
+
+        let html = "";
+        top.forEach(({p}) => {
+          const email = (p.email || "").toString();
+          const amt = Number(p.amount || 0).toFixed(2);
+
+          let who = "Member";
+          if (email.includes("@")) {
+            const parts = email.split("@");
+            who = (parts[0].slice(0,3) + "***@" + parts[1]);
+          } else if (email) {
+            who = email.slice(0,3) + "***";
+          }
+
+          const plan = p.planName ? ` • ${p.planName}` : "";
+
+          html += `
+            <div style="padding:10px; border-radius:12px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.03);">
+              <div style="display:flex; justify-content:space-between; gap:10px;">
+                <span class="small" style="opacity:.9;">✅ ${who}${plan}</span>
+                <span class="small" style="font-weight:800;">$${amt}</span>
+              </div>
+              <div class="small" style="opacity:.6; margin-top:4px;">Verified deposit</div>
+            </div>
+          `;
+        });
+
+        box.innerHTML = html;
+      });
+    }
+
+    // ✅ Payment history (user only)
+    function startPaymentHistory(uid){
+      const body = document.getElementById("payHistBody");
+      if(!body) return;
+
+      const qPay = query(
+        collection(db, "payments"),
+        where("uid", "==", uid),
+        limit(50)
+      );
+
+      onSnapshot(qPay, (snap) => {
+        const rows = [];
+        snap.forEach(d => {
+          const p = d.data();
+          const t =
+            (p.createdAt?.toDate ? p.createdAt.toDate().getTime() : 0) ||
+            (p.verifiedAt?.toDate ? p.verifiedAt.toDate().getTime() : 0);
+          rows.push({ t, p });
+        });
+
+        rows.sort((a,b) => b.t - a.t);
+        const top = rows.slice(0, 20);
+
+        if(top.length === 0){
+          body.innerHTML = `<tr><td colspan="5" style="padding:10px;">No payments yet.</td></tr>`;
+          return;
+        }
+
+        body.innerHTML = "";
+        top.forEach(({p}) => {
+          const tr = document.createElement("tr");
+          tr.style.borderBottom = "1px solid rgba(255,255,255,.08)";
+          tr.innerHTML = `
+            <td style="padding:10px;">${fmtTime(p.createdAt || p.verifiedAt)}</td>
+            <td style="padding:10px;">$${Number(p.amount||0).toFixed(2)}</td>
+            <td style="padding:10px;">${p.method || "-"}</td>
+            <td style="padding:10px;max-width:220px;word-break:break-all;">${p.txid || "-"}</td>
+            <td style="padding:10px;">${p.status || "-"}</td>
+          `;
+          body.appendChild(tr);
+        });
+      }, (err)=>{
+        body.innerHTML = `<tr><td colspan="5" style="padding:10px;color:#ff8080;">${err.message}</td></tr>`;
+      });
+    }
+
+    // ✅ Withdrawal history (user only)
+    function startWithdrawalHistory(uid){
+      const body = document.getElementById("wdHistBody");
+      if(!body) return;
+
+      const qWd = query(
+        collection(db, "withdrawals"),
+        where("uid", "==", uid),
+        limit(50)
+      );
+
+      onSnapshot(qWd, (snap) => {
+        const rows = [];
+        snap.forEach(d => {
+          const w = d.data();
+          const t =
+            (w.createdAt?.toDate ? w.createdAt.toDate().getTime() : 0) ||
+            (w.processedAt?.toDate ? w.processedAt.toDate().getTime() : 0);
+          rows.push({ t, w });
+        });
+
+        rows.sort((a,b) => b.t - a.t);
+        const top = rows.slice(0, 20);
+
+        if(top.length === 0){
+          body.innerHTML = `<tr><td colspan="4" style="padding:10px;">No withdrawals yet.</td></tr>`;
+          return;
+        }
+
+        body.innerHTML = "";
+        top.forEach(({w}) => {
+          const tr = document.createElement("tr");
+          tr.style.borderBottom = "1px solid rgba(255,255,255,.08)";
+          tr.innerHTML = `
+            <td style="padding:10px;">${fmtTime(w.createdAt || w.processedAt)}</td>
+            <td style="padding:10px;">$${Number(w.amount||0).toFixed(2)}</td>
+            <td style="padding:10px;max-width:260px;word-break:break-all;">${w.wallet || w.walletAddress || "-"}</td>
+            <td style="padding:10px;">${w.status || "-"}</td>
+          `;
+          body.appendChild(tr);
+        });
+      }, (err)=>{
+        body.innerHTML = `<tr><td colspan="4" style="padding:10px;color:#ff8080;">${err.message}</td></tr>`;
+      });
+    }
+
+    withdrawBtn?.addEventListener("click", () => {
+      window.location.href = "withdrawal.html";
+    });
+
+    logoutBtn?.addEventListener("click", async () => {
+      try { await signOut(auth); } catch (e) {}
+      window.location.href = "login.html";
+    });
+
+    copyRefBtn?.addEventListener("click", async () => {
+      const code = myRefCodeEl?.value || "";
+      if (!code) return;
+      try {
+        await navigator.clipboard.writeText(code);
+        alert("✅ Copied referral code!");
+      } catch (e) {
+        alert("Copy failed. Please copy manually.");
+      }
+    });
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.replace("login.html");
+        return;
+      }
+
+      emailEl.textContent = user.email || user.uid;
+
+      // global widgets
+      startRealtimeDeposits();
+      startLiveDepositList();
+      startPaymentHistory(user.uid);
+      startWithdrawalHistory(user.uid);
+
+      // profile
+      try {
+        const snap = await getDoc(doc(db, "users", user.uid));
+        const data = snap.exists() ? snap.data() : {};
+
+        balanceEl.textContent = Number(data.balance || 0).toFixed(2);
+
+        if (data.createdAt?.toDate) createdEl.textContent = data.createdAt.toDate().toLocaleString();
+        else createdEl.textContent = "—";
+
+        // ✅ This will NEVER break plan display anymore:
+        planEl.textContent = displayPlanText(data);
+
+        if (data.paymentVerified === true) {
+          payStatusEl.innerHTML = `<span style="color:#36d399; font-weight:700;">✅ Payment Verified</span>`;
+        } else {
+          payStatusEl.innerHTML = `<span style="color:#f59e0b; font-weight:700;">Pending / Not Verified</span>`;
+        }
+
+        if (myRefCodeEl) myRefCodeEl.value = data.referralCode || "";
+        if (refEarnEl) refEarnEl.textContent = Number(data.referralEarnings || 0).toFixed(2);
+
+        // VIP + today stats needs numeric plan:
+        const numericPlan =
+          Number(data.plan || 0) ||
+          parsePlanAmountFromAny(data.planName) ||
+          parsePlanAmountFromAny(data.selectedPlan);
+
+        startTodayStats(numericPlan);
+
+      } catch (e) {
+        console.log("Dashboard load error:", e);
+        planEl.textContent = "Error loading profile.";
+        payStatusEl.textContent = "Error loading profile.";
+      }
+    });
+  </script>
+
+  <script>
+    const navToggle = document.querySelector(".nav-toggle");
+    const nav = document.querySelector(".nav");
+    if (navToggle && nav) navToggle.addEventListener("click", () => nav.classList.toggle("open"));
+  </script>
+<script type="module">
+  import { requireAuth, wireLogout } from "./js/auth-guard.js";
+  requireAuth();
+  wireLogout("logoutBtn");
+</script>
+</body>
+</html>

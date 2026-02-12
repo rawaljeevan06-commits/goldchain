@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard | GoldChain</title>
+
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body class="page-bottom-space">
+
+  <!-- optional glow layer (if your CSS uses it) -->
+  <div class="glow-layer"></div>
+
+  <div class="topbar">Dashboard — GoldChain Investment</div>
+
+  <header class="header">
+    <div class="container header-in">
+      <a class="brand" href="index.html">
+        <img src="images/logo.png" alt="GoldChain Logo">
+        <span>GoldChain</span>
+      </a>
+
+      <button class="nav-toggle" type="button" aria-label="Menu">☰</button>
+
+      <nav class="nav">
+        <a href="index.html">Home</a>
+        <a href="project.html">Our Project</a>
+        <a href="legal.html">Legal</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+
+      <div class="actions">
+        <a class="btn btn-ghost" href="payment.html" id="depositBtn">Deposit</a>
+        <button class="btn btn-ghost" id="withdrawBtn" type="button">Withdraw</button>
+        <button class="btn btn-primary" id="logoutBtn" type="button">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <section class="section">
+    <div class="container">
+
+      <h2 style="margin-bottom:8px;">Welcome 👋</h2>
+      <p class="small">Logged in as: <b id="emailEl">Loading...</b></p>
+
+      <!-- MAIN DASH CARDS -->
+      <div class="dash-cards" style="margin-top:14px;">
+
+        <div class="card glass">
+          <h3>Account</h3>
+          <p class="small">Balance: <b>$<span id="balanceEl">0.00</span></b></p>
+          <p class="small">Created: <span id="createdEl">—</span></p>
+        </div>
+
+        <div class="card glass">
+          <h3>Payment Status</h3>
+          <p class="small" id="payStatusEl">Checking...</p>
+          <a class="btn btn-primary full" href="payment.html" style="margin-top:10px;">Pay / Deposit</a>
+        </div>
+
+        <div class="card glass">
+          <h3>Plan</h3>
+          <p class="small" id="planEl">Loading...</p>
+          <p class="small" id="rateEl" style="opacity:.85;"></p>
+          <a class="btn btn-ghost full" href="index.html#plans" style="margin-top:10px;">View Plans</a>
+        </div>
+
+        <div class="card glass">
+          <h3>Your Referral</h3>
+          <p class="small">Your Referral Code:</p>
+
+          <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+            <input id="myRefCode" class="input" readonly style="max-width:220px;">
+            <button class="btn btn-primary" id="copyRefBtn" type="button">Copy</button>
+          </div>
+
+          <p class="small" style="margin-top:10px;">
+            Earnings: <b>$<span id="refEarn">0.00</span></b>
+          </p>
+
+          <a href="referral.html" class="btn btn-primary" style="margin-top:10px;">Open Referral Center</a>
+        </div>
+
+      </div>
+
+      <!-- ✅ TODAY STATS -->
+      <div class="dash-cards" style="margin-top:18px;">
+        <div class="card glass">
+          <h3>Today Verified Deposits</h3>
+          <p class="big">$<span id="todayDepositsEl">0.00</span></p>
+          <p class="small" style="opacity:.8;">Live total for today</p>
+        </div>
+
+        <div class="card glass">
+          <h3>Today Approved Withdrawals</h3>
+          <p class="big">$<span id="todayWithdrawalsEl">0.00</span></p>
+          <p class="small" style="opacity:.8;">Live total for today</p>
+        </div>
+
+        <div class="card glass">
+          <h3>VIP Status</h3>
+          <p class="small" id="vipStatusEl" style="font-weight:800;">Checking…</p>
+          <span class="vip-badge" id="vipBadge" style="display:none;">VIP</span>
+        </div>
+      </div>
+
+      <!-- ✅ REAL-TIME VERIFIED DEPOSIT TOTAL -->
+      <div class="card glass" style="margin-top:18px;">
+        <h2>Total Verified Deposits (Real-time)</h2>
+        <p class="small" style="opacity:.9;">This updates live from verified payments.</p>
+        <p class="big" style="margin-top:10px;">$<span id="totalDepositsEl">0.00</span></p>
+      </div>
+
+      <!-- ✅ PAYMENT + WITHDRAWAL HISTORY -->
+      <div class="card glass" style="margin-top:18px;">
+        <h2>Payment History</h2>
+        <p class="small" style="opacity:.85;" id="payHistMsg">Loading…</p>
+        <div style="overflow:auto; margin-top:10px;">
+          <table style="width:100%; border-collapse:collapse; min-width:820px;">
+            <thead>
+              <tr style="text-align:left; border-bottom:1px solid rgba(255,255,255,.15);">
+                <th style="padding:10px;">Time</th>
+                <th style="padding:10px;">Amount</th>
+                <th style="padding:10px;">Method</th>
+                <th style="padding:10px;">TXID</th>
+                <th style="padding:10px;">Status</th>
+              </tr>
+            </thead>
+            <tbody id="paymentsHistBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card glass" style="margin-top:18px;">
+        <h2>Withdrawal History</h2>
+        <p class="small" style="opacity:.85;" id="wdHistMsg">Loading…</p>
+        <div style="overflow:auto; margin-top:10px;">
+          <table style="width:100%; border-collapse:collapse; min-width:820px;">
+            <thead>
+              <tr style="text-align:left; border-bottom:1px solid rgba(255,255,255,.15);">
+                <th style="padding:10px;">Time</th>
+                <th style="padding:10px;">Amount</th>
+                <th style="padding:10px;">Wallet</th>
+                <th style="padding:10px;">Status</th>
+              </tr>
+            </thead>
+            <tbody id="withdrawalsHistBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ✅ OUR SUCCESS -->
+      <div class="card glass" style="margin-top:18px;">
+        <h2>Our Success</h2>
+        <p class="small" style="opacity:.9;">Live growth feeling + premium UI</p>
+
+        <div style="display:flex; justify-content:center; gap:60px; flex-wrap:wrap; margin-top:16px;">
+          <div style="text-align:center;">
+            <h3 class="counter" data-target="1200">0</h3>
+            <p class="small">Active Members</p>
+          </div>
+
+          <div style="text-align:center;">
+            <h3 class="counter" data-target="98">0</h3>
+            <p class="small">Approval Rate %</p>
+          </div>
+
+          <div style="text-align:center;">
+            <h3 class="counter" data-target="24">0</h3>
+            <p class="small">Monitoring Hours</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ✅ TESTIMONIALS -->
+      <div class="card glass" style="margin-top:18px;">
+        <h2>Testimonials</h2>
+        <div style="text-align:center; margin-bottom:16px;">
+          <p style="font-size:22px; color:#facc15; margin:0;">★★★★★</p>
+          <p class="small" style="opacity:.85;">Rated highly for transparency and user experience.</p>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px,1fr)); gap:16px;">
+          <div class="card glass">
+            <p class="small" style="line-height:1.8;">
+              “Deposit verification gives confidence. The workflow feels structured and clean.”
+            </p>
+            <p class="small" style="opacity:.7; margin-top:10px;">
+              <b>Rajesh Sharma</b><br><span style="font-size:12px;">Doha, Qatar</span>
+            </p>
+          </div>
+
+          <div class="card glass">
+            <p class="small" style="line-height:1.8;">
+              “The dashboard is professional. Tracking plan and referral earnings is very easy.”
+            </p>
+            <p class="small" style="opacity:.7; margin-top:10px;">
+              <b>Aamir Khan</b><br><span style="font-size:12px;">Dubai, UAE</span>
+            </p>
+          </div>
+
+          <div class="card glass">
+            <p class="small" style="line-height:1.8;">
+              “Withdrawal requests and approvals are clear. I like the transparency.”
+            </p>
+            <p class="small" style="opacity:.7; margin-top:10px;">
+              <b>Michael D.</b><br><span style="font-size:12px;">London, UK</span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ✅ LEGAL BOX -->
+      <div class="card glass" style="margin-top:18px;">
+        <h2>Legal & Risk Disclosure</h2>
+        <p class="small" style="opacity:.9; line-height:1.9;">
+          Participation involves risk. Percentages or examples shown are informational and do not guarantee future outcomes.
+          Only participate with funds you can afford and read the full Legal page.
+        </p>
+
+        <ul class="small" style="margin-top:10px; line-height:1.9;">
+          <li><b>No guarantee</b> of profit or outcome.</li>
+          <li><b>Deposits are verified</b> before balance updates.</li>
+          <li><b>Withdrawals</b> may require approval and processing time.</li>
+          <li><b>User responsibility</b> for correct details and decisions.</li>
+        </ul>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+          <a class="btn btn-outline" href="legal.html">Open Full Legal Page</a>
+          <a class="btn btn-primary" href="GoldChain-Legal-Risk-Disclosure.pdf" target="_blank" rel="noopener">
+            Download PDF
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container footer-in">
+      <p class="small">©️ 2026 GoldChain Investment. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- ✅ LIVE TICKER -->
+  <div style="position:fixed; bottom:0; left:0; right:0; background:#111; color:#facc15; padding:8px; text-align:center; z-index:50;">
+    <span id="liveTicker">Loading latest verified deposit...</span>
+  </div>
+
+  <!-- ✅ IMPORTANT: only ONE dashboard script -->
+  <script type="module" src="js/dashboard.js"></script>
+
+  <script>
+    // mobile menu toggle
+    const navToggle = document.querySelector(".nav-toggle");
+    const nav = document.querySelector(".nav");
+    if (navToggle && nav) navToggle.addEventListener("click", () => nav.classList.toggle("open"));
+  </script>
+
+</body>
+</html>
