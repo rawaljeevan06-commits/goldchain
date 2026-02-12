@@ -59,19 +59,19 @@ const WALLETS = {
   USDT_TRC20: {
     label: "USDT (TRC20)",
     network: "TRON (TRC20)",
-    address: "Txxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    address: "TCqayESg8BwzJGFtSydc84NSvxkGHhtyz8",
     qr: "images/qr/usdt-trc20.png"
   },
   BTC: {
     label: "BTC",
     network: "Bitcoin",
-    address: "bc1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    address: "13sU6KbrP8x3G4T8STs7ESeqSxM1VF3EyZ",
     qr: "images/qr/btc.png"
   },
   ETH: {
     label: "ETH",
     network: "Ethereum (ERC20)",
-    address: "0xXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    address: "0x1a803ebbc60b6bbc70dfcbb60cf60099d96717e9",
     qr: "images/qr/eth.png"
   }
 };
