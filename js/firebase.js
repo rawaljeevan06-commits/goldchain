@@ -1,15 +1,16 @@
 // js/firebase.js
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "YOUR_REAL_API_KEY",
-  authDomain: "YOUR_REAL_AUTH_DOMAIN",
-  projectId: "YOUR_REAL_PROJECT_ID",
-  storageBucket: "YOUR_REAL_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_REAL_SENDER_ID",
-  appId: "YOUR_REAL_APP_ID",
+  apiKey: "AIzaSyBrNIJ-NAMZi1Sni8zPLDqICBBawL3GRM",
+  authDomain: "goldchain-e5470.firebaseapp.com",
+  projectId: "goldchain-e5470",
+  storageBucket: "goldchain-e5470.firebasestorage.app",
+  messagingSenderId: "614150237166",
+  appId: "1:614150237166:web:c3e9b7f8549a78e5a87cff"
 };
 
 const app = initializeApp(firebaseConfig);
