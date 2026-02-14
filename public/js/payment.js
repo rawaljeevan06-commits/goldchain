@@ -1,5 +1,5 @@
 // js/payment.js
-import { db, auth } from "./firebase.js?v=5";
+import { db, auth } from "./firebase.js?v=6";
 
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import {
@@ -130,6 +130,18 @@ async function copyAddress() {
 }
 
 // -------------------------
+// Plan lock days (minimum-lock rule)
+// -------------------------
+function lockDaysByPlanAmount(planAmount){
+  const a = Number(planAmount)||0;
+  if (a >= 5000) return 15;
+  if (a >= 1000) return 15;
+  if (a >= 700)  return 30;
+  if (a >= 350)  return 30;
+  return null;
+}
+
+// -------------------------
 // 5) Submit proof
 // -------------------------
 function validateTxid(txid) {
@@ -164,12 +176,17 @@ async function submitProof(user) {
 
   // If db is not real, we can’t write -> go local immediately
   if (!db) {
-    const ok = saveProofLocally({ amount, txid, note, method: cryptoKey, createdAtISO: new Date().toISOString() });
+    const ok = saveProofLocally({ amount, txid, note, method: cryptoKey, createdAtISO: new Date().toISOString(),
+    lockDays: lockDays,
+    createdAtMs: Date.now(),
+    lockUntilMs: (lockDays ? (Date.now() + lockDays*24*60*60*1000) : null) });
     return setMsg(ok ? "Saved locally ✅ (Firebase not loaded in Safari)" : "Could not submit proof.", false);
   }
 
   submitProofBtn.disabled = true;
   submitProofBtn.textContent = "Submitting...";
+
+  const lockDays = lockDaysByPlanAmount(amount);
 
   const payload = {
     amount: Number(amount),
@@ -182,7 +199,10 @@ async function submitProof(user) {
     status: "pending",
     uid: user?.uid || null,
     email: user?.email || null,
-    createdAtISO: new Date().toISOString()
+    createdAtISO: new Date().toISOString(),
+    lockDays: lockDays,
+    createdAtMs: Date.now(),
+    lockUntilMs: (lockDays ? (Date.now() + lockDays*24*60*60*1000) : null)
   };
 
   try {

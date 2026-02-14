@@ -71,7 +71,7 @@
   </section>
 
   <script type="module">
-    import { auth, db } from "./js/firebase.js";
+    import { auth, db } from "./js/firebase.js?v=6";
     import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
     import {
       collection, query, where, limit, getDocs, orderBy,
@@ -112,13 +112,17 @@
     }
 
     // ✅ Lock days by plan (for non-VIP this is capital lock; for VIP this is profit lock)
+        // ✅ Lock days by plan amount (minimum-lock rule)
+    // 5000 => 15 days
+    // 350/700 => 30 days
+    // 1000 => 15 days (adjust if needed)
     function lockDaysByPlanAmount(planAmount){
       const a = Number(planAmount)||0;
-      if (a >= 5000) return 7;   // VIP profit unlock after 7 days
-      if (a >= 1000) return 15;  // Pro
-      if (a >= 700)  return 30;  // Growth
-      if (a >= 350)  return 45;  // Starter
-      return null;               // ✅ FIX: no more 999999 fallback
+      if (a >= 5000) return 15;
+      if (a >= 1000) return 15;
+      if (a >= 700)  return 30;
+      if (a >= 350)  return 30;
+      return null;
     }
 
     function tsToDate(x){
@@ -178,7 +182,8 @@
       pending: false,
       available: 0,
       planAmount: 0,
-      daysSinceVerify: 0
+      daysSinceVerify: 0,
+      lockRemainingDays: null
     };
 
     function renderUI(){
@@ -210,12 +215,10 @@
       }
 
       if(STATE.locked){
-        const lockDays = lockDaysByPlanAmount(planAmt);
-        if(lockDays === null){
-          lockInfoEl.textContent = "🔒 Plan not detected. Please choose a plan again.";
+        if(STATE.lockRemainingDays == null){
+          lockInfoEl.textContent = "🔒 Withdrawal locked.";
         } else {
-          const remaining = Math.max(0, lockDays - STATE.daysSinceVerify);
-          lockInfoEl.textContent = `🔒 Withdrawal locked. Available after ${remaining} day(s).`;
+          lockInfoEl.textContent = `🔒 Withdrawal locked. Available after ${STATE.lockRemainingDays} day(s).`;
         }
         submitBtn.disabled = true;
         return;
@@ -225,6 +228,19 @@
       submitBtn.disabled = false;
     }
 
+    async function getActiveDeposits(uid){
+      // Prefer per-deposit locks (new system)
+      const qd = query(
+        collection(db, "users", uid, "deposits"),
+        where("status", "==", "active"),
+        limit(50)
+      );
+      const snap = await getDocs(qd);
+      const out = [];
+      snap.forEach(d => out.push({ id: d.id, ...d.data() }));
+      return out;
+    }
+
     async function loadState(){
       setMsg("");
       const user = STATE.user;
@@ -232,6 +248,47 @@
       const profile = await getUserProfile(user.uid);
       STATE.profile = profile;
 
+      STATE.pending = await hasPendingWithdrawal(user);
+
+      const nowMs = Date.now();
+
+      // 1) Try deposits (per-deposit locks)
+      let deposits = [];
+      try { deposits = await getActiveDeposits(user.uid); } catch(e) { deposits = []; }
+
+      if (deposits.length > 0) {
+        // Use the minimum lockUntil across deposits so a new longer plan never extends older locks
+        let minLockUntilMs = null;
+        for (const d of deposits) {
+          const lu = (typeof d.lockUntilMs === "number") ? d.lockUntilMs : null;
+          if (lu == null) continue;
+          if (minLockUntilMs == null || lu < minLockUntilMs) minLockUntilMs = lu;
+        }
+
+        STATE.verified = deposits[0]; // for display
+        STATE.planAmount = Number(STATE.verified.amount || 0);
+
+        if (minLockUntilMs == null) {
+          STATE.locked = true;
+          STATE.lockRemainingDays = null;
+          STATE.available = 0;
+          renderUI();
+          return;
+        }
+
+        const remainingMs = Math.max(0, minLockUntilMs - nowMs);
+        STATE.lockRemainingDays = Math.ceil(remainingMs / (1000*60*60*24));
+
+        STATE.locked = (nowMs < minLockUntilMs);
+
+        const balance = Number(profile?.balance || 0);
+        STATE.available = STATE.locked ? 0 : Math.max(0, balance);
+
+        renderUI();
+        return;
+      }
+
+      // 2) Fallback: old system (latest verified payment)
       const verified = await getLatestVerifiedPayment(user);
       STATE.verified = verified;
 
@@ -240,57 +297,32 @@
         STATE.locked = true;
         STATE.pending = false;
         STATE.planAmount = 0;
-        STATE.daysSinceVerify = 0;
+        STATE.lockRemainingDays = null;
         renderUI();
         return;
       }
 
-      STATE.planAmount = resolvePlanAmount(profile, verified);
+      const planAmt = resolvePlanAmount(profile, verified);
+      STATE.planAmount = planAmt;
 
-      STATE.pending = await hasPendingWithdrawal(user);
-
-      const vAt = tsToDate(verified.verifiedAt || verified.createdAt);
-      const now = new Date();
-      STATE.daysSinceVerify = vAt ? Math.max(0, daysBetween(vAt, now)) : 0;
-
-      const planAmt = Number(STATE.planAmount || 0);
-
-      // ✅ VIP PLAN (5000+) — option B
-      if(planAmt >= 5000){
-        const weeklyRate = 0.18 / 4; // 4.5% weekly (18% monthly divided into 4 weeks)
-        const weeksPassed = Math.floor(STATE.daysSinceVerify / 7);
-        const profitAvailable = (planAmt * weeklyRate) * weeksPassed;
-
-        if(STATE.daysSinceVerify >= 30){
-          // capital + full 18% after 30 days
-          STATE.available = planAmt + (planAmt * 0.18);
-          STATE.locked = false;
-        } else if(STATE.daysSinceVerify >= 7){
-          // profit only after 7 days
-          STATE.available = profitAvailable;
-          STATE.locked = false;
-        } else {
-          STATE.available = 0;
-          STATE.locked = true;
-        }
-
-        renderUI();
-        return;
-      }
-
-      // ✅ other plans: show admin balance but lock by plan days
       const lockDays = lockDaysByPlanAmount(planAmt);
-      if(lockDays === null){
+      const vAt = tsToDate(verified.verifiedAt || verified.createdAt) || new Date();
+      const lockUntilMs = lockDays ? (vAt.getTime() + lockDays * 24 * 60 * 60 * 1000) : null;
+
+      if (!lockUntilMs) {
         STATE.available = 0;
         STATE.locked = true;
+        STATE.lockRemainingDays = null;
         renderUI();
         return;
       }
 
-      const balance = Number(profile?.balance || 0);
-      STATE.available = Math.max(0, balance);
+      const remainingMs = Math.max(0, lockUntilMs - nowMs);
+      STATE.lockRemainingDays = Math.ceil(remainingMs / (1000*60*60*24));
+      STATE.locked = (nowMs < lockUntilMs);
 
-      STATE.locked = (STATE.daysSinceVerify < lockDays);
+      const balance = Number(profile?.balance || 0);
+      STATE.available = STATE.locked ? 0 : Math.max(0, balance);
 
       renderUI();
     }
