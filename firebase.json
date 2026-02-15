@@ -1,19 +1,11 @@
 {
   "hosting": {
     "public": "public",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "cleanUrls": true,
     "rewrites": [
-      { "source": "/login", "destination": "/login.html" },
-      { "source": "/signup", "destination": "/signup.html" },
       { "source": "/dashboard", "destination": "/dashboard.html" },
-      { "source": "/payment", "destination": "/payment.html" },
-      { "source": "/deposit", "destination": "/payment.html" },
-
-      { "source": "**", "destination": "/index.html" }
+      { "source": "/login", "destination": "/login.html" }
     ]
   }
 }

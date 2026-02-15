@@ -34,6 +34,7 @@
       <div class="actions">
         <a class="btn btn-ghost" href="payment.html" id="depositBtn">Deposit</a>
         <button class="btn btn-ghost" id="withdrawBtn" type="button">Withdraw</button>
+        <!-- ✅ Keep ONLY ONE logout button -->
         <button class="btn btn-primary" id="logoutBtn" type="button">Logout</button>
       </div>
     </div>
@@ -190,7 +191,8 @@
 
   <script type="module">
     import { auth, db } from "./js/firebase.js";
-    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import { onAuthStateChanged, signOut }
+      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import {
       doc, getDoc,
       collection, query, where, limit,
@@ -219,14 +221,12 @@
     }
 
     function parsePlanAmountFromAny(x){
-      // accepts: 350, "350", "$350", "Growth $700", "Plan: $1000"
       const s = String(x ?? "").replace(/,/g,"");
       const m = s.match(/(\d{2,6}(\.\d+)?)/);
       return m ? Number(m[1]) : 0;
     }
 
     function displayPlanText(data){
-      // BEST ORDER: numeric plan -> planName -> selectedPlan -> localStorage fallback
       const planNum = Number(data.plan || 0);
       if (planNum > 0) return `Selected Plan: $${planNum}`;
 
@@ -240,7 +240,6 @@
       return "No plan selected";
     }
 
-    // ✅ Today stats (no composite index)
     function startTodayStats(userPlanAmount){
       const todayDepEl = document.getElementById("todayDepositsEl");
       const todayWdEl = document.getElementById("todayWithdrawalsEl");
@@ -256,7 +255,6 @@
       const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
       const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
 
-      // Payments today: filter status in JS
       const qTodayPay = query(
         collection(db, "payments"),
         where("verifiedAt", ">=", start),
@@ -274,7 +272,6 @@
         if (todayDepEl) todayDepEl.textContent = sum.toFixed(2);
       });
 
-      // Withdrawals today: filter status in JS
       const qTodayWd = query(
         collection(db, "withdrawals"),
         where("processedAt", ">=", start),
@@ -293,7 +290,6 @@
       });
     }
 
-    // ✅ Total verified + ticker (no composite index)
     function startRealtimeDeposits(){
       const totalEl = document.getElementById("totalDepositsEl");
       const tickerEl = document.getElementById("liveTicker");
@@ -327,7 +323,6 @@
       });
     }
 
-    // ✅ Live deposits list
     function startLiveDepositList(){
       const box = document.getElementById("liveDepositsBox");
       if (!box) return;
@@ -382,7 +377,6 @@
       });
     }
 
-    // ✅ Payment history (user only)
     function startPaymentHistory(uid){
       const body = document.getElementById("payHistBody");
       if(!body) return;
@@ -429,7 +423,6 @@
       });
     }
 
-    // ✅ Withdrawal history (user only)
     function startWithdrawalHistory(uid){
       const body = document.getElementById("wdHistBody");
       if(!body) return;
@@ -479,9 +472,10 @@
       window.location.href = "withdrawal.html";
     });
 
+    // ✅ single logout handler
     logoutBtn?.addEventListener("click", async () => {
       try { await signOut(auth); } catch (e) {}
-      window.location.href = "login.html";
+      window.location.replace("login.html");
     });
 
     copyRefBtn?.addEventListener("click", async () => {
@@ -503,13 +497,11 @@
 
       emailEl.textContent = user.email || user.uid;
 
-      // global widgets
       startRealtimeDeposits();
       startLiveDepositList();
       startPaymentHistory(user.uid);
       startWithdrawalHistory(user.uid);
 
-      // profile
       try {
         const snap = await getDoc(doc(db, "users", user.uid));
         const data = snap.exists() ? snap.data() : {};
@@ -519,7 +511,6 @@
         if (data.createdAt?.toDate) createdEl.textContent = data.createdAt.toDate().toLocaleString();
         else createdEl.textContent = "—";
 
-        // ✅ This will NEVER break plan display anymore:
         planEl.textContent = displayPlanText(data);
 
         if (data.paymentVerified === true) {
@@ -531,7 +522,6 @@
         if (myRefCodeEl) myRefCodeEl.value = data.referralCode || "";
         if (refEarnEl) refEarnEl.textContent = Number(data.referralEarnings || 0).toFixed(2);
 
-        // VIP + today stats needs numeric plan:
         const numericPlan =
           Number(data.plan || 0) ||
           parsePlanAmountFromAny(data.planName) ||
@@ -552,10 +542,6 @@
     const nav = document.querySelector(".nav");
     if (navToggle && nav) navToggle.addEventListener("click", () => nav.classList.toggle("open"));
   </script>
-<script type="module">
-  import { requireAuth, wireLogout } from "./js/auth-guard.js";
-  requireAuth();
-  wireLogout("logoutBtn");
-</script>
+<script type="module" src="js/dashboard.js"></script>
 </body>
 </html>

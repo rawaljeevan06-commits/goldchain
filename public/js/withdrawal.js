@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  const now = new Date().getTime();
+  const now = Date.now();
   const startDate = new Date(planData.startDate).getTime();
 
   if (!startDate || isNaN(startDate)) {
@@ -21,63 +21,78 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const daysPassed = Math.floor((now - startDate) / (1000 * 60 * 60 * 24));
 
-  let lockDays = 0;
+  // ✅ MAIN RULE: Capital unlocks after 60 days for ALL plans
+  const CAPITAL_DAYS = 60;
+  const capitalUnlocked = daysPassed >= CAPITAL_DAYS;
+
+  // ✅ Plan profit rules (set by me)
+  // - 350/700/1000 profit = 16%
+  // - 5000 profit = 18% (special logic kept)
+  const RULES = {
+    350:  { profitUnlockDays: 45, profitPercent: 0.16 },
+    700:  { profitUnlockDays: 60, profitPercent: 0.16 },
+    1000: { profitUnlockDays: 15, profitPercent: 0.16 },
+  };
+
   let availableBalance = 0;
 
-  switch (planData.amount) {
-    case 350:
-      lockDays = 45;
-      availableBalance = daysPassed >= 45 ? 350 : 0;
-      break;
+  // -------------------------
+  // ✅ $5000 PLAN (special)
+  // - weekly profit after 7 days (4.5% weekly as your code)
+  // - after 60 days: capital + full 18% profit
+  // -------------------------
+  if (planData.amount === 5000) {
+    const weeklyRate = 0.045; // 4.5% weekly
+    const weeksPassed = Math.floor(daysPassed / 7);
+    const totalProfit = planData.amount * weeklyRate * weeksPassed;
 
-    case 700:
-      lockDays = 30;
-      availableBalance = daysPassed >= 30 ? 700 : 0;
-      break;
+    if (capitalUnlocked) {
+      availableBalance = planData.amount + (planData.amount * 0.18);
+      statusEl.textContent = "Capital + full 18% profit unlocked ✅";
+    } else if (daysPassed >= 7) {
+      availableBalance = totalProfit;
+      const remainingCapital = CAPITAL_DAYS - daysPassed;
+      statusEl.textContent = `Weekly profit unlocked ✅ (Capital unlocks in ${remainingCapital} days)`;
+    } else {
+      const remainingProfit = 7 - daysPassed;
+      statusEl.textContent = `Withdrawal locked. Profit available after ${remainingProfit} days.`;
+      availableBalance = 0;
+    }
 
-    case 1000:
-      lockDays = 15;
-      availableBalance = daysPassed >= 15 ? 1000 : 0;
-      break;
-
-    case 5000:
-      // PREMIUM PLAN
-      const weeklyRate = 0.045; // 4.5% weekly
-      const monthlyDays = 30;
-
-      const weeksPassed = Math.floor(daysPassed / 7);
-      const weeklyProfit = planData.amount * weeklyRate;
-
-      const totalProfit = weeklyProfit * weeksPassed;
-
-      if (daysPassed >= monthlyDays) {
-        // After 30 days → capital + profit available
-        availableBalance = planData.amount + (planData.amount * 0.18);
-        statusEl.textContent = "Capital + full 18% profit unlocked ✅";
-      } else if (daysPassed >= 7) {
-        // After 7 days → profit only
-        availableBalance = totalProfit;
-        statusEl.textContent = "Weekly profit unlocked ✅";
-      } else {
-        const remaining = 7 - daysPassed;
-        statusEl.textContent = `Withdrawal locked. Available after ${remaining} days.`;
-        availableBalance = 0;
-      }
-
-      balanceEl.textContent = `$${availableBalance.toFixed(2)}`;
-      return;
-
-    default:
-      statusEl.textContent = "Unknown plan.";
-      return;
+    balanceEl.textContent = `$${availableBalance.toFixed(2)}`;
+    return;
   }
 
-  const daysRemaining = lockDays - daysPassed;
+  // -------------------------
+  // ✅ OTHER PLANS (350/700/1000)
+  // Profit unlock = plan rule days
+  // Capital unlock = always 60 days
+  // -------------------------
+  const rule = RULES[planData.amount];
 
-  if (daysRemaining > 0) {
-    statusEl.textContent = `Withdrawal locked. Available after ${daysRemaining} days.`;
+  if (!rule) {
+    statusEl.textContent = "Unknown plan.";
+    return;
+  }
+
+  const profitUnlocked = daysPassed >= rule.profitUnlockDays;
+
+  const profitAmount = profitUnlocked ? (planData.amount * rule.profitPercent) : 0;
+  const capitalAmount = capitalUnlocked ? planData.amount : 0;
+
+  availableBalance = profitAmount + capitalAmount;
+
+  const remainingCapital = Math.max(0, CAPITAL_DAYS - daysPassed);
+  const remainingProfit = Math.max(0, rule.profitUnlockDays - daysPassed);
+
+  if (capitalUnlocked && profitUnlocked) {
+    statusEl.textContent = "Capital + profit unlocked ✅";
+  } else if (!capitalUnlocked && profitUnlocked) {
+    statusEl.textContent = `Profit unlocked ✅ (Capital unlocks in ${remainingCapital} days)`;
+  } else if (!capitalUnlocked && !profitUnlocked) {
+    statusEl.textContent = `Withdrawal locked. Profit in ${remainingProfit} days, Capital in ${remainingCapital} days.`;
   } else {
-    statusEl.textContent = "Capital unlocked ✅";
+    statusEl.textContent = `Capital unlocked ✅ (Profit unlocks in ${remainingProfit} days)`;
   }
 
   balanceEl.textContent = `$${availableBalance.toFixed(2)}`;

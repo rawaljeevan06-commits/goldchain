@@ -1,0 +1,21 @@
+Withdrawal — Verified users only
+ GoldChain
+Dashboard
+Back Logout
+Request Withdrawal
+Loading…
+Status
+Checking…
+Plan
+—
+—
+Available Balance
+$0.00
+—
+
+Submit request
+
+
+
+Submit Request
+

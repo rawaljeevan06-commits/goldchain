@@ -101,9 +101,9 @@
     function money(n){ return `$${Number(n||0).toFixed(2)}`; }
     function setMsg(t){ msgEl.textContent = t || ""; }
 
-    // ✅ FINAL RULES
+    // ✅ Monthly percent rules
     // 350/700/1000 => 16% monthly
-    // 5000+        => 18% monthly, profit withdraw after 7 days, capital + full 18% after 30 days (B)
+    // 5000+        => 18% monthly
     function monthlyPercentByPlanAmount(planAmount){
       const a = Number(planAmount)||0;
       if (a >= 5000) return 18;
@@ -111,18 +111,23 @@
       return 0;
     }
 
-    // ✅ Lock days by plan (for non-VIP this is capital lock; for VIP this is profit lock)
-        // ✅ Lock days by plan amount (minimum-lock rule)
-    // 5000 => 15 days
-    // 350/700 => 30 days
-    // 1000 => 15 days (adjust if needed)
-    function lockDaysByPlanAmount(planAmount){
+    // ✅ Profit unlock days by plan amount
+    // 5000+ => 15 days
+    // 1000  => 15 days
+    // 700   => 30 days
+    // 350   => 45 days
+    function profitUnlockDaysByPlanAmount(planAmount){
       const a = Number(planAmount)||0;
       if (a >= 5000) return 15;
       if (a >= 1000) return 15;
       if (a >= 700)  return 30;
-      if (a >= 350)  return 30;
+      if (a >= 350)  return 45;
       return null;
+    }
+
+    // ✅ Capital unlock for ALL plans after 30 days
+    function capitalUnlockDays(){
+      return 30;
     }
 
     function tsToDate(x){
@@ -133,8 +138,10 @@
       }catch{ return null; }
     }
 
-    function daysBetween(d1, d2){
-      return Math.floor((d2-d1)/(1000*60*60*24));
+    function fullDaysSince(fromDate, toDate){
+      // counts full days passed (0,1,2,...)
+      const ms = (toDate.getTime() - fromDate.getTime());
+      return Math.max(0, Math.floor(ms / (1000*60*60*24)));
     }
 
     async function getUserProfile(uid){
@@ -143,18 +150,18 @@
       return snap.data();
     }
 
-    async function getLatestVerifiedPayment(user){
-      // ✅ FIX: ensure we get the latest verified payment (not random)
+    async function getVerifiedPayments(user){
       const qv = query(
         collection(db, "payments"),
         where("uid", "==", user.uid),
         where("status", "==", "verified"),
         orderBy("createdAt", "desc"),
-        limit(1)
+        limit(50)
       );
       const snap = await getDocs(qv);
-      if (snap.empty) return null;
-      return { id: snap.docs[0].id, ...snap.docs[0].data() };
+      const out = [];
+      snap.forEach(d => out.push({ id: d.id, ...d.data() }));
+      return out;
     }
 
     async function hasPendingWithdrawal(user){
@@ -168,26 +175,207 @@
       return !snap.empty;
     }
 
-    function resolvePlanAmount(profile, verified){
-      const fromProfile = Number(profile?.planAmount ?? profile?.plan ?? 0);
-      const fromPayment = Number(verified?.planAmount ?? verified?.amount ?? 0);
-      return fromProfile || fromPayment || 0;
+    async function getUserWithdrawals(user){
+      const qx = query(
+        collection(db, "withdrawals"),
+        where("uid", "==", user.uid),
+        limit(300)
+      );
+      const snap = await getDocs(qx);
+      const out = [];
+      snap.forEach(d => out.push({ id: d.id, ...d.data() }));
+      return out;
+    }
+
+    // ✅ DAILY PROFIT ACCRUAL:
+    // dailyProfit = (planAmount * monthlyPercent/100) / 30
+    // accruedProfit = dailyProfit * daysPassed
+    // withdrawableProfit = (if profit unlocked) accruedProfit - alreadyWithdrawnProfit
+    function computeWithdrawableByPayment(payments, withdrawals){
+      const now = new Date();
+
+      // already withdrawn per paymentId + type
+      const withdrawnMap = {}; // { [paymentId]: {profit: n, capital: n} }
+
+      for (const w of (withdrawals || [])){
+        const pid = w.paymentId || w.sourcePaymentId || null;
+        if (!pid) continue;
+
+        const type = (w.withdrawType || "").toLowerCase();
+        const amt = Number(w.amount || 0);
+
+        if (!withdrawnMap[pid]) withdrawnMap[pid] = { profit: 0, capital: 0 };
+
+        if (type === "profit") withdrawnMap[pid].profit += amt;
+        else if (type === "capital") withdrawnMap[pid].capital += amt;
+        // old withdrawal docs without type are ignored (safe)
+      }
+
+      const computed = [];
+
+      for (const p of (payments || [])){
+        const planAmt = Number(p.amount ?? p.planAmount ?? 0);
+        if (!planAmt || planAmt <= 0) continue;
+
+        const verifiedDate =
+          tsToDate(p.verifiedAt || p.createdAt || p.createdAtISO) || null;
+        if (!verifiedDate) continue;
+
+        const pctMonthly = monthlyPercentByPlanAmount(planAmt);
+        const profitUnlockDays = profitUnlockDaysByPlanAmount(planAmt);
+        const capitalUnlock = capitalUnlockDays();
+
+        const daysPassed = fullDaysSince(verifiedDate, now);
+
+        const dailyProfit = ((planAmt * (pctMonthly/100)) / 30);
+        const accruedProfit = dailyProfit * daysPassed; // keeps growing daily
+
+        const profitUnlocked = (profitUnlockDays != null) && (daysPassed >= profitUnlockDays);
+        const capitalUnlocked = (daysPassed >= capitalUnlock);
+
+        const alreadyProfit = withdrawnMap[p.id]?.profit || 0;
+        const alreadyCapital = withdrawnMap[p.id]?.capital || 0;
+
+        const remainingProfit = profitUnlocked
+          ? Math.max(0, accruedProfit - alreadyProfit)
+          : 0;
+
+        const remainingCapital = capitalUnlocked
+          ? Math.max(0, planAmt - alreadyCapital)
+          : 0;
+
+        const profitRemainingDays = (profitUnlockDays == null)
+          ? null
+          : Math.max(0, profitUnlockDays - daysPassed);
+
+        const capitalRemainingDays = Math.max(0, capitalUnlock - daysPassed);
+
+        computed.push({
+          raw: p,
+          paymentId: p.id,
+          planAmt,
+          pctMonthly,
+          verifiedDate,
+          daysPassed,
+
+          dailyProfit,
+          accruedProfit,
+
+          profitUnlocked,
+          capitalUnlocked,
+
+          remainingProfit,
+          remainingCapital,
+
+          profitRemainingDays,
+          capitalRemainingDays
+        });
+      }
+
+      return computed;
+    }
+
+    function pickDisplayPlan(computed){
+      if (!computed || computed.length === 0) return null;
+      const copy = [...computed];
+      copy.sort((a,b) => b.planAmt - a.planAmt);
+      return copy[0];
+    }
+
+    function summarizeLocks(computed){
+      if (!computed || computed.length === 0) return "You must have a verified deposit to withdraw.";
+
+      const totalProfitAvail = computed.reduce((s,x) => s + (x.remainingProfit || 0), 0);
+      const totalCapitalAvail = computed.reduce((s,x) => s + (x.remainingCapital || 0), 0);
+
+      if (totalProfitAvail > 0 || totalCapitalAvail > 0){
+        const parts = [];
+        if (totalProfitAvail > 0) parts.push(`Profit available: ${money(totalProfitAvail)}`);
+        if (totalCapitalAvail > 0) parts.push(`Capital available: ${money(totalCapitalAvail)}`);
+        return parts.join(" • ");
+      }
+
+      // nearest unlock info
+      let minProfit = null;
+      let minCapital = null;
+
+      for (const x of computed){
+        if (!x.profitUnlocked && x.profitRemainingDays != null){
+          minProfit = (minProfit == null) ? x.profitRemainingDays : Math.min(minProfit, x.profitRemainingDays);
+        }
+        if (!x.capitalUnlocked){
+          minCapital = (minCapital == null) ? x.capitalRemainingDays : Math.min(minCapital, x.capitalRemainingDays);
+        }
+      }
+
+      const lines = [];
+      if (minProfit != null) lines.push(`🔒 Profit unlock in ${minProfit} day(s).`);
+      if (minCapital != null) lines.push(`🔒 Capital unlock in ${minCapital} day(s) (30-day rule).`);
+      return lines.join(" ");
+    }
+
+    // Allocate withdrawal amount:
+    // 1) profit first (unlocked + remaining)
+    // 2) then capital (unlocked + remaining)
+    function allocateWithdrawal(computed, amount){
+      let remaining = Number(amount || 0);
+      const allocations = [];
+
+      const profitList = [...computed].filter(x => (x.remainingProfit || 0) > 0);
+      profitList.sort((a,b) => b.planAmt - a.planAmt);
+
+      for (const x of profitList){
+        if (remaining <= 0) break;
+        const take = Math.min(remaining, x.remainingProfit);
+        if (take > 0){
+          allocations.push({
+            paymentId: x.paymentId,
+            withdrawType: "profit",
+            amount: take,
+            sourcePlanAmount: x.planAmt,
+            monthlyPercent: x.pctMonthly,
+            planName: x.raw.planName || ""
+          });
+          remaining -= take;
+        }
+      }
+
+      const capList = [...computed].filter(x => (x.remainingCapital || 0) > 0);
+      capList.sort((a,b) => b.planAmt - a.planAmt);
+
+      for (const x of capList){
+        if (remaining <= 0) break;
+        const take = Math.min(remaining, x.remainingCapital);
+        if (take > 0){
+          allocations.push({
+            paymentId: x.paymentId,
+            withdrawType: "capital",
+            amount: take,
+            sourcePlanAmount: x.planAmt,
+            monthlyPercent: x.pctMonthly,
+            planName: x.raw.planName || ""
+          });
+          remaining -= take;
+        }
+      }
+
+      return { allocations, remaining };
     }
 
     let STATE = {
       user: null,
       profile: null,
-      verified: null,
-      locked: true,
+      payments: [],
+      withdrawals: [],
+      computed: [],
       pending: false,
-      available: 0,
-      planAmount: 0,
-      daysSinceVerify: 0,
-      lockRemainingDays: null
+      available: 0
     };
 
     function renderUI(){
-      if(!STATE.verified){
+      const computed = STATE.computed;
+
+      if (!computed || computed.length === 0){
         statusText.textContent = "⛔ Not verified";
         planText.textContent = "—";
         profitText.textContent = "—";
@@ -197,48 +385,49 @@
         return;
       }
 
-      const planAmt = Number(STATE.planAmount || 0);
-      const pctMonthly = monthlyPercentByPlanAmount(planAmt);
+      const totalProfitAvail = computed.reduce((s,x) => s + (x.remainingProfit || 0), 0);
+      const totalCapitalAvail = computed.reduce((s,x) => s + (x.remainingCapital || 0), 0);
+
+      // Total allowed by rules
+      const byRules = Math.max(0, totalProfitAvail + totalCapitalAvail);
+
+      // Safety cap by users.balance
+      const userBal = Number(STATE.profile?.balance || 0);
+      STATE.available = Math.min(userBal, byRules);
 
       statusText.textContent = "✅ Verified — You can request withdrawal";
-      planText.textContent = `${STATE.verified.planName || "Selected Plan"} ($${planAmt} • ${pctMonthly}% monthly)`;
 
-      const monthlyProfit = (planAmt * pctMonthly) / 100;
-      profitText.textContent = `Estimated monthly profit: ${money(monthlyProfit)} (informational)`;
+      const displayPlan = pickDisplayPlan(computed);
+      if (displayPlan){
+        planText.textContent =
+          `${displayPlan.raw.planName || "Selected Plan"} ($${displayPlan.planAmt} • ${displayPlan.pctMonthly}% monthly)`;
+
+        const pUnlock = displayPlan.profitUnlocked
+          ? "✅ Profit unlocked"
+          : `🔒 Profit unlock in ${displayPlan.profitRemainingDays} day(s)`;
+
+        const cUnlock = displayPlan.capitalUnlocked
+          ? "✅ Capital unlocked"
+          : `🔒 Capital unlock in ${displayPlan.capitalRemainingDays} day(s)`;
+
+        profitText.textContent =
+          `Daily profit: $${displayPlan.dailyProfit.toFixed(2)} • Accrued: $${displayPlan.accruedProfit.toFixed(2)} • ${pUnlock} • ${cUnlock}`;
+      } else {
+        planText.textContent = "—";
+        profitText.textContent = "—";
+      }
 
       availableEl.textContent = money(STATE.available);
 
-      if(STATE.pending){
+      if (STATE.pending){
         lockInfoEl.textContent = "⏳ You already have a pending withdrawal request.";
         submitBtn.disabled = true;
         return;
       }
 
-      if(STATE.locked){
-        if(STATE.lockRemainingDays == null){
-          lockInfoEl.textContent = "🔒 Withdrawal locked.";
-        } else {
-          lockInfoEl.textContent = `🔒 Withdrawal locked. Available after ${STATE.lockRemainingDays} day(s).`;
-        }
-        submitBtn.disabled = true;
-        return;
-      }
+      lockInfoEl.textContent = summarizeLocks(computed);
 
-      lockInfoEl.textContent = "Withdrawal available ✅";
-      submitBtn.disabled = false;
-    }
-
-    async function getActiveDeposits(uid){
-      // Prefer per-deposit locks (new system)
-      const qd = query(
-        collection(db, "users", uid, "deposits"),
-        where("status", "==", "active"),
-        limit(50)
-      );
-      const snap = await getDocs(qd);
-      const out = [];
-      snap.forEach(d => out.push({ id: d.id, ...d.data() }));
-      return out;
+      submitBtn.disabled = (STATE.available <= 0);
     }
 
     async function loadState(){
@@ -250,79 +439,10 @@
 
       STATE.pending = await hasPendingWithdrawal(user);
 
-      const nowMs = Date.now();
+      STATE.payments = await getVerifiedPayments(user);
+      STATE.withdrawals = await getUserWithdrawals(user);
 
-      // 1) Try deposits (per-deposit locks)
-      let deposits = [];
-      try { deposits = await getActiveDeposits(user.uid); } catch(e) { deposits = []; }
-
-      if (deposits.length > 0) {
-        // Use the minimum lockUntil across deposits so a new longer plan never extends older locks
-        let minLockUntilMs = null;
-        for (const d of deposits) {
-          const lu = (typeof d.lockUntilMs === "number") ? d.lockUntilMs : null;
-          if (lu == null) continue;
-          if (minLockUntilMs == null || lu < minLockUntilMs) minLockUntilMs = lu;
-        }
-
-        STATE.verified = deposits[0]; // for display
-        STATE.planAmount = Number(STATE.verified.amount || 0);
-
-        if (minLockUntilMs == null) {
-          STATE.locked = true;
-          STATE.lockRemainingDays = null;
-          STATE.available = 0;
-          renderUI();
-          return;
-        }
-
-        const remainingMs = Math.max(0, minLockUntilMs - nowMs);
-        STATE.lockRemainingDays = Math.ceil(remainingMs / (1000*60*60*24));
-
-        STATE.locked = (nowMs < minLockUntilMs);
-
-        const balance = Number(profile?.balance || 0);
-        STATE.available = STATE.locked ? 0 : Math.max(0, balance);
-
-        renderUI();
-        return;
-      }
-
-      // 2) Fallback: old system (latest verified payment)
-      const verified = await getLatestVerifiedPayment(user);
-      STATE.verified = verified;
-
-      if(!verified){
-        STATE.available = 0;
-        STATE.locked = true;
-        STATE.pending = false;
-        STATE.planAmount = 0;
-        STATE.lockRemainingDays = null;
-        renderUI();
-        return;
-      }
-
-      const planAmt = resolvePlanAmount(profile, verified);
-      STATE.planAmount = planAmt;
-
-      const lockDays = lockDaysByPlanAmount(planAmt);
-      const vAt = tsToDate(verified.verifiedAt || verified.createdAt) || new Date();
-      const lockUntilMs = lockDays ? (vAt.getTime() + lockDays * 24 * 60 * 60 * 1000) : null;
-
-      if (!lockUntilMs) {
-        STATE.available = 0;
-        STATE.locked = true;
-        STATE.lockRemainingDays = null;
-        renderUI();
-        return;
-      }
-
-      const remainingMs = Math.max(0, lockUntilMs - nowMs);
-      STATE.lockRemainingDays = Math.ceil(remainingMs / (1000*60*60*24));
-      STATE.locked = (nowMs < lockUntilMs);
-
-      const balance = Number(profile?.balance || 0);
-      STATE.available = STATE.locked ? 0 : Math.max(0, balance);
+      STATE.computed = computeWithdrawableByPayment(STATE.payments, STATE.withdrawals);
 
       renderUI();
     }
@@ -344,44 +464,46 @@
         return;
       }
 
-      if(amount > STATE.available){
-        setMsg(`❌ Amount exceeds available balance (${money(STATE.available)}).`);
-        return;
-      }
-
       if(STATE.pending){
         setMsg("❌ You already have a pending withdrawal request.");
         return;
       }
 
-      if(STATE.locked){
-        setMsg("❌ Withdrawal is locked by plan rule.");
+      if(amount > STATE.available){
+        setMsg(`❌ Amount exceeds available (${money(STATE.available)}).`);
         return;
       }
 
-      const planAmt = Number(STATE.planAmount || 0);
-      const pctMonthly = monthlyPercentByPlanAmount(planAmt);
+      const { allocations, remaining } = allocateWithdrawal(STATE.computed, amount);
+
+      if (!allocations.length || remaining > 0){
+        setMsg("❌ Not enough unlocked profit/capital based on plan rules.");
+        return;
+      }
 
       submitBtn.disabled = true;
       setMsg("Submitting…");
 
       try{
-        await addDoc(collection(db, "withdrawals"), {
-          uid: STATE.user.uid,
-          email: STATE.user.email || "",
-          wallet,
-          amount,
-          note,
+        for (const a of allocations){
+          await addDoc(collection(db, "withdrawals"), {
+            uid: STATE.user.uid,
+            email: STATE.user.email || "",
+            wallet,
+            amount: Number(a.amount),
 
-          status: "pending",
-          createdAt: serverTimestamp(),
+            // New safe fields
+            paymentId: a.paymentId,
+            withdrawType: a.withdrawType,       // "profit" | "capital"
+            planName: a.planName || "",
+            sourcePlanAmount: Number(a.sourcePlanAmount || 0),
+            monthlyPercent: Number(a.monthlyPercent || 0),
 
-          planName: STATE.verified.planName || "",
-          planAmount: planAmt,
-          monthlyPercent: pctMonthly,
-
-          balanceAtRequest: STATE.available
-        });
+            note,
+            status: "pending",
+            createdAt: serverTimestamp()
+          });
+        }
 
         setMsg("✅ Withdrawal request submitted (pending).");
         await loadState();
